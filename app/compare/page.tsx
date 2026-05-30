@@ -57,7 +57,7 @@ export default function ComparePage() {
     return (
       <div className="min-h-screen bg-[#f8f8f6] flex flex-col items-center justify-center gap-4">
         <p className="text-slate-500">No flashlights selected for comparison.</p>
-        <Link href="/" className="text-amber-600 hover:underline text-sm">← Browse flashlights</Link>
+        <Link href="/" className="text-brand-600 hover:underline text-sm">← Browse flashlights</Link>
       </div>
     )
   }
@@ -68,7 +68,7 @@ export default function ComparePage() {
     <div className="min-h-screen bg-[#f8f8f6]">
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-3">
-          <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch Wiki</Link>
+          <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch EDC.wiki</Link>
           <span className="text-zinc-700">/</span>
           <span className="text-zinc-400 text-sm">Compare</span>
         </div>
@@ -103,10 +103,10 @@ export default function ComparePage() {
                           className="object-contain mx-auto mb-2"
                         />
                       )}
-                      <Link href={`/flashlight/${f.slug}`} className="font-semibold text-slate-900 hover:text-amber-600 block text-xs">
+                      <Link href={`/flashlight/${f.slug}`} className="font-semibold text-slate-900 hover:text-brand-600 block text-xs">
                         {f.brand} {f.model}
                       </Link>
-                      {f.price_usd && <p className="text-amber-600 font-bold">${f.price_usd}</p>}
+                      {f.price_usd && <p className="text-brand-600 font-bold">${f.price_usd}</p>}
                     </div>
                   </th>
                 ))}
@@ -135,7 +135,7 @@ export default function ComparePage() {
                       const numVal = Number(f[row.key as keyof Flashlight])
                       const isBest = hasNumericHighlight && maxVal !== null && numVal === maxVal
                       return (
-                        <td key={f.id} className={`px-4 py-2.5 text-center ${isBest ? 'text-amber-600 font-bold' : 'text-slate-800'}`}>
+                        <td key={f.id} className={`px-4 py-2.5 text-center ${isBest ? 'text-brand-600 font-bold' : 'text-slate-800'}`}>
                           {val == null ? (
                             <span className="text-slate-300">—</span>
                           ) : row.key === 'charging_type' ? (
@@ -155,7 +155,7 @@ export default function ComparePage() {
 
         {colCount < 4 && (
           <div className="mt-4 text-center">
-            <Link href="/" className="text-sm text-amber-600 hover:underline">
+            <Link href="/" className="text-sm text-brand-600 hover:underline">
               + Add more flashlights to compare (max 4)
             </Link>
           </div>

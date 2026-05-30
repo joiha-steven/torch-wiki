@@ -4,7 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Torch Wiki — Flashlight Database',
+  title: 'Torch EDC.wiki — Flashlight Database',
   description: 'Comprehensive flashlight database with specs, reviews, and comparison tools.',
 }
 

@@ -53,8 +53,8 @@ function StepButtons({ steps, value, maxSentinel, onChange }: {
           onClick={() => onChange(s === value ? maxSentinel : s)}
           className={`px-2 py-0.5 rounded text-xs border transition-colors ${
             value === s
-              ? 'bg-amber-500 border-amber-500 text-white'
-              : 'border-slate-200 text-slate-600 hover:border-amber-300'
+              ? 'bg-brand-500 border-brand-500 text-white'
+              : 'border-slate-200 text-slate-600 hover:border-brand-300'
           }`}
         >
           {s >= 1000 ? `${s / 1000}K` : s}
@@ -64,8 +64,8 @@ function StepButtons({ steps, value, maxSentinel, onChange }: {
         onClick={() => onChange(maxSentinel)}
         className={`px-2 py-0.5 rounded text-xs border transition-colors ${
           value === maxSentinel
-            ? 'bg-amber-500 border-amber-500 text-white'
-            : 'border-slate-200 text-slate-600 hover:border-amber-300'
+            ? 'bg-brand-500 border-brand-500 text-white'
+            : 'border-slate-200 text-slate-600 hover:border-brand-300'
         }`}
       >
         Any
@@ -95,7 +95,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
         <select
           value={filters.sortBy}
           onChange={(e) => onChange({ ...filters, sortBy: e.target.value })}
-          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-amber-300"
+          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -113,7 +113,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
                   type="checkbox"
                   checked={filters.brands.includes(brand)}
                   onChange={() => onChange({ ...filters, brands: toggle(filters.brands, brand) })}
-                  className="accent-amber-500"
+                  className="accent-brand-500"
                 />
                 {brand}
               </label>
@@ -124,7 +124,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
 
       <div>
         <p className="text-sm font-semibold text-slate-600 mb-2">
-          Max Lumens {filters.maxLumens < 50000 && <span className="text-amber-600 normal-case font-bold">≤{filters.maxLumens >= 1000 ? `${filters.maxLumens / 1000}K` : filters.maxLumens}</span>}
+          Max Lumens {filters.maxLumens < 50000 && <span className="text-brand-600 normal-case font-bold">≤{filters.maxLumens >= 1000 ? `${filters.maxLumens / 1000}K` : filters.maxLumens}</span>}
         </p>
         <StepButtons
           steps={LUMEN_STEPS}
@@ -136,7 +136,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
 
       <div>
         <p className="text-sm font-semibold text-slate-600 mb-2">
-          Min Price {filters.minPrice > 0 && <span className="text-amber-600 normal-case font-bold">≥${filters.minPrice}</span>}
+          Min Price {filters.minPrice > 0 && <span className="text-brand-600 normal-case font-bold">≥${filters.minPrice}</span>}
         </p>
         <StepButtons
           steps={PRICE_STEPS}
@@ -148,7 +148,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
 
       <div>
         <p className="text-sm font-semibold text-slate-600 mb-2">
-          Max Price {filters.maxPrice < 99999 && <span className="text-amber-600 normal-case font-bold">≤${filters.maxPrice}</span>}
+          Max Price {filters.maxPrice < 99999 && <span className="text-brand-600 normal-case font-bold">≤${filters.maxPrice}</span>}
         </p>
         <StepButtons
           steps={PRICE_STEPS}
@@ -167,7 +167,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
                 type="checkbox"
                 checked={filters.categories.includes(cat)}
                 onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
-                className="accent-amber-500"
+                className="accent-brand-500"
               />
               {cat}
             </label>
@@ -184,7 +184,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
                 type="checkbox"
                 checked={filters.batteryTypes.includes(bt)}
                 onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
-                className="accent-amber-500"
+                className="accent-brand-500"
               />
               {bt}
             </label>
@@ -202,7 +202,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
                   type="checkbox"
                   checked={filters.emitters.includes(emitter)}
                   onChange={() => onChange({ ...filters, emitters: toggle(filters.emitters, emitter) })}
-                  className="accent-amber-500"
+                  className="accent-brand-500"
                 />
                 {emitter}
               </label>
@@ -220,7 +220,7 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
                 type="radio"
                 checked={filters.chargingType === value}
                 onChange={() => onChange({ ...filters, chargingType: value })}
-                className="accent-amber-500"
+                className="accent-brand-500"
               />
               {label}
             </label>

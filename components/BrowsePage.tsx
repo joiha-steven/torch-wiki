@@ -106,22 +106,22 @@ export default function BrowsePage() {
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-4">
           <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>
-            Torch Wiki
+            Torch EDC.wiki
           </Link>
           <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
             <Link href="/" className="text-gray-300 hover:text-white">Browse</Link>
             <Link href="/compare" className="hover:text-white">Compare</Link>
           </nav>
           <div className="ml-auto flex items-center">
-            <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5">
-              <Search size={13} className="text-gray-500 shrink-0" />
+            <div className="flex items-center gap-1 bg-zinc-700 border border-zinc-500 rounded-lg px-3 py-1.5">
+              <Search size={13} className="text-gray-300 shrink-0" />
               <input
                 ref={searchRef}
                 type="text"
                 placeholder="Search..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="bg-transparent text-white text-sm w-36 sm:w-48 focus:outline-none placeholder-gray-600"
+                className="bg-transparent text-white text-sm w-36 sm:w-48 focus:outline-none placeholder-gray-400"
               />
               {filters.search && (
                 <button onClick={() => setFilters({ ...filters, search: '' })}>
@@ -206,7 +206,7 @@ export default function BrowsePage() {
             <button
               onClick={goCompare}
               disabled={compareIds.length < 2}
-              className="bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-white text-sm px-4 py-1.5 rounded-lg font-medium"
+              className="bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white text-sm px-4 py-1.5 rounded-lg font-medium"
             >
               Compare ({compareIds.length})
             </button>

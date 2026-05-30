@@ -44,7 +44,7 @@ export default async function FlashlightPage({ params }: Props) {
     <div className="min-h-screen bg-[#f8f8f6]">
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-3">
-          <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch Wiki</Link>
+          <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch EDC.wiki</Link>
           <span className="text-zinc-700">/</span>
           <span className="text-zinc-400 text-sm truncate">{flashlight.brand} {flashlight.model}</span>
         </div>
@@ -74,15 +74,15 @@ export default async function FlashlightPage({ params }: Props) {
             </div>
 
             {flashlight.category && (
-              <span className="inline-block bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded font-medium mb-3">
+              <span className="inline-block bg-brand-100 text-brand-800 text-xs px-2 py-0.5 rounded font-medium mb-3">
                 {flashlight.category}
               </span>
             )}
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               {flashlight.max_lumens && (
-                <div className="bg-amber-50 rounded-lg p-3">
-                  <div className="flex items-center gap-1 text-amber-600 text-xs mb-0.5"><Zap size={12} /> Max Output</div>
+                <div className="bg-brand-50 rounded-lg p-3">
+                  <div className="flex items-center gap-1 text-brand-600 text-xs mb-0.5"><Zap size={12} /> Max Output</div>
                   <div className="font-bold text-slate-900">{flashlight.max_lumens.toLocaleString()} lm</div>
                 </div>
               )}
@@ -142,15 +142,15 @@ export default async function FlashlightPage({ params }: Props) {
                   rel="noopener noreferrer"
                   className="flex items-start gap-3 px-6 py-4 hover:bg-slate-50 group"
                 >
-                  <div className="mt-0.5 text-slate-400 group-hover:text-amber-500">
+                  <div className="mt-0.5 text-slate-400 group-hover:text-brand-500">
                     {r.type === 'video' ? <Video size={16} /> : <FileText size={16} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 group-hover:text-amber-600">{r.title}</p>
+                    <p className="text-sm font-medium text-slate-900 group-hover:text-brand-600">{r.title}</p>
                     {r.reviewer && <p className="text-xs text-slate-500 mt-0.5">{r.reviewer}</p>}
                     {r.summary && <p className="text-xs text-slate-600 mt-1 leading-relaxed">{r.summary}</p>}
                   </div>
-                  <ExternalLink size={12} className="text-slate-300 group-hover:text-amber-400 mt-1 shrink-0" />
+                  <ExternalLink size={12} className="text-slate-300 group-hover:text-brand-400 mt-1 shrink-0" />
                 </a>
               ))}
             </div>

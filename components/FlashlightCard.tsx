@@ -15,7 +15,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
   const isSelected = compareIds.includes(flashlight.id)
 
   return (
-    <div className={`bg-white rounded-xl border transition-all ${isSelected ? 'border-amber-400 ring-2 ring-amber-200' : 'border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
+    <div className={`bg-white rounded-xl border transition-all ${isSelected ? 'border-brand-400 ring-2 ring-brand-200' : 'border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
       <Link href={`/flashlight/${flashlight.slug}`}>
         <div className="relative h-44 bg-white rounded-t-xl overflow-hidden flex items-center justify-center">
           {flashlight.image_url ? (
@@ -34,7 +34,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
             </span>
           )}
           {flashlight.category && (
-            <span className="absolute top-2 left-2 bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded font-medium">
+            <span className="absolute top-2 left-2 bg-brand-100 text-brand-800 text-xs px-2 py-0.5 rounded font-medium">
               {flashlight.category}
             </span>
           )}
@@ -42,7 +42,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
       </Link>
 
       <div className="p-4">
-        <Link href={`/flashlight/${flashlight.slug}`} className="hover:text-amber-600">
+        <Link href={`/flashlight/${flashlight.slug}`} className="hover:text-brand-600">
           <p className="text-xs text-slate-500 mb-0.5">{flashlight.brand}</p>
           <h3 className="font-semibold text-slate-900 leading-tight">{flashlight.model}</h3>
         </Link>
@@ -50,7 +50,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
         <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
           {flashlight.max_lumens && (
             <div className="flex items-center gap-1">
-              <Zap size={12} className="text-amber-500" />
+              <Zap size={12} className="text-brand-500" />
               <span>{flashlight.max_lumens.toLocaleString()} lm</span>
             </div>
           )}
@@ -80,7 +80,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
               type="checkbox"
               checked={isSelected}
               onChange={() => onToggleCompare(flashlight.id)}
-              className="accent-amber-500"
+              className="accent-brand-500"
             />
             Compare
           </label>
