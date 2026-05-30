@@ -17,7 +17,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
   return (
     <div className={`bg-white rounded-xl border transition-all ${isSelected ? 'border-amber-400 ring-2 ring-amber-200' : 'border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
       <Link href={`/flashlight/${flashlight.slug}`}>
-        <div className="relative h-44 bg-slate-50 rounded-t-xl overflow-hidden flex items-center justify-center">
+        <div className="relative h-44 bg-white rounded-t-xl overflow-hidden flex items-center justify-center">
           {flashlight.image_url ? (
             <Image
               src={flashlight.image_url}

@@ -35,6 +35,7 @@ type Props = {
   filters: FilterState
   onChange: (filters: FilterState) => void
   totalCount: number
+  availableBrands: string[]
 }
 
 function StepButtons({ steps, value, maxSentinel, onChange }: {
@@ -72,11 +73,12 @@ function StepButtons({ steps, value, maxSentinel, onChange }: {
   )
 }
 
-export default function FilterPanel({ filters, onChange, totalCount }: Props) {
+export default function FilterPanel({ filters, onChange, totalCount, availableBrands }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]
 
   const hasActiveFilters =
+    filters.brands.length > 0 ||
     filters.categories.length > 0 ||
     filters.batteryTypes.length > 0 ||
     filters.maxLumens < 50000 ||
@@ -86,7 +88,7 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
   return (
     <aside className="w-56 shrink-0 space-y-5">
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Sort by</p>
+        <p className="text-sm font-semibold text-slate-600 mb-2">Sort by</p>
         <select
           value={filters.sortBy}
           onChange={(e) => onChange({ ...filters, sortBy: e.target.value })}
@@ -98,8 +100,27 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
         </select>
       </div>
 
+      {availableBrands.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-slate-600 mb-2">Brand</p>
+          <div className="space-y-1.5">
+            {availableBrands.map((brand) => (
+              <label key={brand} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.brands.includes(brand)}
+                  onChange={() => onChange({ ...filters, brands: toggle(filters.brands, brand) })}
+                  className="accent-amber-500"
+                />
+                {brand}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+        <p className="text-sm font-semibold text-slate-600 mb-2">
           Max Lumens {filters.maxLumens < 50000 && <span className="text-amber-600 normal-case font-bold">≤{filters.maxLumens >= 1000 ? `${filters.maxLumens / 1000}K` : filters.maxLumens}</span>}
         </p>
         <StepButtons
@@ -111,7 +132,7 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+        <p className="text-sm font-semibold text-slate-600 mb-2">
           Max Price {filters.maxPrice < 99999 && <span className="text-amber-600 normal-case font-bold">≤${filters.maxPrice}</span>}
         </p>
         <StepButtons
@@ -123,7 +144,7 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Category</p>
+        <p className="text-sm font-semibold text-slate-600 mb-2">Category</p>
         <div className="space-y-1.5">
           {CATEGORIES.map((cat) => (
             <label key={cat} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
@@ -140,7 +161,7 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Battery Type</p>
+        <p className="text-sm font-semibold text-slate-600 mb-2">Battery Type</p>
         <div className="space-y-1.5">
           {BATTERY_TYPES.map((bt) => (
             <label key={bt} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
@@ -157,7 +178,7 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Charging</p>
+        <p className="text-sm font-semibold text-slate-600 mb-2">Charging</p>
         <div className="space-y-1.5">
           {CHARGING_OPTIONS.map(({ value, label }) => (
             <label key={label} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
@@ -177,10 +198,11 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
         <button
           onClick={() => onChange({
             ...filters,
+            brands: [],
             categories: [],
             batteryTypes: [],
             maxLumens: 50000,
-            maxPrice: 2000,
+            maxPrice: 99999,
             chargingType: null,
           })}
           className="w-full text-xs text-red-500 hover:text-red-700 py-1"
@@ -190,6 +212,10 @@ export default function FilterPanel({ filters, onChange, totalCount }: Props) {
       )}
 
       <p className="text-xs text-slate-400">{totalCount} results</p>
+
+      <p className="text-xs text-slate-400 leading-relaxed pt-3 border-t border-slate-100">
+        All specs and images belong to their respective brands. Non-commercial, no ads, no profit.
+      </p>
     </aside>
   )
 }

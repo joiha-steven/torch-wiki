@@ -66,11 +66,11 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen bg-[#f8f8f6]">
-      <header className="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
-          <Link href="/" className="text-amber-400 font-bold text-lg">Torch Wiki</Link>
-          <span className="text-slate-600">/</span>
-          <span className="text-slate-300 text-sm">Compare</span>
+      <header className="bg-black sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-3">
+          <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch Wiki</Link>
+          <span className="text-zinc-700">/</span>
+          <span className="text-zinc-400 text-sm">Compare</span>
         </div>
       </header>
 

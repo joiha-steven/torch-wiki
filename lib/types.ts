@@ -44,6 +44,7 @@ export type Review = {
 
 export type FilterState = {
   search: string
+  brands: string[]
   categories: string[]
   batteryTypes: string[]
   minLumens: number
