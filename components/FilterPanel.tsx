@@ -2,7 +2,7 @@
 
 import { FilterState } from '@/lib/types'
 
-const CATEGORIES = ['EDC', 'Tactical', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Work', 'Custom']
+const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Work', 'Custom']
 
 const BATTERY_TYPES = [
   // Single-use / primary
@@ -22,7 +22,7 @@ const SORT_OPTIONS = [
 ]
 
 const LUMEN_STEPS = [100, 300, 500, 800, 1000, 2000, 5000, 10000]
-const PRICE_STEPS = [50, 100, 200, 300, 500, 800, 1000, 2000, 3000]
+const PRICE_STEPS = [50, 100, 200, 300, 500, 800, 1000, 2000, 3000, 5000, 10000]
 
 const CHARGING_OPTIONS = [
   { value: null, label: 'Any' },
@@ -36,6 +36,7 @@ type Props = {
   onChange: (filters: FilterState) => void
   totalCount: number
   availableBrands: string[]
+  availableEmitters: string[]
 }
 
 function StepButtons({ steps, value, maxSentinel, onChange }: {
@@ -73,7 +74,7 @@ function StepButtons({ steps, value, maxSentinel, onChange }: {
   )
 }
 
-export default function FilterPanel({ filters, onChange, totalCount, availableBrands }: Props) {
+export default function FilterPanel({ filters, onChange, totalCount, availableBrands, availableEmitters }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]
 
@@ -81,7 +82,9 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
     filters.brands.length > 0 ||
     filters.categories.length > 0 ||
     filters.batteryTypes.length > 0 ||
+    filters.emitters.length > 0 ||
     filters.maxLumens < 50000 ||
+    filters.minPrice > 0 ||
     filters.maxPrice < 99999 ||
     filters.chargingType !== null
 
@@ -133,6 +136,18 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
 
       <div>
         <p className="text-sm font-semibold text-slate-600 mb-2">
+          Min Price {filters.minPrice > 0 && <span className="text-amber-600 normal-case font-bold">≥${filters.minPrice}</span>}
+        </p>
+        <StepButtons
+          steps={PRICE_STEPS}
+          value={filters.minPrice}
+          maxSentinel={0}
+          onChange={(v) => onChange({ ...filters, minPrice: v })}
+        />
+      </div>
+
+      <div>
+        <p className="text-sm font-semibold text-slate-600 mb-2">
           Max Price {filters.maxPrice < 99999 && <span className="text-amber-600 normal-case font-bold">≤${filters.maxPrice}</span>}
         </p>
         <StepButtons
@@ -177,6 +192,25 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
         </div>
       </div>
 
+      {availableEmitters.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-slate-600 mb-2">LED / Emitter</p>
+          <div className="space-y-1.5">
+            {availableEmitters.map((emitter) => (
+              <label key={emitter} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.emitters.includes(emitter)}
+                  onChange={() => onChange({ ...filters, emitters: toggle(filters.emitters, emitter) })}
+                  className="accent-amber-500"
+                />
+                {emitter}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
         <p className="text-sm font-semibold text-slate-600 mb-2">Charging</p>
         <div className="space-y-1.5">
@@ -201,7 +235,9 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
             brands: [],
             categories: [],
             batteryTypes: [],
+            emitters: [],
             maxLumens: 50000,
+            minPrice: 0,
             maxPrice: 99999,
             chargingType: null,
           })}

@@ -1,3 +1,11 @@
+export type FlashlightImage = {
+  id: string
+  flashlight_id: string
+  url: string
+  sort_order: number
+  created_at: string
+}
+
 export type Flashlight = {
   id: string
   brand: string
@@ -29,6 +37,7 @@ export type Flashlight = {
   created_at: string
   updated_at: string
   reviews?: Review[]
+  flashlight_images?: FlashlightImage[]
 }
 
 export type Review = {
@@ -47,6 +56,7 @@ export type FilterState = {
   brands: string[]
   categories: string[]
   batteryTypes: string[]
+  emitters: string[]
   minLumens: number
   maxLumens: number
   minPrice: number

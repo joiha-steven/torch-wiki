@@ -14,6 +14,7 @@ const DEFAULT_FILTERS: FilterState = {
   brands: [],
   categories: [],
   batteryTypes: [],
+  emitters: [],
   minLumens: 0,
   maxLumens: 50000,
   minPrice: 0,
@@ -50,6 +51,11 @@ export default function BrowsePage() {
     [flashlights]
   )
 
+  const availableEmitters = useMemo(
+    () => [...new Set(flashlights.map((f) => f.emitter).filter(Boolean) as string[])].sort(),
+    [flashlights]
+  )
+
   const filtered = useMemo(() => {
     let list = [...flashlights]
     if (filters.brands.length > 0) list = list.filter((f) => filters.brands.includes(f.brand))
@@ -61,7 +67,9 @@ export default function BrowsePage() {
     }
     if (filters.categories.length > 0) list = list.filter((f) => f.category && filters.categories.includes(f.category))
     if (filters.batteryTypes.length > 0) list = list.filter((f) => f.battery_type && filters.batteryTypes.includes(f.battery_type))
+    if (filters.emitters.length > 0) list = list.filter((f) => f.emitter && filters.emitters.includes(f.emitter))
     if (filters.maxLumens < 50000) list = list.filter((f) => f.max_lumens == null || f.max_lumens <= filters.maxLumens)
+    if (filters.minPrice > 0) list = list.filter((f) => f.price_usd != null && f.price_usd >= filters.minPrice)
     if (filters.maxPrice < 99999) list = list.filter((f) => f.price_usd == null || f.price_usd <= filters.maxPrice)
     if (filters.chargingType !== null) list = list.filter((f) => f.charging_type === filters.chargingType)
 
@@ -133,6 +141,7 @@ export default function BrowsePage() {
             onChange={setFilters}
             totalCount={filtered.length}
             availableBrands={availableBrands}
+            availableEmitters={availableEmitters}
           />
         </div>
 
@@ -182,6 +191,7 @@ export default function BrowsePage() {
               onChange={setFilters}
               totalCount={filtered.length}
               availableBrands={availableBrands}
+              availableEmitters={availableEmitters}
             />
           </div>
         </div>

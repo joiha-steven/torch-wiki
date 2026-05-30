@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { FlashlightImage } from '@/lib/types'
 import { Zap, Target, Battery, Weight, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
+import ImageGallery from './ImageGallery'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -11,7 +12,7 @@ export default async function FlashlightPage({ params }: Props) {
 
   const { data: flashlight } = await supabase
     .from('flashlights')
-    .select('*, reviews(*)')
+    .select('*, reviews(*), flashlight_images(*)')
     .eq('slug', slug)
     .single()
 
@@ -55,19 +56,11 @@ export default async function FlashlightPage({ params }: Props) {
         </Link>
 
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 flex items-center justify-center min-h-64">
-            {flashlight.image_url ? (
-              <Image
-                src={flashlight.image_url}
-                alt={`${flashlight.brand} ${flashlight.model}`}
-                width={400}
-                height={300}
-                className="object-contain max-h-72"
-              />
-            ) : (
-              <div className="text-slate-300 text-sm">No image available</div>
-            )}
-          </div>
+          <ImageGallery
+            primaryUrl={flashlight.image_url}
+            extraImages={(flashlight.flashlight_images ?? [] as FlashlightImage[]).sort((a: FlashlightImage, b: FlashlightImage) => a.sort_order - b.sort_order)}
+            alt={`${flashlight.brand} ${flashlight.model}`}
+          />
 
           <div>
             <div className="flex items-start justify-between gap-2 mb-1">
