@@ -29,7 +29,7 @@ export default async function FlashlightPage({ params }: Props) {
     { label: 'Min Output', value: flashlight.min_lumens ? `${flashlight.min_lumens} lm` : null },
     { label: 'Beam Distance', value: flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m` : null },
     { label: 'Beam Type', value: flashlight.beam_type },
-    { label: 'LED / Emitter', value: flashlight.emitter },
+    { label: 'LED / Emitter', value: flashlight.emitters?.length ? flashlight.emitters.join(' + ') : null },
     { label: 'Battery', value: flashlight.battery_type ? `${flashlight.battery_count ? `${flashlight.battery_count}× ` : ''}${flashlight.battery_type}` : null },
     { label: 'Charging', value: flashlight.charging_type === 'usb' ? 'USB' : flashlight.charging_type === 'magnetic' ? 'Magnetic' : 'None' },
     { label: 'Length', value: flashlight.length_mm ? `${flashlight.length_mm} mm` : null },

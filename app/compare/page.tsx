@@ -16,7 +16,7 @@ const SPEC_ROWS = [
   { label: 'Min Lumens', key: 'min_lumens', format: (v: number) => `${v} lm` },
   { label: 'Beam Distance', key: 'beam_distance_m', format: (v: number) => `${v} m` },
   { label: 'Beam Type', key: 'beam_type' },
-  { label: 'Emitter', key: 'emitter' },
+  { label: 'LED / Emitter', key: 'emitters', format: (v: string[]) => Array.isArray(v) ? v.join(' + ') : v },
   { label: 'Battery Type', key: 'battery_type' },
   { label: 'Battery Count', key: 'battery_count' },
   { label: 'Charging', key: 'charging_type', format: (v: string) => v === 'usb' ? 'USB' : v === 'magnetic' ? 'Magnetic' : 'None' },

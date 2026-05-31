@@ -19,6 +19,7 @@ export type Flashlight = {
   beam_distance_m: number | null
   beam_type: string | null
   emitter: string | null
+  emitters: string[]
   battery_type: string | null
   battery_count: number | null
   has_usb_charging: boolean

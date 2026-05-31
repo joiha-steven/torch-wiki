@@ -33,7 +33,7 @@ function buildQuery(filters: FilterState, from: number, to: number): any {
   if (filters.brands.length > 0) q = q.in('brand', filters.brands)
   if (filters.categories.length > 0) q = q.in('category', filters.categories)
   if (filters.batteryTypes.length > 0) q = q.in('battery_type', filters.batteryTypes)
-  if (filters.emitters.length > 0) q = q.in('emitter', filters.emitters)
+  if (filters.emitters.length > 0) q = q.overlaps('emitters', filters.emitters)
   if (filters.maxLumens < 50000) q = q.lte('max_lumens', filters.maxLumens)
   if (filters.minPrice > 0) q = q.gte('price_usd', filters.minPrice)
   if (filters.maxPrice < 99999) q = q.lte('price_usd', filters.maxPrice)
@@ -76,10 +76,10 @@ export default function BrowsePage() {
     async function loadMeta() {
       const [{ data: b }, { data: e }] = await Promise.all([
         supabase.from('flashlights').select('brand').order('brand'),
-        supabase.from('flashlights').select('emitter').not('emitter', 'is', null).order('emitter'),
+        supabase.rpc('get_distinct_emitters'),
       ])
       setAvailableBrands([...new Set((b ?? []).map((r: { brand: string }) => r.brand))])
-      setAvailableEmitters([...new Set((e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[])])
+      setAvailableEmitters((e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[])
     }
     loadMeta()
   }, [])

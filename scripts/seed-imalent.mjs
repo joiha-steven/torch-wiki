@@ -57,7 +57,7 @@ async function downloadImage(url) {
 }
 
 async function uploadToBlob(buf, ct, blobPath) {
-  const { url } = await put(blobPath, buf, { access: 'public', token: BLOB_TOKEN, contentType: ct })
+  const { url } = await put(blobPath, buf, { access: 'public', token: BLOB_TOKEN, contentType: ct, allowOverwrite: true })
   return url
 }
 
@@ -687,13 +687,26 @@ async function seed() {
     const flashlightId = slugToId[slug]
     if (!flashlightId) { console.warn(`  [warn] slug not found: ${slug}`); continue }
 
+    // Reuse any already-uploaded Blob URLs so we don't re-upload on re-run
+    const { data: existing } = await supabase
+      .from('flashlight_images')
+      .select('sort_order, url')
+      .eq('flashlight_id', flashlightId)
+    const existingBlob = Object.fromEntries(
+      (existing ?? []).filter((r) => isAlreadyBlob(r.url)).map((r) => [r.sort_order, r.url])
+    )
+
     await supabase.from('flashlight_images').delete().eq('flashlight_id', flashlightId)
 
     const rows = []
     for (let i = 0; i < urls.length; i++) {
       const srcUrl = urls[i]
       let finalUrl = srcUrl
-      if (!isAlreadyBlob(srcUrl)) {
+
+      if (existingBlob[i]) {
+        finalUrl = existingBlob[i]
+        console.log(`  [skip extra]  ${slug}/extra-${i}`)
+      } else {
         try {
           const ext = getExt(srcUrl)
           const { buf, ct } = await downloadImage(srcUrl)
