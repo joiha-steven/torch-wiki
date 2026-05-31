@@ -10,7 +10,7 @@ import FlashlightCard from './FlashlightCard'
 import FilterPanel from './FilterPanel'
 import UserMenu from './UserMenu'
 
-const PAGE_SIZE = 24
+const PAGE_SIZE = 32
 
 const DEFAULT_FILTERS: FilterState = {
   search: '',
