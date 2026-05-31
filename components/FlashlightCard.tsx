@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Zap, Target, Battery, DollarSign } from 'lucide-react'
+import { Zap, Target, Battery, DollarSign, Heart, Bookmark } from 'lucide-react'
 import { Flashlight } from '@/lib/types'
+import { useAuth } from '@/lib/auth-context'
 
 type Props = {
   flashlight: Flashlight
@@ -13,6 +14,9 @@ type Props = {
 
 export default function FlashlightCard({ flashlight, compareIds, onToggleCompare }: Props) {
   const isSelected = compareIds.includes(flashlight.id)
+  const { wishlistIds, collectionIds, toggleWishlist, toggleCollection } = useAuth()
+  const inWishlist = wishlistIds.has(flashlight.id)
+  const inCollection = collectionIds.has(flashlight.id)
 
   return (
     <div className={`bg-white rounded-xl border transition-all ${isSelected ? 'border-brand-400 ring-2 ring-brand-200' : 'border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
@@ -74,7 +78,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
           )}
         </div>
 
-        <div className="mt-3">
+        <div className="mt-3 flex items-center justify-between">
           <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-500 select-none">
             <input
               type="checkbox"
@@ -84,6 +88,30 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
             />
             Compare
           </label>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => { e.preventDefault(); toggleWishlist(flashlight.id) }}
+              title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              className="p-1 rounded hover:bg-slate-100 transition-colors"
+            >
+              <Heart
+                size={14}
+                className={inWishlist ? 'text-red-500' : 'text-slate-300 hover:text-red-400'}
+                fill={inWishlist ? 'currentColor' : 'none'}
+              />
+            </button>
+            <button
+              onClick={(e) => { e.preventDefault(); toggleCollection(flashlight.id) }}
+              title={inCollection ? 'Remove from collection' : 'Add to collection'}
+              className="p-1 rounded hover:bg-slate-100 transition-colors"
+            >
+              <Bookmark
+                size={14}
+                className={inCollection ? 'text-brand-500' : 'text-slate-300 hover:text-brand-400'}
+                fill={inCollection ? 'currentColor' : 'none'}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

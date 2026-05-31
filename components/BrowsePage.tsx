@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
 import FlashlightCard from './FlashlightCard'
 import FilterPanel from './FilterPanel'
+import UserMenu from './UserMenu'
 
 const DEFAULT_FILTERS: FilterState = {
   search: '',
@@ -112,7 +113,7 @@ export default function BrowsePage() {
             <Link href="/" className="text-gray-300 hover:text-white">Browse</Link>
             <Link href="/compare" className="hover:text-white">Compare</Link>
           </nav>
-          <div className="ml-auto flex items-center">
+          <div className="ml-auto flex items-center gap-3">
             <div className="flex items-center gap-1 bg-zinc-700 border border-zinc-500 rounded-lg px-3 py-1.5">
               <Search size={13} className="text-gray-300 shrink-0" />
               <input
@@ -129,6 +130,7 @@ export default function BrowsePage() {
                 </button>
               )}
             </div>
+            <UserMenu />
           </div>
         </div>
       </header>

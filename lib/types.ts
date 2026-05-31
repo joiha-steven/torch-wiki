@@ -51,6 +51,27 @@ export type Review = {
   created_at: string
 }
 
+export type CollectionItem = {
+  id: string
+  user_id: string
+  flashlight_id: string
+  created_at: string
+  purchase_price: number | null
+  material: string | null
+  color: string | null
+  purchase_date: string | null
+  quantity: number
+  flashlights: Flashlight
+}
+
+export type WishlistItem = {
+  id: string
+  user_id: string
+  flashlight_id: string
+  created_at: string
+  flashlights: Flashlight
+}
+
 export type FilterState = {
   search: string
   brands: string[]

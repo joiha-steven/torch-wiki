@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
 import { Check, X, ChevronLeft } from 'lucide-react'
+import UserMenu from '@/components/UserMenu'
 
 const SPEC_ROWS = [
   { label: 'Brand', key: 'brand' },
@@ -71,6 +72,9 @@ export default function ComparePage() {
           <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch EDC.wiki</Link>
           <span className="text-zinc-700">/</span>
           <span className="text-zinc-400 text-sm">Compare</span>
+          <div className="ml-auto">
+            <UserMenu />
+          </div>
         </div>
       </header>
 

@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase'
 import { FlashlightImage } from '@/lib/types'
 import { Zap, Target, Battery, Weight, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
 import ImageGallery from './ImageGallery'
+import WishlistButtons from './WishlistButtons'
+import UserMenu from '@/components/UserMenu'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -47,6 +49,9 @@ export default async function FlashlightPage({ params }: Props) {
           <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>Torch EDC.wiki</Link>
           <span className="text-zinc-700">/</span>
           <span className="text-zinc-400 text-sm truncate">{flashlight.brand} {flashlight.model}</span>
+          <div className="ml-auto">
+            <UserMenu />
+          </div>
         </div>
       </header>
 
@@ -109,6 +114,8 @@ export default async function FlashlightPage({ params }: Props) {
             {flashlight.price_usd && (
               <div className="text-xl font-bold text-slate-900">${flashlight.price_usd}</div>
             )}
+
+            <WishlistButtons flashlightId={flashlight.id} />
           </div>
         </div>
 
