@@ -15,7 +15,7 @@ Flashlight database web app. Live at **https://torch.edc.wiki**.
 
 ## Environment Variables
 
-In `.env.local` (never commit this file):
+In `.env.local` (never commit this file — no real values here):
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://nssuhfyymlgkkclmtlhg.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
@@ -24,25 +24,50 @@ BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
 BLOB_STORE_ID=store_73qdbLjAtmX1zWRW
 ```
 
-**After `vercel env pull`:** re-add the two Supabase keys manually — Vercel pull overwrites `.env.local` with only Blob + OIDC tokens.
+**After `vercel env pull`:** re-add the two Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
 
 ## Database Schema (Supabase)
 
 Key tables:
 - `flashlights` — main product table. RLS disabled (public read). Key columns:
-  - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter`, `battery_type`, `battery_count`, `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
+  - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter` (text), `emitters` (text[]), `battery_type`, `battery_count`, `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
   - content: `image_url` (Vercel Blob URL), `slug`, `notes`, `manual_url`, `description`, `is_discontinued`
 - `flashlight_images` — extra images per flashlight (`url`, `sort_order`)
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`)
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
 
+**Note on emitters:** `emitter` (text) stores the raw/legacy value. `emitters` (text[]) is the canonical array — always use this for filtering and display. Multi-LED flashlights have multiple entries e.g. `{Cree XHP70.2, Luminus SBT90.3}`.
+
+**Database indexes** (run once if missing):
+```sql
+create index if not exists idx_flashlights_brand on flashlights(brand);
+create index if not exists idx_flashlights_category on flashlights(category);
+create index if not exists idx_flashlights_battery_type on flashlights(battery_type);
+create index if not exists idx_flashlights_charging_type on flashlights(charging_type);
+create index if not exists idx_flashlights_max_lumens on flashlights(max_lumens);
+create index if not exists idx_flashlights_price_usd on flashlights(price_usd);
+create index if not exists idx_flashlights_beam_distance on flashlights(beam_distance_m);
+create index if not exists idx_flashlights_weight on flashlights(weight_g);
+```
+
+**RPC function** (run once if missing):
+```sql
+CREATE OR REPLACE FUNCTION get_distinct_emitters()
+RETURNS TABLE(emitter text) LANGUAGE SQL AS $$
+  SELECT DISTINCT unnest(emitters) AS emitter
+  FROM flashlights
+  WHERE cardinality(emitters) > 0
+  ORDER BY emitter;
+$$;
+```
+
 ## Auth Flow
 
 - Sign in / Sign up via `AuthModal` (email + password)
 - Forgot password → `supabase.auth.resetPasswordForEmail()` → email link → `/reset-password`
 - Change password (logged in) → `/change-password` — re-authenticates with current password first
-- `UserMenu` shows "My Collection" text: white when logged out, brand yellow when logged in
+- `UserMenu` shows "My Collection": `My` white / `Collection` brand yellow when logged in; all white when logged out
 
 ## Image Workflow
 
@@ -60,7 +85,7 @@ node scripts/migrate-to-vercel-blob.mjs
 
 Script skips images already on Vercel Blob — safe to re-run anytime.
 
-**CDN hotlink protection:** some brands (e.g. Weltool) require `Referer` header. The migrate script handles this via `refererMap` — add new entries there if a new brand's CDN blocks downloads.
+**CDN hotlink protection:** some brands (e.g. Weltool) require a `Referer` header. The migrate script handles this via `refererMap` in the download function — add new entries there if a brand's CDN blocks downloads.
 
 ### Scripts reference
 
@@ -80,7 +105,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `components/Providers.tsx` | Client wrapper for AuthProvider + AuthModal — used in `app/layout.tsx` |
 | `components/AuthModal.tsx` | Sign in / Sign up / Forgot password modal |
 | `components/UserMenu.tsx` | Header "My Collection" button — dropdown with My Lists, Change Password, Sign out |
-| `components/BrowsePage.tsx` | Main browse page — filter, sort, compare, search |
+| `components/BrowsePage.tsx` | Main browse page — server-side filter/sort, pagination (32/page), compare, search |
 | `components/FilterPanel.tsx` | Sidebar filters — brand, lumens, price, category, battery, LED, charging |
 | `components/FlashlightCard.tsx` | Grid card — image, key specs, compare checkbox, wishlist/collection buttons |
 | `components/CollectionEditModal.tsx` | Edit collection metadata (price, qty, date, material, color) |
@@ -133,8 +158,9 @@ Sections in order:
 Push to `main` → Vercel auto-deploys to `https://torch.edc.wiki`.
 
 Git remote: `https://TOKEN@github.com/joiha-steven/torch-wiki.git`
+(Replace TOKEN with a fresh GitHub Personal Access Token — never commit the token)
 
-Git author: `hung.tran@joiha.com`
+Git author:
 ```bash
 git config user.name "Hung Tran"
 git config user.email "hung.tran@joiha.com"

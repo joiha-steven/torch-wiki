@@ -4,7 +4,7 @@ A community reference database for flashlight collectors and enthusiasts. Built 
 
 No ads. No fees. No profit.
 
-**Live site:** [torch.edc.wiki](https://torch.edc.wiki)
+**Live site:** [torch.edc.wiki](https://torch.edc.wiki) — **GitHub:** [joiha-steven/torch-wiki](https://github.com/joiha-steven/torch-wiki)
 
 ---
 
@@ -17,13 +17,15 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 ## Features
 
 - **Flashlight database** — specs sourced from manufacturers: lumens, beam distance, emitter, battery type, dimensions, weight, IP rating, charging type, and more
-- **Filter & sort** — narrow down by brand, category, battery type, LED, max lumens, price range, and charging method
+- **Filter & sort** — narrow down by brand, category, battery type, LED/emitter, max lumens, price range, and charging method
 - **Compare** — select up to 4 flashlights and compare specs side by side
-- **Detail pages** — full spec sheet per model, image gallery, and linked reviews (articles & videos)
+- **Detail pages** — full spec sheet per model, image gallery, notes, linked reviews (articles & videos), user manual
 - **Wishlist** — save flashlights you want (requires free account)
 - **Collection** — track flashlights you own, with purchase price, date, material variant, and quantity
 - **My Lists** — personal dashboard with wishlist and collection tabs, grid/list view toggle
+- **Account** — sign up, sign in, forgot password (email reset link), change password
 - **Mobile friendly** — responsive layout with filter drawer on small screens
+- **Fast** — server-side filtering and pagination, loads 32 items at a time
 
 ---
 
@@ -44,7 +46,7 @@ cd torch-wiki
 npm install
 ```
 
-Create `.env.local`:
+Create `.env.local` (get values from Supabase + Vercel dashboards):
 ```
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
@@ -52,8 +54,23 @@ SUPABASE_SERVICE_ROLE_KEY=...
 BLOB_READ_WRITE_TOKEN=...
 ```
 
+Or pull env vars from Vercel CLI (then add Supabase keys manually):
+```bash
+npx vercel env pull .env.local
+```
+
 ```bash
 npm run dev
+```
+
+---
+
+## Adding flashlights
+
+1. Insert data via Supabase Table Editor or SQL
+2. Run image migration to host images on Vercel Blob:
+```bash
+node scripts/migrate-to-vercel-blob.mjs
 ```
 
 ---
