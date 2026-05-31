@@ -33,6 +33,8 @@ export type Flashlight = {
   category: string | null
   image_url: string | null
   description: string | null
+  notes: string | null
+  manual_url: string | null
   is_discontinued: boolean
   created_at: string
   updated_at: string

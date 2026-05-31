@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { FlashlightImage } from '@/lib/types'
-import { Zap, Target, Battery, Weight, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
+import { Zap, Target, Battery, Weight, ExternalLink, Video, FileText, ChevronLeft, BookOpen } from 'lucide-react'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import UserMenu from '@/components/UserMenu'
@@ -119,9 +119,15 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="mt-8 bg-white rounded-xl border border-slate-200 overflow-hidden">
+        {flashlight.notes && (
+          <div className="mt-8 bg-white rounded-xl border border-slate-200 px-6 py-5">
+            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{flashlight.notes}</p>
+          </div>
+        )}
+
+        <div className="mt-6 bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100">
-            <h2 className="font-semibold text-slate-900">Full Specifications</h2>
+            <h2 className="font-semibold text-slate-900">Specifications</h2>
           </div>
           <table className="w-full text-sm">
             <tbody>
@@ -161,6 +167,23 @@ export default async function FlashlightPage({ params }: Props) {
                 </a>
               ))}
             </div>
+          </div>
+        )}
+        {flashlight.manual_url && (
+          <div className="mt-6 bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h2 className="font-semibold text-slate-900">User Manual</h2>
+            </div>
+            <a
+              href={flashlight.manual_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-6 py-4 hover:bg-slate-50 group"
+            >
+              <BookOpen size={16} className="text-slate-400 group-hover:text-brand-500 shrink-0" />
+              <span className="text-sm text-slate-700 group-hover:text-brand-600 flex-1">Download User Manual</span>
+              <ExternalLink size={12} className="text-slate-300 group-hover:text-brand-400 shrink-0" />
+            </a>
           </div>
         )}
       </div>
