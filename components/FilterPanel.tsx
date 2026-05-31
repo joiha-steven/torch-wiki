@@ -34,7 +34,6 @@ const CHARGING_OPTIONS = [
 type Props = {
   filters: FilterState
   onChange: (filters: FilterState) => void
-  totalCount: number
   availableBrands: string[]
   availableEmitters: string[]
 }
@@ -74,7 +73,7 @@ function StepButtons({ steps, value, maxSentinel, onChange }: {
   )
 }
 
-export default function FilterPanel({ filters, onChange, totalCount, availableBrands, availableEmitters }: Props) {
+export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]
 
@@ -246,8 +245,6 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
           Clear all filters
         </button>
       )}
-
-      <p className="text-xs text-slate-400">{totalCount} results</p>
 
       <p className="text-xs text-slate-400 leading-relaxed pt-3 border-t border-slate-100">
         All specs and images belong to their respective brands. Non-commercial, no ads, no profit.{' '}

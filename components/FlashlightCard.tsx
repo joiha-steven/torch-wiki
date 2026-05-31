@@ -20,7 +20,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
 
   return (
     <div className={`bg-white rounded-xl border transition-all ${isSelected ? 'border-brand-400 ring-2 ring-brand-200' : 'border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
-      <Link href={`/flashlight/${flashlight.slug}`}>
+      <Link href={`/${flashlight.slug}`}>
         <div className="relative h-44 bg-white rounded-t-xl overflow-hidden flex items-center justify-center">
           {flashlight.image_url ? (
             <Image
@@ -46,7 +46,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
       </Link>
 
       <div className="p-4">
-        <Link href={`/flashlight/${flashlight.slug}`} className="hover:text-brand-600">
+        <Link href={`/${flashlight.slug}`} className="hover:text-brand-600">
           <p className="text-xs text-slate-500 mb-0.5">{flashlight.brand}</p>
           <h3 className="font-semibold text-slate-900 leading-tight">{flashlight.model}</h3>
         </Link>

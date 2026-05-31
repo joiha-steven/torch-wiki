@@ -56,7 +56,7 @@ export default function ComparePage() {
 
   if (flashlights.length === 0) {
     return (
-      <div className="min-h-screen bg-[#f8f8f6] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-4">
         <p className="text-slate-500">No flashlights selected for comparison.</p>
         <Link href="/" className="text-brand-600 hover:underline text-sm">← Browse flashlights</Link>
       </div>
@@ -66,8 +66,8 @@ export default function ComparePage() {
   const colCount = flashlights.length
 
   return (
-    <div className="min-h-screen bg-[#f8f8f6]">
-      <Header breadcrumb="Compare" />
+    <div className="min-h-screen bg-gray-100">
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
@@ -98,7 +98,7 @@ export default function ComparePage() {
                           className="object-contain mx-auto mb-2"
                         />
                       )}
-                      <Link href={`/flashlight/${f.slug}`} className="font-semibold text-slate-900 hover:text-brand-600 block text-xs">
+                      <Link href={`/${f.slug}`} className="font-semibold text-slate-900 hover:text-brand-600 block text-xs">
                         {f.brand} {f.model}
                       </Link>
                       {f.price_usd && <p className="text-brand-600 font-bold">${f.price_usd}</p>}

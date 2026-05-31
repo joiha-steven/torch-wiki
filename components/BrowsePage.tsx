@@ -127,9 +127,9 @@ export default function BrowsePage() {
   const hasMore = items.length < totalCount
 
   return (
-    <div className="min-h-screen bg-[#f8f8f6]">
+    <div className="min-h-screen bg-gray-100">
       <header className="bg-black sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-6">
           <Link href="/" className="font-bold text-base shrink-0">
             <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
           </Link>
@@ -165,7 +165,6 @@ export default function BrowsePage() {
           <FilterPanel
             filters={filters}
             onChange={setFilters}
-            totalCount={totalCount}
             availableBrands={availableBrands}
             availableEmitters={availableEmitters}
           />
@@ -232,7 +231,6 @@ export default function BrowsePage() {
             <FilterPanel
               filters={filters}
               onChange={setFilters}
-              totalCount={totalCount}
               availableBrands={availableBrands}
               availableEmitters={availableEmitters}
             />
@@ -241,17 +239,19 @@ export default function BrowsePage() {
       )}
 
       {compareIds.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 px-4 py-3 flex items-center justify-between z-40">
-          <span className="text-white text-sm">{compareIds.length} selected</span>
-          <div className="flex gap-3">
-            <button onClick={() => { setCompareIds([]); localStorage.removeItem('compareIds') }} className="text-slate-400 hover:text-white text-sm">Clear</button>
-            <button
-              onClick={() => { localStorage.setItem('compareIds', JSON.stringify(compareIds)); router.push('/compare') }}
-              disabled={compareIds.length < 2}
-              className="bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white text-sm px-4 py-1.5 rounded-lg font-medium"
-            >
-              Compare ({compareIds.length})
-            </button>
+        <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-zinc-800 z-40">
+          <div className="w-full max-w-7xl mx-auto px-4 h-11 flex items-center justify-between">
+            <span className="text-gray-400 text-sm">{compareIds.length} selected</span>
+            <div className="flex items-center gap-4">
+              <button onClick={() => { setCompareIds([]); localStorage.removeItem('compareIds') }} className="text-gray-500 hover:text-white text-xs">Clear</button>
+              <button
+                onClick={() => { localStorage.setItem('compareIds', JSON.stringify(compareIds)); router.push('/compare') }}
+                disabled={compareIds.length < 2}
+                className="bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-black text-xs px-3.5 py-1.5 rounded font-medium"
+              >
+                Compare ({compareIds.length})
+              </button>
+            </div>
           </div>
         </div>
       )}

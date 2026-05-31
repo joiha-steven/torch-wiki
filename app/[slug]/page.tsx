@@ -43,8 +43,8 @@ export default async function FlashlightPage({ params }: Props) {
   ].filter((s) => s.value != null)
 
   return (
-    <div className="min-h-screen bg-[#f8f8f6]">
-      <Header breadcrumb={`${flashlight.brand} ${flashlight.model}`} />
+    <div className="min-h-screen bg-gray-100">
+      <Header />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">

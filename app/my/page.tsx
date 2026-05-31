@@ -53,8 +53,8 @@ export default function MyListsPage() {
   }, 0)
 
   return (
-    <div className="min-h-screen bg-[#f8f8f6]">
-      <Header breadcrumb="My Lists" />
+    <div className="min-h-screen bg-gray-100">
+      <Header />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
@@ -202,7 +202,7 @@ function WishlistCard({ item }: { item: WishlistItem }) {
   const f = item.flashlights
   return (
     <Link
-      href={`/flashlight/${f.slug}`}
+      href={`/${f.slug}`}
       className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all overflow-hidden"
     >
       <div className="relative h-36 bg-white flex items-center justify-center">
@@ -225,7 +225,7 @@ function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => 
   const f = item.flashlights
   return (
     <div className="group relative bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all overflow-hidden">
-      <Link href={`/flashlight/${f.slug}`}>
+      <Link href={`/${f.slug}`}>
         <div className="relative h-36 bg-white flex items-center justify-center">
           {f.image_url ? (
             <Image src={f.image_url} alt={`${f.brand} ${f.model}`} fill className="object-contain p-3" />
@@ -290,7 +290,7 @@ function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => v
       </div>
 
       <div className="w-36 shrink-0 min-w-0">
-        <Link href={`/flashlight/${f.slug}`} className="hover:text-brand-600 block">
+        <Link href={`/${f.slug}`} className="hover:text-brand-600 block">
           <p className="text-[10px] text-slate-400">{f.brand}</p>
           <p className="text-sm font-semibold text-slate-900 truncate leading-tight">{f.model}</p>
         </Link>
