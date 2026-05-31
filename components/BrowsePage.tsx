@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import Link from 'next/link'
@@ -9,6 +9,8 @@ import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
 import FlashlightCard from './FlashlightCard'
 import FilterPanel from './FilterPanel'
 import UserMenu from './UserMenu'
+
+const PAGE_SIZE = 24
 
 const DEFAULT_FILTERS: FilterState = {
   search: '',
@@ -24,86 +26,108 @@ const DEFAULT_FILTERS: FilterState = {
   sortBy: 'model_asc',
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildQuery(filters: FilterState, from: number, to: number): any {
+  let q = supabase.from('flashlights').select('*', { count: 'exact' })
+
+  if (filters.brands.length > 0) q = q.in('brand', filters.brands)
+  if (filters.categories.length > 0) q = q.in('category', filters.categories)
+  if (filters.batteryTypes.length > 0) q = q.in('battery_type', filters.batteryTypes)
+  if (filters.emitters.length > 0) q = q.in('emitter', filters.emitters)
+  if (filters.maxLumens < 50000) q = q.lte('max_lumens', filters.maxLumens)
+  if (filters.minPrice > 0) q = q.gte('price_usd', filters.minPrice)
+  if (filters.maxPrice < 99999) q = q.lte('price_usd', filters.maxPrice)
+  if (filters.chargingType !== null) q = q.eq('charging_type', filters.chargingType)
+  if (filters.search.trim()) {
+    const s = filters.search.trim()
+    q = q.or(`model.ilike.%${s}%,brand.ilike.%${s}%`)
+  }
+
+  switch (filters.sortBy) {
+    case 'lumens_desc': q = q.order('max_lumens', { ascending: false, nullsFirst: false }); break
+    case 'lumens_asc':  q = q.order('max_lumens', { ascending: true,  nullsFirst: false }); break
+    case 'price_asc':   q = q.order('price_usd',  { ascending: true,  nullsFirst: false }); break
+    case 'price_desc':  q = q.order('price_usd',  { ascending: false, nullsFirst: false }); break
+    case 'throw_desc':  q = q.order('beam_distance_m', { ascending: false, nullsFirst: false }); break
+    case 'weight_asc':  q = q.order('weight_g',   { ascending: true,  nullsFirst: false }); break
+    default:            q = q.order('model', { ascending: true })
+  }
+
+  return q.range(from, to)
+}
+
 export default function BrowsePage() {
   const router = useRouter()
-  const [flashlights, setFlashlights] = useState<FlashlightType[]>([])
+  const [items, setItems] = useState<FlashlightType[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(0)
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
+  const [availableBrands, setAvailableBrands] = useState<string[]>([])
+  const [availableEmitters, setAvailableEmitters] = useState<string[]>([])
+  const fetchId = useRef(0)
   const searchRef = useRef<HTMLInputElement>(null)
 
+  // Load brand + emitter lists once
+  useEffect(() => {
+    async function loadMeta() {
+      const [{ data: b }, { data: e }] = await Promise.all([
+        supabase.from('flashlights').select('brand').order('brand'),
+        supabase.from('flashlights').select('emitter').not('emitter', 'is', null).order('emitter'),
+      ])
+      setAvailableBrands([...new Set((b ?? []).map((r: { brand: string }) => r.brand))])
+      setAvailableEmitters([...new Set((e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[])])
+    }
+    loadMeta()
+  }, [])
+
+  // Load compare IDs
   useEffect(() => {
     const stored = localStorage.getItem('compareIds')
     if (stored) setCompareIds(JSON.parse(stored))
   }, [])
 
+  // Fetch on filter change — debounce search by 300ms
   useEffect(() => {
-    async function fetchData() {
-      const { data } = await supabase.from('flashlights').select('*').order('model')
-      setFlashlights(data ?? [])
+    const id = ++fetchId.current
+    const delay = filters.search ? 300 : 0
+    const timer = setTimeout(async () => {
+      setLoading(true)
+      setPage(0)
+      const { data, count } = await buildQuery(filters, 0, PAGE_SIZE - 1)
+      if (fetchId.current !== id) return
+      setItems(data ?? [])
+      setTotalCount(count ?? 0)
       setLoading(false)
-    }
-    fetchData()
-  }, [])
+    }, delay)
+    return () => clearTimeout(timer)
+  }, [filters])
 
-  const availableBrands = useMemo(
-    () => [...new Set(flashlights.map((f) => f.brand))].sort(),
-    [flashlights]
-  )
-
-  const availableEmitters = useMemo(
-    () => [...new Set(flashlights.map((f) => f.emitter).filter(Boolean) as string[])].sort(),
-    [flashlights]
-  )
-
-  const filtered = useMemo(() => {
-    let list = [...flashlights]
-    if (filters.brands.length > 0) list = list.filter((f) => filters.brands.includes(f.brand))
-    if (filters.search) {
-      const q = filters.search.toLowerCase()
-      list = list.filter((f) =>
-        f.model.toLowerCase().includes(q) || f.brand.toLowerCase().includes(q)
-      )
-    }
-    if (filters.categories.length > 0) list = list.filter((f) => f.category && filters.categories.includes(f.category))
-    if (filters.batteryTypes.length > 0) list = list.filter((f) => f.battery_type && filters.batteryTypes.includes(f.battery_type))
-    if (filters.emitters.length > 0) list = list.filter((f) => f.emitter && filters.emitters.includes(f.emitter))
-    if (filters.maxLumens < 50000) list = list.filter((f) => f.max_lumens == null || f.max_lumens <= filters.maxLumens)
-    if (filters.minPrice > 0) list = list.filter((f) => f.price_usd != null && f.price_usd >= filters.minPrice)
-    if (filters.maxPrice < 99999) list = list.filter((f) => f.price_usd == null || f.price_usd <= filters.maxPrice)
-    if (filters.chargingType !== null) list = list.filter((f) => f.charging_type === filters.chargingType)
-
-    list.sort((a, b) => {
-      switch (filters.sortBy) {
-        case 'lumens_desc': return (b.max_lumens ?? 0) - (a.max_lumens ?? 0)
-        case 'lumens_asc': return (a.max_lumens ?? 0) - (b.max_lumens ?? 0)
-        case 'price_asc': return (a.price_usd ?? 9999) - (b.price_usd ?? 9999)
-        case 'price_desc': return (b.price_usd ?? 0) - (a.price_usd ?? 0)
-        case 'throw_desc': return (b.beam_distance_m ?? 0) - (a.beam_distance_m ?? 0)
-        case 'weight_asc': return (a.weight_g ?? 9999) - (b.weight_g ?? 9999)
-        default: return a.model.localeCompare(b.model)
-      }
-    })
-    return list
-  }, [flashlights, filters])
+  async function loadMore() {
+    const next = page + 1
+    setLoadingMore(true)
+    const from = next * PAGE_SIZE
+    const { data } = await buildQuery(filters, from, from + PAGE_SIZE - 1)
+    setItems(prev => [...prev, ...(data ?? [])])
+    setPage(next)
+    setLoadingMore(false)
+  }
 
   const toggleCompare = (id: string) => {
-    setCompareIds((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : prev.length < 4 ? [...prev, id] : prev
+    setCompareIds(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 4 ? [...prev, id] : prev
       localStorage.setItem('compareIds', JSON.stringify(next))
       return next
     })
   }
 
-  const goCompare = () => {
-    localStorage.setItem('compareIds', JSON.stringify(compareIds))
-    router.push('/compare')
-  }
+  const hasMore = items.length < totalCount
 
   return (
     <div className="min-h-screen bg-[#f8f8f6]">
-      {/* Header */}
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-4">
           <Link href="/" className="font-bold text-base shrink-0">
@@ -136,21 +160,19 @@ export default function BrowsePage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-5 flex gap-6">
-        {/* Desktop filter sidebar */}
         <div className="hidden md:block">
           <FilterPanel
             filters={filters}
             onChange={setFilters}
-            totalCount={filtered.length}
+            totalCount={totalCount}
             availableBrands={availableBrands}
             availableEmitters={availableEmitters}
           />
         </div>
 
         <main className="flex-1 min-w-0">
-          {/* Mobile top bar */}
           <div className="flex items-center justify-between mb-4 md:hidden">
-            <span className="text-sm text-slate-500">{filtered.length} results</span>
+            <span className="text-sm text-slate-500">{totalCount} results</span>
             <button
               onClick={() => setFilterOpen(true)}
               className="flex items-center gap-2 text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white"
@@ -161,25 +183,43 @@ export default function BrowsePage() {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Loading...</div>
-          ) : filtered.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-slate-400 text-sm">No flashlights found.</div>
-          ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {filtered.map((f) => (
-                <FlashlightCard
-                  key={f.id}
-                  flashlight={f}
-                  compareIds={compareIds}
-                  onToggleCompare={toggleCompare}
-                />
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200 h-64 animate-pulse" />
               ))}
             </div>
+          ) : items.length === 0 ? (
+            <div className="flex items-center justify-center h-64 text-slate-400 text-sm">No flashlights found.</div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {items.map(f => (
+                  <FlashlightCard
+                    key={f.id}
+                    flashlight={f}
+                    compareIds={compareIds}
+                    onToggleCompare={toggleCompare}
+                  />
+                ))}
+              </div>
+
+              {hasMore && (
+                <div className="mt-8 flex flex-col items-center gap-2">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                  >
+                    {loadingMore ? 'Loading…' : `Load more (${totalCount - items.length} remaining)`}
+                  </button>
+                  <span className="text-xs text-slate-400">{items.length} / {totalCount}</span>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
 
-      {/* Mobile filter drawer */}
       {filterOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFilterOpen(false)} />
@@ -191,7 +231,7 @@ export default function BrowsePage() {
             <FilterPanel
               filters={filters}
               onChange={setFilters}
-              totalCount={filtered.length}
+              totalCount={totalCount}
               availableBrands={availableBrands}
               availableEmitters={availableEmitters}
             />
@@ -199,14 +239,13 @@ export default function BrowsePage() {
         </div>
       )}
 
-      {/* Compare bar */}
       {compareIds.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 px-4 py-3 flex items-center justify-between z-40">
           <span className="text-white text-sm">{compareIds.length} selected</span>
           <div className="flex gap-3">
             <button onClick={() => { setCompareIds([]); localStorage.removeItem('compareIds') }} className="text-slate-400 hover:text-white text-sm">Clear</button>
             <button
-              onClick={goCompare}
+              onClick={() => { localStorage.setItem('compareIds', JSON.stringify(compareIds)); router.push('/compare') }}
               disabled={compareIds.length < 2}
               className="bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white text-sm px-4 py-1.5 rounded-lg font-medium"
             >
