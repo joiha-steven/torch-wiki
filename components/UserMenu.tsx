@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 
 export default function UserMenu() {
-  const { user, signOut, openAuthModal } = useAuth()
+  const { user, signOut, openAuthModal, collectionIds } = useAuth()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -32,10 +32,15 @@ export default function UserMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="text-sm font-bold hover:opacity-70 transition-opacity"
+        className="flex items-center gap-1.5 text-sm font-bold hover:opacity-70 transition-opacity"
         style={{ color: '#FFBE00' }}
       >
         My Collection
+        {collectionIds.size > 0 && (
+          <span className="flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold text-black" style={{ backgroundColor: '#FFBE00' }}>
+            {collectionIds.size > 99 ? '99+' : collectionIds.size}
+          </span>
+        )}
       </button>
 
       {open && (
