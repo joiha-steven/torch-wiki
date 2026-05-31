@@ -7,7 +7,7 @@ import { Heart, Bookmark, ChevronLeft, LayoutGrid, List, Pencil } from 'lucide-r
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { CollectionItem, WishlistItem } from '@/lib/types'
-import UserMenu from '@/components/UserMenu'
+import Header from '@/components/Header'
 import CollectionEditModal from '@/components/CollectionEditModal'
 
 function formatDate(d: string) {
@@ -54,14 +54,7 @@ export default function MyListsPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f8f6]">
-      <header className="bg-black sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-3">
-          <Link href="/" className="font-bold text-base shrink-0"><span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span></Link>
-          <span className="text-zinc-700">/</span>
-          <span className="text-zinc-400 text-sm">My Lists</span>
-          <div className="ml-auto"><UserMenu /></div>
-        </div>
-      </header>
+      <Header breadcrumb="My Lists" />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">

@@ -18,7 +18,7 @@ export type Flashlight = {
   min_lumens: number | null
   beam_distance_m: number | null
   beam_type: string | null
-  emitter: string | null
+  emitter: string | null  // legacy text field — use emitters[] for display/filter
   emitters: string[]
   battery_type: string | null
   battery_count: number | null

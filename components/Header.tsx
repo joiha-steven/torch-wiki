@@ -1,27 +1,28 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Flashlight } from 'lucide-react'
+import UserMenu from './UserMenu'
 
-export default function Header() {
-  const pathname = usePathname()
+type Props = {
+  breadcrumb?: React.ReactNode
+}
 
+export default function Header({ breadcrumb }: Props) {
   return (
-    <header className="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg text-amber-400">
-          <Flashlight size={20} />
-          Torch Wiki
+    <header className="bg-black sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-3">
+        <Link href="/" className="font-bold text-base shrink-0">
+          <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
         </Link>
-        <nav className="flex gap-4 text-sm text-slate-300">
-          <Link href="/" className={pathname === '/' ? 'text-white' : 'hover:text-white'}>
-            Browse
-          </Link>
-          <Link href="/compare" className={pathname === '/compare' ? 'text-white' : 'hover:text-white'}>
-            Compare
-          </Link>
-        </nav>
+        {breadcrumb && (
+          <>
+            <span className="text-zinc-700">/</span>
+            <span className="text-zinc-400 text-sm truncate">{breadcrumb}</span>
+          </>
+        )}
+        <div className="ml-auto">
+          <UserMenu />
+        </div>
       </div>
     </header>
   )

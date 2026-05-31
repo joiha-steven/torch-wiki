@@ -75,10 +75,10 @@ export default function BrowsePage() {
   useEffect(() => {
     async function loadMeta() {
       const [{ data: b }, { data: e }] = await Promise.all([
-        supabase.from('flashlights').select('brand').order('brand'),
+        supabase.rpc('get_distinct_brands'),
         supabase.rpc('get_distinct_emitters'),
       ])
-      setAvailableBrands([...new Set((b ?? []).map((r: { brand: string }) => r.brand))])
+      setAvailableBrands((b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[])
       setAvailableEmitters((e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[])
     }
     loadMeta()
@@ -96,11 +96,11 @@ export default function BrowsePage() {
     const delay = filters.search ? 300 : 0
     const timer = setTimeout(async () => {
       setLoading(true)
-      setPage(0)
       const { data, count } = await buildQuery(filters, 0, PAGE_SIZE - 1)
       if (fetchId.current !== id) return
       setItems(data ?? [])
       setTotalCount(count ?? 0)
+      setPage(0)
       setLoading(false)
     }, delay)
     return () => clearTimeout(timer)
