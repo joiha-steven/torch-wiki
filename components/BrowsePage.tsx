@@ -114,7 +114,7 @@ export default function BrowsePage() {
             <Link href="/compare" className="hover:text-white">Compare</Link>
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <div className="flex items-center gap-1 bg-zinc-700 border border-zinc-500 rounded-md px-2.5 py-1">
+            <div className="flex items-center gap-1.5 bg-zinc-700 border border-zinc-500 rounded-md px-3 py-1">
               <Search size={13} className="text-gray-300 shrink-0" />
               <input
                 ref={searchRef}
