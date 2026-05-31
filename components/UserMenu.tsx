@@ -21,24 +21,21 @@ export default function UserMenu() {
     return (
       <button
         onClick={openAuthModal}
-        className="text-sm text-gray-300 hover:text-white border border-zinc-600 rounded-lg px-3 py-1 transition-colors"
+        className="text-sm font-bold text-white hover:opacity-70 transition-opacity"
       >
-        Sign in
+        My Collection
       </button>
     )
   }
-
-  const initial = (user.email ?? '?')[0].toUpperCase()
 
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-black"
-        style={{ backgroundColor: '#FFBE00' }}
-        title={user.email}
+        className="text-sm font-bold hover:opacity-70 transition-opacity"
+        style={{ color: '#FFBE00' }}
       >
-        {initial}
+        My Collection
       </button>
 
       {open && (
