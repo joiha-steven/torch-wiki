@@ -250,7 +250,8 @@ export default function FilterPanel({ filters, onChange, totalCount, availableBr
       <p className="text-xs text-slate-400">{totalCount} results</p>
 
       <p className="text-xs text-slate-400 leading-relaxed pt-3 border-t border-slate-100">
-        All specs and images belong to their respective brands. Non-commercial, no ads, no profit.
+        All specs and images belong to their respective brands. Non-commercial, no ads, no profit.{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 underline underline-offset-2">GitHub</a>
       </p>
     </aside>
   )
