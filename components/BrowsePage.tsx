@@ -136,6 +136,7 @@ export default function BrowsePage() {
           <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
             <Link href="/" className="text-gray-300 hover:text-white">Browse</Link>
             <Link href="/compare" className="hover:text-white">Compare</Link>
+            <Link href="/updates" className="hover:text-white">Updates</Link>
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <div className="flex items-center gap-1.5 bg-zinc-700 border border-zinc-500 rounded-md px-3 py-1">

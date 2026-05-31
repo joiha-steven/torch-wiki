@@ -20,6 +20,11 @@ export default function Header({ breadcrumb }: Props) {
             <span className="text-zinc-400 text-sm truncate">{breadcrumb}</span>
           </>
         )}
+        <nav className="hidden sm:flex gap-4 text-sm text-gray-500 ml-4">
+          <Link href="/" className="hover:text-white">Browse</Link>
+          <Link href="/compare" className="hover:text-white">Compare</Link>
+          <Link href="/updates" className="hover:text-white">Updates</Link>
+        </nav>
         <div className="ml-auto">
           <UserMenu />
         </div>
