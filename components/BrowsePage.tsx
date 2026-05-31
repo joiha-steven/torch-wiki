@@ -106,8 +106,8 @@ export default function BrowsePage() {
       {/* Header */}
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-4">
-          <Link href="/" className="font-bold text-base shrink-0" style={{ color: '#FFBE00' }}>
-            Torch EDC.wiki
+          <Link href="/" className="font-bold text-base shrink-0">
+            <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
           </Link>
           <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
             <Link href="/" className="text-gray-300 hover:text-white">Browse</Link>

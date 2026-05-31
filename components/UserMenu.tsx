@@ -21,9 +21,9 @@ export default function UserMenu() {
     return (
       <button
         onClick={openAuthModal}
-        className="text-sm font-bold text-white hover:opacity-70 transition-opacity"
+        className="text-sm font-bold hover:opacity-70 transition-opacity"
       >
-        My Collection
+        <span className="text-white">My </span><span style={{ color: '#FFBE00' }}>Collection</span>
       </button>
     )
   }
@@ -33,9 +33,8 @@ export default function UserMenu() {
       <button
         onClick={() => setOpen((o) => !o)}
         className="text-sm font-bold hover:opacity-70 transition-opacity"
-        style={{ color: '#FFBE00' }}
       >
-        My Collection
+        <span className="text-white">My </span><span style={{ color: '#FFBE00' }}>Collection</span>
       </button>
 
       {open && (
