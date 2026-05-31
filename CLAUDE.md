@@ -18,9 +18,9 @@ Flashlight database web app. Live at **https://torch.edc.wiki**.
 In `.env.local` (never commit this file):
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://nssuhfyymlgkkclmtlhg.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_9loWJkbsnYIKe7Rjv4l9Aw_1wyWbmMO
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
 SUPABASE_SERVICE_ROLE_KEY=sb_secret_...
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_73qdbLjAtmX1zWRW_n5gUnibP36ndRpGcPJpSLWwSX97j0Q
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
 BLOB_STORE_ID=store_73qdbLjAtmX1zWRW
 ```
 
