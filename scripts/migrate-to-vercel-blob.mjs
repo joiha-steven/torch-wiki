@@ -15,7 +15,10 @@ const env = Object.fromEntries(
     })
 )
 
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+const supabase = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.SUPABASE_SERVICE_ROLE_KEY ?? env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 const BLOB_TOKEN = env.BLOB_READ_WRITE_TOKEN
 
 function getExt(url) {
@@ -33,7 +36,20 @@ function isAlreadyBlob(url) {
 }
 
 async function download(url) {
-  const res = await fetch(url)
+  // Some CDNs (e.g. Weltool) require the brand's own site as Referer
+  const refererMap = {
+    'websiteonline.cn': 'https://www.weltool.com/',
+  }
+  const referer = Object.entries(refererMap).find(([host]) => url.includes(host))?.[1]
+    ?? new URL(url).origin
+
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Referer': referer,
+      'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+    }
+  })
   if (!res.ok) throw new Error(`HTTP ${res.status} — ${url}`)
   const ct = res.headers.get('content-type') ?? 'image/jpeg'
   const buf = await res.arrayBuffer()
