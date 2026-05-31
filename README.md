@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Torch EDC.wiki
 
-## Getting Started
+A community reference database for flashlight collectors and enthusiasts. Built by a flashlight hobbyist, for flashlight hobbyists.
 
-First, run the development server:
+No ads. No fees. No profit.
+
+**Live site:** [torch.edc.wiki](https://torch.edc.wiki)
+
+---
+
+## What is this?
+
+Flashlight collecting is a niche hobby with a passionate community but no central, structured reference. Specs are scattered across manufacturer pages, forum threads, and YouTube reviews. This project aims to fix that — one flashlight at a time.
+
+---
+
+## Features
+
+- **Flashlight database** — specs sourced from manufacturers: lumens, beam distance, emitter, battery type, dimensions, weight, IP rating, charging type, and more
+- **Filter & sort** — narrow down by brand, category, battery type, LED, max lumens, price range, and charging method
+- **Compare** — select up to 4 flashlights and compare specs side by side
+- **Detail pages** — full spec sheet per model, image gallery, and linked reviews (articles & videos)
+- **Wishlist** — save flashlights you want (requires free account)
+- **Collection** — track flashlights you own, with purchase price, date, material variant, and quantity
+- **My Lists** — personal dashboard with wishlist and collection tabs, grid/list view toggle
+- **Mobile friendly** — responsive layout with filter drawer on small screens
+
+---
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org) — App Router, TypeScript
+- [Supabase](https://supabase.com) — PostgreSQL database + auth
+- [Vercel](https://vercel.com) — hosting, image storage (Blob), analytics
+- [Tailwind CSS](https://tailwindcss.com)
+
+---
+
+## Running locally
+
+```bash
+git clone https://github.com/joiha-steven/torch-wiki.git
+cd torch-wiki
+npm install
+```
+
+Create `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+BLOB_READ_WRITE_TOKEN=...
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Content & images
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All product information, specifications, and images belong to their respective manufacturers and brands. This site is a non-commercial reference project with no affiliation to any flashlight brand.
