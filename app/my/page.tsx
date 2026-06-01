@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Bookmark, ChevronLeft, LayoutGrid, List, Pencil } from 'lucide-react'
+import { Heart, Bookmark, ChevronLeft, LayoutGrid, List, Pencil, Plus, ClipboardList } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
-import { CollectionItem, WishlistItem } from '@/lib/types'
+import { CollectionItem, WishlistItem, FlashlightSubmission, Flashlight } from '@/lib/types'
 import Header from '@/components/Header'
 import CollectionEditModal from '@/components/CollectionEditModal'
+import SubmitFlashlightForm from '@/components/SubmitFlashlightForm'
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -16,8 +17,18 @@ function formatDate(d: string) {
 
 export default function MyListsPage() {
   const { user, loading, openAuthModal } = useAuth()
-  const [tab, setTab] = useState<'wishlist' | 'collection'>('wishlist')
+  const [suggestId, setSuggestId] = useState<string | null>(null)
+  const [tab, setTab] = useState<'wishlist' | 'collection' | 'submit' | 'submissions'>('wishlist')
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('suggest')
+    if (id) { setSuggestId(id); setTab('submit') }
+  }, [])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [showSubmitForm, setShowSubmitForm] = useState(false)
+  const [mySubmissions, setMySubmissions] = useState<FlashlightSubmission[]>([])
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false)
+  const [suggestFlashlight, setSuggestFlashlight] = useState<Flashlight | null>(null)
   const [wishlist, setWishlist] = useState<WishlistItem[]>([])
   const [collection, setCollection] = useState<CollectionItem[]>([])
   const [fetching, setFetching] = useState(false)
@@ -43,6 +54,27 @@ export default function MyListsPage() {
       setFetching(false)
     })
   }, [user])
+
+  // Load flashlight to suggest edit for
+  useEffect(() => {
+    if (!suggestId) return
+    supabase.from('flashlights').select('*').eq('id', suggestId).single()
+      .then(({ data }) => { if (data) setSuggestFlashlight(data as Flashlight) })
+  }, [suggestId])
+
+  useEffect(() => {
+    if (!user || tab !== 'submissions') return
+    setLoadingSubmissions(true)
+    supabase
+      .from('flashlight_submissions')
+      .select('*, submission_images(*)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setMySubmissions((data ?? []) as FlashlightSubmission[])
+        setLoadingSubmissions(false)
+      })
+  }, [user, tab])
 
   function handleSave(id: string, updates: Partial<CollectionItem>) {
     setCollection((prev) => prev.map((item) => item.id === id ? { ...item, ...updates } : item))
@@ -77,7 +109,7 @@ export default function MyListsPage() {
           <>
             {/* Tabs + controls */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1">
+              <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 flex-wrap">
                 <button
                   onClick={() => setTab('wishlist')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -103,6 +135,29 @@ export default function MyListsPage() {
                   {collection.length > 0 && (
                     <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'collection' ? 'bg-white/20' : 'bg-slate-100'}`}>
                       {collection.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => { setTab('submit'); setShowSubmitForm(true) }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    tab === 'submit' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <Plus size={14} />
+                  Add flashlight
+                </button>
+                <button
+                  onClick={() => setTab('submissions')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    tab === 'submissions' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <ClipboardList size={14} />
+                  My submissions
+                  {mySubmissions.filter(s => s.status === 'pending').length > 0 && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'submissions' ? 'bg-white/20' : 'bg-amber-100 text-amber-700'}`}>
+                      {mySubmissions.filter(s => s.status === 'pending').length}
                     </span>
                   )}
                 </button>
@@ -135,7 +190,30 @@ export default function MyListsPage() {
               )}
             </div>
 
-            {fetching ? (
+            {tab === 'submit' ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-3xl">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="font-semibold text-slate-900">
+                      {suggestId && suggestFlashlight ? `Suggest edit: ${suggestFlashlight.brand} ${suggestFlashlight.model}` : 'Add a new flashlight'}
+                    </h2>
+                    {suggestId && suggestFlashlight && (
+                      <p className="text-xs text-slate-400 mt-0.5">Fields pre-filled with current data — change only what's wrong.</p>
+                    )}
+                  </div>
+                  <button onClick={() => { setTab('wishlist'); setShowSubmitForm(false) }} className="text-xs text-slate-400 hover:text-slate-700">Cancel</button>
+                </div>
+                <SubmitFlashlightForm
+                  mode={suggestId ? 'edit' : 'new'}
+                  initial={suggestFlashlight ?? undefined}
+                  targetId={suggestId ?? undefined}
+                  onSuccess={() => { setTab('submissions'); setShowSubmitForm(false) }}
+                  onCancel={() => { setTab('wishlist'); setShowSubmitForm(false) }}
+                />
+              </div>
+            ) : tab === 'submissions' ? (
+              <SubmissionsTab submissions={mySubmissions} loading={loadingSubmissions} />
+            ) : fetching ? (
               <div className="text-slate-400 text-sm">Loading…</div>
             ) : tab === 'wishlist' ? (
               wishlist.length === 0 ? (
@@ -273,6 +351,47 @@ function MetaCell({ label, value, accent }: { label: string; value: string | nul
       <p className={`text-xs truncate ${value ? (accent ? 'text-brand-600 font-medium' : 'text-slate-700') : 'text-slate-300'}`}>
         {value ?? '—'}
       </p>
+    </div>
+  )
+}
+
+function SubmissionsTab({ submissions, loading }: { submissions: FlashlightSubmission[]; loading: boolean }) {
+  if (loading) return <div className="text-slate-400 text-sm py-8">Loading…</div>
+  if (submissions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+        <ClipboardList size={40} className="text-slate-200" />
+        <p className="text-slate-500">You haven't submitted anything yet.</p>
+        <p className="text-slate-400 text-sm">Use the "Add flashlight" tab to contribute.</p>
+      </div>
+    )
+  }
+  const STATUS_STYLE: Record<string, string> = {
+    pending: 'bg-amber-100 text-amber-700',
+    approved: 'bg-green-100 text-green-700',
+    rejected: 'bg-red-100 text-red-600',
+  }
+  return (
+    <div className="space-y-3 max-w-2xl">
+      {submissions.map(s => (
+        <div key={s.id} className="bg-white rounded-xl border border-slate-200 px-5 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[s.status]}`}>{s.status}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${s.type === 'new' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>{s.type === 'new' ? 'New' : 'Edit'}</span>
+                <span className="font-medium text-slate-900 text-sm">{(s.data.brand ?? '') + ' ' + (s.data.model ?? '')}</span>
+              </div>
+              <p className="text-xs text-slate-400">{new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            </div>
+          </div>
+          {s.reviewer_note && (
+            <p className="mt-3 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2 italic">
+              Admin note: "{s.reviewer_note}"
+            </p>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

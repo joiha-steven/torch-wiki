@@ -75,6 +75,30 @@ export type WishlistItem = {
   flashlights: Flashlight
 }
 
+export type SubmissionImage = {
+  id: string
+  submission_id: string
+  url: string
+  sort_order: number
+  is_primary: boolean
+  created_at: string
+}
+
+export type FlashlightSubmission = {
+  id: string
+  user_id: string
+  type: 'new' | 'edit'
+  status: 'pending' | 'approved' | 'rejected'
+  target_id: string | null
+  data: Partial<Flashlight>
+  note: string | null
+  reviewer_note: string | null
+  created_at: string
+  reviewed_at: string | null
+  submission_images?: SubmissionImage[]
+  flashlights?: Flashlight | null         // joined for edit — the original
+}
+
 export type FilterState = {
   search: string
   brands: string[]

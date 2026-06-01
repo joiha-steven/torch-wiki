@@ -107,6 +107,14 @@ export default async function FlashlightPage({ params }: Props) {
             )}
 
             <WishlistButtons flashlightId={flashlight.id} />
+
+            <Link
+              href={`/my?suggest=${flashlight.id}`}
+              className="mt-4 inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <FileText size={12} />
+              Suggest an edit
+            </Link>
           </div>
         </div>
 
