@@ -45,28 +45,28 @@ async function fetchLists(): Promise<TopList[]> {
   return [
     {
       title: 'Recently Added',
-      subtitle: 'Mới thêm vào database',
+      subtitle: 'Latest entries in the database',
       items: (recentlyAdded.data ?? []) as Flashlight[],
       stat: f => f.max_lumens ? `${f.max_lumens.toLocaleString()} lm` : null,
       statLabel: 'lumens',
     },
     {
       title: 'Newest Release',
-      subtitle: 'Mẫu mới ra mắt gần đây',
+      subtitle: 'Most recently released models',
       items: (newestRelease.data ?? []) as Flashlight[],
       stat: f => f.year ? String(f.year) : null,
       statLabel: 'year',
     },
     {
       title: 'Most Expensive',
-      subtitle: 'Đắt nhất',
+      subtitle: 'Highest priced flashlights',
       items: (mostExpensive.data ?? []) as Flashlight[],
       stat: f => f.price_usd != null ? `$${f.price_usd.toLocaleString()}` : null,
       statLabel: 'price',
     },
     {
       title: 'Best Value',
-      subtitle: 'Rẻ nhất',
+      subtitle: 'Most affordable flashlights',
       items: (cheapest.data ?? []) as Flashlight[],
       stat: f => f.price_usd != null ? `$${f.price_usd.toLocaleString()}` : null,
       statLabel: 'price',
@@ -87,7 +87,7 @@ export default async function TopPage() {
         </Link>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Top Lists</h1>
-        <p className="text-sm text-slate-400 mb-8">Tổng hợp các bảng xếp hạng đèn pin</p>
+        <p className="text-sm text-slate-400 mb-8">Curated flashlight rankings</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lists.map(list => (
