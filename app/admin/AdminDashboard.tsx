@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
 import { FlashlightSubmission, Flashlight } from '@/lib/types'
@@ -82,16 +82,16 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
           const slug = `${d.brand}-${d.model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
           const primaryImg = sub.submission_images?.find(i => i.is_primary) ?? sub.submission_images?.[0]
           await supabase.from('flashlights').insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: sub.user_id })
-          // Clear browse page cache so new flashlight appears
           await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) })
+          localStorage.removeItem('meta_cache') // new brand may have been added
         } else if (sub.target_id) {
           const primaryImg = sub.submission_images?.find(i => i.is_primary)
           const updateData: Record<string, unknown> = { ...d, updated_by: sub.user_id, updated_at: new Date().toISOString() }
           if (primaryImg) updateData.image_url = primaryImg.url
           await supabase.from('flashlights').update(updateData).eq('id', sub.target_id)
-          // Clear cache for the specific flashlight page
           const { data: fl } = await supabase.from('flashlights').select('slug').eq('id', sub.target_id).single()
           if (fl?.slug) await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: fl.slug }) })
+          localStorage.removeItem('meta_cache') // brand/emitter may have changed
         }
       }
       await supabase.from('flashlight_submissions').update({
@@ -316,6 +316,12 @@ function ReportsPanel() {
   )
 }
 
+// Helper: get Bearer token header for admin API calls
+async function authHeader() {
+  const { data: { session } } = await supabase.auth.getSession()
+  return { 'Authorization': `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' }
+}
+
 // ── Users panel ──────────────────────────────────────────────────────────────
 type UserRow = {
   id: string; email: string; nickname: string | null
@@ -326,30 +332,43 @@ type UserRow = {
 function UsersPanel() {
   const [query, setQuery]       = useState('')
   const [users, setUsers]       = useState<UserRow[]>([])
-  const [total, setTotal]       = useState(0)
-  const [page, setPage]         = useState(1)
-  const [loading, setLoading]   = useState(false)
-  const [acting, setActing]     = useState<string | null>(null)
-  const [msg, setMsg]           = useState('')
+  const [total, setTotal]         = useState(0)
+  const [page, setPage]           = useState(1)
+  const [loading, setLoading]     = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [loadErr, setLoadErr]     = useState('')
+  const [acting, setActing]       = useState<string | null>(null)
+  const [msg, setMsg]             = useState('')
   const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null)
 
   const perPage = 20
+  const queryRef = useRef(query)
+  queryRef.current = query
 
-  const load = useCallback(async (q: string, p: number) => {
-    setLoading(true)
-    const res = await fetch(`/api/admin/users?q=${encodeURIComponent(q)}&page=${p}`)
-    const data = await res.json()
-    setUsers(data.users ?? [])
-    setTotal(data.total ?? 0)
-    setLoading(false)
+  const load = useCallback(async (q: string, p: number, append = false) => {
+    append ? setLoadingMore(true) : setLoading(true)
+    if (!append) setLoadErr('')
+    try {
+      const res = await fetch(`/api/admin/users?q=${encodeURIComponent(q)}&page=${p}`, {
+        headers: await authHeader(),
+      })
+      const data = await res.json()
+      if (!res.ok) { setLoadErr(data.error ?? 'Failed to load users.'); return }
+      setUsers(prev => append ? [...prev, ...(data.users ?? [])] : (data.users ?? []))
+      setTotal(data.total ?? 0)
+    } catch {
+      setLoadErr('Network error.')
+    } finally {
+      append ? setLoadingMore(false) : setLoading(false)
+    }
   }, [])
 
+  // Search: debounce, reset to page 1, replace list
   useEffect(() => {
-    const t = setTimeout(() => { setPage(1); load(query, 1) }, 300)
+    const t = setTimeout(() => { setPage(1); load(queryRef.current, 1, false) }, query ? 400 : 0)
     return () => clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, load])
-
-  useEffect(() => { load(query, page) }, [page, load, query])
 
   function flash(m: string) { setMsg(m); setTimeout(() => setMsg(''), 3000) }
 
@@ -357,7 +376,7 @@ function UsersPanel() {
     setActing(userId + action)
     const res = await fetch('/api/admin/users', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeader(),
       body: JSON.stringify({ targetId: userId, action }),
     })
     const data = await res.json()
@@ -365,7 +384,9 @@ function UsersPanel() {
     else flash(data.message ?? 'Done.')
     setActing(null)
     setConfirmDelete(null)
-    load(query, page)
+    // Reload from scratch to reflect changes
+    setPage(1)
+    load(queryRef.current, 1, false)
   }
 
   function fmt(d: string | null) {
@@ -382,15 +403,16 @@ function UsersPanel() {
         className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
       />
 
-      {msg && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">{msg}</p>}
+      {msg     && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">{msg}</p>}
+      {loadErr && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{loadErr}</p>}
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-slate-300" /></div>
-      ) : users.length === 0 ? (
+      ) : users.length === 0 && !loadErr ? (
         <p className="text-slate-400 text-sm py-12 text-center">No users found.</p>
       ) : (
         <>
-          <p className="text-xs text-slate-400">{total} user{total !== 1 ? 's' : ''} total</p>
+          <p className="text-xs text-slate-400">Showing {users.length} of {total} user{total !== 1 ? 's' : ''}</p>
           <div className="space-y-2">
             {users.map(u => (
               <div key={u.id} className={`bg-white rounded-xl border px-5 py-3.5 flex items-center gap-4 ${u.banned ? 'border-red-100 bg-red-50/30' : 'border-slate-200'}`}>
@@ -444,15 +466,16 @@ function UsersPanel() {
             ))}
           </div>
 
-          {/* Pagination */}
-          {total > perPage && (
-            <div className="flex items-center justify-between pt-2">
-              <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
-                className="text-sm text-slate-500 hover:text-slate-800 disabled:opacity-30">← Prev</button>
-              <span className="text-xs text-slate-400">Page {page} of {Math.ceil(total / perPage)}</span>
-              <button disabled={page >= Math.ceil(total / perPage)} onClick={() => setPage(p => p + 1)}
-                className="text-sm text-slate-500 hover:text-slate-800 disabled:opacity-30">Next →</button>
-            </div>
+          {/* Load more */}
+          {users.length < total && (
+            <button
+              onClick={() => { const next = page + 1; setPage(next); load(queryRef.current, next, true) }}
+              disabled={loadingMore}
+              className="w-full py-2.5 border border-slate-200 rounded-lg text-sm text-slate-500 hover:bg-slate-50 disabled:opacity-50 flex items-center justify-center gap-2 bg-white"
+            >
+              {loadingMore && <Loader2 size={13} className="animate-spin" />}
+              {loadingMore ? 'Loading…' : `Load more (${total - users.length} remaining)`}
+            </button>
           )}
         </>
       )}
@@ -496,7 +519,7 @@ function TeamPanel() {
 
   async function loadAdmins() {
     setLoading(true)
-    const res = await fetch('/api/admin/list-moderators')
+    const res = await fetch('/api/admin/list-moderators', { headers: await authHeader() })
     const data = await res.json()
     setAdmins(data.moderators ?? [])
     setLoading(false)
@@ -515,7 +538,7 @@ function TeamPanel() {
     setAdding(true); setErr('')
     const res = await fetch('/api/admin/set-role', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeader(),
       body: JSON.stringify({ email: newEmail.trim(), is_moderator: true }),
     })
     const data = await res.json()
@@ -528,7 +551,7 @@ function TeamPanel() {
     setRemoving(admin.id)
     const res = await fetch('/api/admin/set-role', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeader(),
       body: JSON.stringify({ email: admin.email, is_moderator: false }),
     })
     const data = await res.json()
@@ -714,6 +737,7 @@ export default function AdminDashboard() {
       body: JSON.stringify({ force: true }),
     })
     const data = await res.json()
+    localStorage.removeItem('meta_cache')
     setClearMsg(`✓ Cleared cache for ${data.count} pages`)
     setClearing(false)
     setTimeout(() => setClearMsg(''), 4000)

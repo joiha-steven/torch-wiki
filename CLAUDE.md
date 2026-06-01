@@ -150,6 +150,10 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons |
 | `components/SubmitFlashlightForm.tsx` | Full spec form with image upload + Turnstile captcha |
 | `app/[slug]/page.tsx` | Flashlight detail page — gallery, specs, reviews, manual, attribution |
+| `app/api/ping/route.ts` | Health check endpoint — called daily by Vercel Cron to keep Supabase alive |
+| `components/FlashlightCardSkeleton.tsx` | Shimmer skeleton card shown while browse page loads |
+| `components/PageFade.tsx` | Wraps page content with fade-in animation on navigation |
+| `scripts/seed-ledlenser.mjs` | Scrapes ledlenserusa.com Shopify API → inserts flashlights/headlamps/area lights |
 | `app/my/page.tsx` | My Lists — wishlist + collection |
 | `app/account/page.tsx` | My Account — profile (email change, nickname), security (password, 2FA) |
 | `app/contribute/page.tsx` | Contribute — add/edit flashlights, submission history |
@@ -173,6 +177,9 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `/[slug]` flashlight pages | Static (SSG) — served from Vercel edge | Deploy · Admin approves submission · Force clear button |
 | `/` browse page | Static shell (client fetches data) | Deploy |
 | `/my` `/account` `/contribute` `/compare` `/report` | `force-dynamic` — never cached | Always fresh |
+| Brand/emitter filter lists | localStorage, 5 min TTL | Auto-expire · Admin approve/force-clear clears immediately |
+
+**Vercel Cron:** `vercel.json` schedules `/api/ping` daily at 08:00 UTC — queries DB to prevent Supabase free tier from pausing.
 
 **On-demand revalidation flow:**
 - Admin approves an **edit** → `revalidatePath('/slug')` clears that one page instantly

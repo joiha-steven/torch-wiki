@@ -12,6 +12,27 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 1, 2026',
+    title: 'Performance & UX improvements',
+    items: [
+      'Infinite scroll — browse page loads more flashlights automatically as you scroll down',
+      'Skeleton loading — browse grid shows shimmer placeholders while data loads',
+      'Page fade-in animation on navigation for smoother feel',
+      'Image optimization — correct sizes per grid column, priority preload for above-the-fold images',
+      'Daily Supabase ping via Vercel Cron to prevent database from pausing on free tier',
+      'Results count shown above flashlight grid',
+      'Brand/emitter filter cache reduced to 5 minutes; cleared immediately when admin adds flashlights',
+    ],
+  },
+  {
+    date: 'June 1, 2026',
+    title: 'LED Lenser catalog added',
+    items: [
+      '60+ LED Lenser flashlights, headlamps and area lights added',
+      'Scraped from ledlenserusa.com — specs, pricing and images imported automatically',
+    ],
+  },
+  {
+    date: 'June 1, 2026',
     title: 'Admin panel, SEO & Google Analytics',
     items: [
       'Admin panel moved to /admin — moderator role added (review only, no settings)',

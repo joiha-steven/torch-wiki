@@ -28,12 +28,14 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-center min-h-64">
+      <div className="relative flex items-center justify-center min-h-64">
         <Image
           src={allUrls[active]}
           alt={alt}
-          width={400}
-          height={300}
+          width={480}
+          height={360}
+          sizes="(max-width: 767px) calc(100vw - 64px), calc(50vw - 64px)"
+          priority
           className="object-contain max-h-72"
         />
       </div>

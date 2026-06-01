@@ -10,9 +10,10 @@ type Props = {
   flashlight: Flashlight
   compareIds: string[]
   onToggleCompare: (id: string) => void
+  priority?: boolean
 }
 
-export default function FlashlightCard({ flashlight, compareIds, onToggleCompare }: Props) {
+export default function FlashlightCard({ flashlight, compareIds, onToggleCompare, priority = false }: Props) {
   const isSelected = compareIds.includes(flashlight.id)
   const { wishlistIds, collectionIds, toggleWishlist, toggleCollection } = useAuth()
   const inWishlist = wishlistIds.has(flashlight.id)
@@ -27,6 +28,8 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
               src={flashlight.image_url}
               alt={`${flashlight.brand} ${flashlight.model}`}
               fill
+              sizes="(max-width: 767px) calc(50vw - 24px), (max-width: 1023px) calc(33vw - 24px), calc(25vw - 24px)"
+              priority={priority}
               className="object-contain p-4"
             />
           ) : (

@@ -49,6 +49,10 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - On-demand cache invalidation when admin approves changes — no stale data
 - User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
 - Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency
+- Infinite scroll on browse page — loads more flashlights automatically as you scroll
+- Skeleton loading with shimmer effect while data loads
+- Image `sizes` and `priority` optimized per grid layout for faster LCP
+- Daily Vercel Cron ping keeps Supabase free tier from pausing
 
 **SEO**
 - Dynamic `<title>`, `<meta description>`, and Open Graph tags per flashlight page

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
 import FlashlightCard from './FlashlightCard'
+import FlashlightCardSkeleton from './FlashlightCardSkeleton'
 import FilterPanel from './FilterPanel'
 import UserMenu from './UserMenu'
 
@@ -75,7 +76,7 @@ export default function BrowsePage() {
   // Load brand + emitter lists — cached in localStorage for 1 hour
   useEffect(() => {
     const CACHE_KEY = 'meta_cache'
-    const CACHE_TTL = 60 * 60 * 1000 // 1 hour
+    const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
     async function loadMeta() {
       try {
@@ -141,6 +142,29 @@ export default function BrowsePage() {
   }
 
   const hasMore = items.length < totalCount
+
+  // Infinite scroll — observe sentinel div at bottom of list
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadingMoreRef = useRef(loadingMore)
+  loadingMoreRef.current = loadingMore
+  const hasMoreRef = useRef(hasMore)
+  hasMoreRef.current = hasMore
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMoreRef.current && !loadingMoreRef.current) {
+          loadMore()
+        }
+      },
+      { rootMargin: '200px' } // start loading 200px before reaching the bottom
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]) // re-attach when list grows so sentinel stays valid
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -226,36 +250,38 @@ export default function BrowsePage() {
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl border border-slate-200 h-64 animate-pulse" />
+                <FlashlightCardSkeleton key={i} />
               ))}
             </div>
           ) : items.length === 0 ? (
             <div className="flex items-center justify-center h-64 text-slate-400 text-sm">No flashlights found.</div>
           ) : (
             <>
+              <p className="text-sm text-slate-400 mb-3">{totalCount} result{totalCount !== 1 ? 's' : ''}</p>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {items.map(f => (
+                {items.map((f, i) => (
                   <FlashlightCard
                     key={f.id}
                     flashlight={f}
                     compareIds={compareIds}
                     onToggleCompare={toggleCompare}
+                    priority={i < 4}
                   />
                 ))}
               </div>
 
-              {hasMore && (
-                <div className="mt-8 flex flex-col items-center gap-2">
-                  <button
-                    onClick={loadMore}
-                    disabled={loadingMore}
-                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-colors"
-                  >
-                    {loadingMore ? 'Loading…' : `Load more (${totalCount - items.length} remaining)`}
-                  </button>
-                  <span className="text-xs text-slate-400">{items.length} / {totalCount}</span>
-                </div>
-              )}
+              {/* Infinite scroll sentinel */}
+              <div ref={sentinelRef} className="mt-8 flex justify-center h-8">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25"/>
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                    </svg>
+                    Loading…
+                  </div>
+                )}
+              </div>
             </>
           )}
         </main>

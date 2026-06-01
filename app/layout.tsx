@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Providers from '@/components/Providers'
+import PageFade from '@/components/PageFade'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import './globals.css'
 
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen bg-gray-100 flex flex-col">
         <Providers>
-          <div className="flex-1">{children}</div>
+          <PageFade>
+            <div className="flex-1">{children}</div>
+          </PageFade>
         </Providers>
         <GoogleAnalytics />
         <Analytics />
