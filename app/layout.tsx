@@ -5,8 +5,17 @@ import Providers from '@/components/Providers'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Torch EDC.wiki — Flashlight Database',
-  description: 'Comprehensive flashlight database with specs, reviews, and comparison tools.',
+  title: 'torch.EDC.wiki — Flashlight Database',
+  description: 'Community reference database for flashlight collectors and enthusiasts.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'torch.EDC',
+  },
+  icons: {
+    apple: '/icon-192.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
