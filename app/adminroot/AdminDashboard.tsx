@@ -76,17 +76,21 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
     setActing(true)
     try {
       if (action === 'approved') {
-        // If new — insert into flashlights; if edit — update
         const d = sub.data
         if (sub.type === 'new') {
           const slug = `${d.brand}-${d.model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
           const primaryImg = sub.submission_images?.find(i => i.is_primary) ?? sub.submission_images?.[0]
           await supabase.from('flashlights').insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: sub.user_id })
+          // Clear browse page cache so new flashlight appears
+          await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) })
         } else if (sub.target_id) {
           const primaryImg = sub.submission_images?.find(i => i.is_primary)
           const updateData: Record<string, unknown> = { ...d, updated_by: sub.user_id, updated_at: new Date().toISOString() }
           if (primaryImg) updateData.image_url = primaryImg.url
           await supabase.from('flashlights').update(updateData).eq('id', sub.target_id)
+          // Clear cache for the specific flashlight page
+          const { data: fl } = await supabase.from('flashlights').select('slug').eq('id', sub.target_id).single()
+          if (fl?.slug) await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: fl.slug }) })
         }
       }
       await supabase.from('flashlight_submissions').update({
@@ -317,6 +321,20 @@ export default function AdminDashboard() {
   const [subTab, setSubTab]     = useState<SubmissionTab>('pending')
   const [submissions, setSubmissions] = useState<FlashlightSubmission[]>([])
   const [loading, setLoading]   = useState(true)
+  const [clearing, setClearing] = useState(false)
+  const [clearMsg, setClearMsg] = useState('')
+
+  async function forceClearCache() {
+    setClearing(true); setClearMsg('')
+    const res = await fetch('/api/revalidate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ force: true }),
+    })
+    const data = await res.json()
+    setClearMsg(`✓ Cleared cache for ${data.count} pages`)
+    setClearing(false)
+    setTimeout(() => setClearMsg(''), 4000)
+  }
 
   const loadSubs = useCallback(async () => {
     setLoading(true)
@@ -342,8 +360,9 @@ export default function AdminDashboard() {
       <Header />
       <div className="max-w-4xl mx-auto px-4 py-8">
 
-        {/* Section switcher */}
-        <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
+        {/* Top bar: section switcher + force clear */}
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
           <button onClick={() => setSection('submissions')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'submissions' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
             <Layers size={14} /> Submissions
@@ -352,6 +371,16 @@ export default function AdminDashboard() {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'reports' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
             <Bug size={14} /> Reports
           </button>
+        </div>
+
+          <div className="flex items-center gap-3">
+            {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
+            <button onClick={forceClearCache} disabled={clearing}
+              className="flex items-center gap-2 text-xs border border-slate-200 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-50 disabled:opacity-50 bg-white">
+              {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
+              {clearing ? 'Clearing…' : 'Force clear cache'}
+            </button>
+          </div>
         </div>
 
         {section === 'reports' ? (

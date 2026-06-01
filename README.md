@@ -44,6 +44,12 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Login rate limiting: 5 failed attempts → 10-minute lockout
 - 2FA with SHA-256 hashed recovery codes
 
+**Performance**
+- Flashlight detail pages pre-rendered at build time (SSG), served from Vercel edge
+- On-demand cache invalidation when admin approves changes — no stale data
+- User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
+- Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency
+
 ---
 
 ## Tech Stack

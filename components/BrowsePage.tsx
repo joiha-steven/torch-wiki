@@ -72,15 +72,30 @@ export default function BrowsePage() {
   const fetchId = useRef(0)
   const searchRef = useRef<HTMLInputElement>(null)
 
-  // Load brand + emitter lists once
+  // Load brand + emitter lists — cached in localStorage for 1 hour
   useEffect(() => {
+    const CACHE_KEY = 'meta_cache'
+    const CACHE_TTL = 60 * 60 * 1000 // 1 hour
+
     async function loadMeta() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null')
+        if (cached && Date.now() - cached.ts < CACHE_TTL) {
+          setAvailableBrands(cached.brands)
+          setAvailableEmitters(cached.emitters)
+          return
+        }
+      } catch {}
+
       const [{ data: b }, { data: e }] = await Promise.all([
         supabase.rpc('get_distinct_brands'),
         supabase.rpc('get_distinct_emitters'),
       ])
-      setAvailableBrands((b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[])
-      setAvailableEmitters((e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[])
+      const brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]
+      const emitters = (e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[]
+      setAvailableBrands(brands)
+      setAvailableEmitters(emitters)
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ brands, emitters, ts: Date.now() })) } catch {}
     }
     loadMeta()
   }, [])

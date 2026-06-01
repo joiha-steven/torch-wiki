@@ -7,6 +7,15 @@ import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import Header from '@/components/Header'
 
+// Pre-render all flashlight pages at build time
+// Cache forever — cleared on-demand when admin approves a submission
+export const revalidate = false
+
+export async function generateStaticParams() {
+  const { data } = await supabase.from('flashlights').select('slug')
+  return (data ?? []).map(f => ({ slug: f.slug }))
+}
+
 type Props = { params: Promise<{ slug: string }> }
 
 export default async function FlashlightPage({ params }: Props) {

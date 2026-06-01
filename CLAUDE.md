@@ -156,6 +156,23 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
 | `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
 | `app/api/upload/route.ts` | Vercel Blob client upload handler |
+| `app/api/revalidate/route.ts` | On-demand cache invalidation — called by admin on approval or force-clear |
+
+## Caching Strategy
+
+| Page type | Cache | Cleared by |
+|---|---|---|
+| `/[slug]` flashlight pages | Static (SSG) — served from Vercel edge | Deploy · Admin approves submission · Force clear button |
+| `/` browse page | Static shell (client fetches data) | Deploy |
+| `/my` `/account` `/contribute` `/compare` `/report` | `force-dynamic` — never cached | Always fresh |
+
+**On-demand revalidation flow:**
+- Admin approves an **edit** → `revalidatePath('/slug')` clears that one page instantly
+- Admin approves a **new** flashlight → `revalidatePath('/', 'layout')` clears browse
+- Admin edits DB directly (Supabase Table Editor) → use **"Force clear cache"** button in `/adminroot` to clear all flashlight pages at once
+- Every **deploy** → Vercel rebuilds all static pages automatically
+
+`brands` and `emitters` filter lists are cached in **localStorage for 1 hour** (BrowsePage).
 
 ## Flashlight Detail Page
 
