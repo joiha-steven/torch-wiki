@@ -147,7 +147,7 @@ export default function BrowsePage() {
                 placeholder="Search..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="bg-transparent text-white text-sm w-36 sm:w-48 focus:outline-none placeholder-gray-400"
+                className="bg-transparent text-white text-sm w-24 sm:w-48 focus:outline-none placeholder-gray-400"
               />
               {filters.search && (
                 <button onClick={() => setFilters({ ...filters, search: '' })}>

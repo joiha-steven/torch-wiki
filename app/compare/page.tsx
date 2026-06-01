@@ -56,9 +56,25 @@ export default function ComparePage() {
 
   if (flashlights.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-4">
-        <p className="text-slate-500">No flashlights selected for comparison.</p>
-        <Link href="/" className="text-brand-600 hover:underline text-sm">← Browse flashlights</Link>
+      <div className="min-h-screen bg-gray-100">
+        <Header />
+        <div className="flex items-center justify-center px-4 pt-24">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 w-full max-w-sm p-8 text-center space-y-4">
+            <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Check size={22} className="text-brand-500" />
+            </div>
+            <h2 className="text-lg font-bold text-slate-900">Compare flashlights</h2>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Browse the catalog and tick the compare box on up to 4 flashlights, then come back here to compare them side by side.
+            </p>
+            <Link
+              href="/"
+              className="block w-full bg-brand-500 hover:bg-brand-400 text-black text-sm font-medium py-2.5 rounded-lg transition-colors"
+            >
+              Browse flashlights →
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

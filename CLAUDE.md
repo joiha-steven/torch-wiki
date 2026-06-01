@@ -9,35 +9,43 @@ Flashlight database web app. Live at **https://torch.edc.wiki**.
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#FFBE00`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: ap-southeast-2, Sydney). Anon key for reads, service role key for writes in scripts.
-- **Vercel Blob** — image storage with global CDN (replaces Supabase Storage)
+- **Vercel Blob** — image storage with global CDN
 - **Vercel** — hosting, Analytics, Speed Insights. Function region: `iad1` (US East, set in `vercel.json`)
-- **Supabase Auth** — email/password authentication for wishlist/collection features
+- **Supabase Auth** — email/password + TOTP 2FA
+- **Cloudflare Turnstile** — captcha on signup, forgot password, and contribution forms
 
 ## Environment Variables
 
 In `.env.local` (never commit this file — no real values here):
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://nssuhfyymlgkkclmtlhg.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
-SUPABASE_SERVICE_ROLE_KEY=sb_secret_...
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
-BLOB_STORE_ID=store_73qdbLjAtmX1zWRW
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+BLOB_READ_WRITE_TOKEN=...
+BLOB_STORE_ID=...
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
+TURNSTILE_SECRET_KEY=...
 ```
 
-**After `vercel env pull`:** re-add the two Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
+**After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
 
 ## Database Schema (Supabase)
 
 Key tables:
 - `flashlights` — main product table. RLS disabled (public read). Key columns:
-  - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter` (text), `emitters` (text[]), `battery_type`, `battery_count`, `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
+  - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter` (legacy text), `emitters` (text[]), `battery_type`, `battery_count`, `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
   - content: `image_url` (Vercel Blob URL), `slug`, `notes`, `manual_url`, `description`, `is_discontinued`
+  - attribution: `updated_by` (uuid → auth.users) — set when admin approves a user edit
 - `flashlight_images` — extra images per flashlight (`url`, `sort_order`)
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`)
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
+- `profiles` — `(id, nickname, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**
+- `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
+- `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
+- `recovery_codes` — hashed 2FA recovery codes per user (`code_hash`, `used_at`)
 
-**Note on emitters:** `emitter` (text) stores the raw/legacy value. `emitters` (text[]) is the canonical array — always use this for filtering and display. Multi-LED flashlights have multiple entries e.g. `{Cree XHP70.2, Luminus SBT90.3}`.
+**Note on emitters:** `emitter` (text) is legacy. `emitters` (text[]) is canonical — always use for filtering and display.
 
 **Database indexes** (run once if missing):
 ```sql
@@ -51,31 +59,61 @@ create index if not exists idx_flashlights_beam_distance on flashlights(beam_dis
 create index if not exists idx_flashlights_weight on flashlights(weight_g);
 ```
 
-**RPC function** (run once if missing):
+**RPC functions** (run once if missing):
 ```sql
 CREATE OR REPLACE FUNCTION get_distinct_emitters()
 RETURNS TABLE(emitter text) LANGUAGE SQL AS $$
-  SELECT DISTINCT unnest(emitters) AS emitter
-  FROM flashlights
-  WHERE cardinality(emitters) > 0
-  ORDER BY emitter;
+  SELECT DISTINCT unnest(emitters) AS emitter FROM flashlights WHERE cardinality(emitters) > 0 ORDER BY emitter;
+$$;
+
+CREATE OR REPLACE FUNCTION get_distinct_brands()
+RETURNS TABLE(brand text) LANGUAGE SQL AS $$
+  SELECT DISTINCT brand FROM flashlights WHERE brand IS NOT NULL ORDER BY brand;
 $$;
 ```
 
 ## Auth Flow
 
 - Sign in / Sign up via `AuthModal` (email + password)
+- **Login rate limiting** — 5 failed attempts → locked 10 minutes (localStorage)
 - Forgot password → `supabase.auth.resetPasswordForEmail()` → email link → `/reset-password`
-- Change password (logged in) → `/change-password` — re-authenticates with current password first
-- `UserMenu` shows "My Collection": `My` white / `Collection` brand yellow when logged in; all white when logged out
+- **2FA (TOTP)** — enroll via `/account` → Security tab → QR code → 10 recovery codes (SHA-256 hashed in `recovery_codes` table)
+- Login with 2FA → AuthModal shows TOTP step; "lost authenticator" → recovery code → calls `/api/recover-account` (admin API deletes factor)
+- Change password / email → `/account` → Security / Profile tab
+- **Email change** requires verification link to new address
+- Captcha (Cloudflare Turnstile) on signup, forgot password, contribution forms
+
+## User Icon (Header)
+
+- Logged out → `User` icon, white
+- Logged in → `User` icon, brand yellow (`#FFBE00`)
+- Dropdown shows nickname (if set) or email, plus: My Lists / Contribute / My Account / Sign out
+
+## Contribution System (`/contribute`)
+
+Three tabs:
+1. **Add flashlight** — full spec form + image upload → pending queue
+2. **Edit existing** — search + pick flashlight → pre-filled form → pending queue
+3. **My submissions** — list of user's past submissions with status
+
+- Requires account + **nickname** (blocked if no nickname set)
+- Captcha verification server-side before DB insert
+- Images uploaded to Vercel Blob at `submissions/{submission_id}/{uuid}.{ext}`
+- "Suggest an edit" link on each flashlight detail page → `/contribute?suggest={id}`
+
+## Admin (`/adminroot`)
+
+- Only accessible when signed in as `hung.tran@joiha.com`
+- Tabs: Pending / Approved / Rejected
+- Each submission shows: type badge, before/after diff (highlighted changed fields), image previews
+- Approve → writes to `flashlights` table (insert for new, update for edit), sets `updated_by = submission.user_id`
+- Reject → saves reviewer note shown to the submitter
 
 ## Image Workflow
 
-**All images on Vercel Blob.** Supabase Storage not used.
+**All images on Vercel Blob.**
 
 Blob path format: `flashlights/{slug}/primary.{ext}`
-
-### Adding new brand/flashlights
 
 ```bash
 # 1. Insert data to DB (SQL or seed script)
@@ -85,7 +123,7 @@ node scripts/migrate-to-vercel-blob.mjs
 
 Script skips images already on Vercel Blob — safe to re-run anytime.
 
-**CDN hotlink protection:** some brands (e.g. Weltool) require a `Referer` header. The migrate script handles this via `refererMap` in the download function — add new entries there if a brand's CDN blocks downloads.
+**CDN hotlink protection:** some brands (e.g. Weltool) require a `Referer` header. The migrate script handles this via `refererMap` — add new entries there if a brand's CDN blocks downloads.
 
 ### Scripts reference
 
@@ -96,33 +134,48 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `scripts/seed-*.mjs` | Historical seed scripts per brand (Surefire, Malkoff) |
 | `scripts/cleanup-supabase-storage.mjs` | Already ran — deleted old Supabase Storage files |
 
-## Key Components
+## Key Components & Pages
 
 | File | Purpose |
 |---|---|
-| `lib/auth-context.tsx` | Supabase Auth context — user, wishlistIds, collectionIds, toggle methods |
-| `lib/types.ts` | TypeScript types: Flashlight, Review, FilterState, CollectionItem, WishlistItem |
-| `components/Providers.tsx` | Client wrapper for AuthProvider + AuthModal — used in `app/layout.tsx` |
-| `components/AuthModal.tsx` | Sign in / Sign up / Forgot password modal |
-| `components/UserMenu.tsx` | Header "My Collection" button — dropdown with My Lists, Change Password, Sign out |
-| `components/BrowsePage.tsx` | Main browse page — server-side filter/sort, pagination (32/page), compare, search |
-| `components/FilterPanel.tsx` | Sidebar filters — brand, lumens, price, category, battery, LED, charging |
-| `components/FlashlightCard.tsx` | Grid card — image, key specs, compare checkbox, wishlist/collection buttons |
-| `components/CollectionEditModal.tsx` | Edit collection metadata (price, qty, date, material, color) |
-| `app/flashlight/[slug]/page.tsx` | Detail page — gallery, specs table, notes, reviews, user manual |
-| `app/flashlight/[slug]/ImageGallery.tsx` | Image gallery with thumbnail strip |
-| `app/flashlight/[slug]/WishlistButtons.tsx` | Wishlist + collection toggle buttons |
-| `app/my/page.tsx` | My Lists — wishlist tab + collection tab, grid/list toggle |
-| `app/compare/page.tsx` | Side-by-side spec comparison (up to 4 flashlights) |
-| `app/reset-password/page.tsx` | Password reset via email link (PASSWORD_RECOVERY event) |
-| `app/change-password/page.tsx` | Change password while logged in (re-auth + updateUser) |
+| `lib/auth-context.tsx` | Auth context — user, nickname, wishlistIds, collectionIds, toggle methods |
+| `lib/supabase-admin.ts` | `getSupabaseAdmin()` — service role client, lazy init (runtime only) |
+| `lib/types.ts` | TypeScript types for all DB tables |
+| `components/AuthModal.tsx` | Sign in / Sign up / Forgot / MFA challenge / Recovery code |
+| `components/UserMenu.tsx` | User icon in header — dropdown menu |
+| `components/Header.tsx` | Shared sticky header — logo, nav, UserMenu |
+| `components/BrowsePage.tsx` | Main browse page — server-side filter/sort, pagination 32/page |
+| `components/FilterPanel.tsx` | Sidebar filters |
+| `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons |
+| `components/SubmitFlashlightForm.tsx` | Full spec form with image upload + Turnstile captcha |
+| `app/[slug]/page.tsx` | Flashlight detail page — gallery, specs, reviews, manual, attribution |
+| `app/my/page.tsx` | My Lists — wishlist + collection |
+| `app/account/page.tsx` | My Account — profile (email change, nickname), security (password, 2FA) |
+| `app/contribute/page.tsx` | Contribute — add/edit flashlights, submission history |
+| `app/adminroot/page.tsx` + `AdminDashboard.tsx` | Admin review queue |
+| `app/compare/page.tsx` | Side-by-side spec comparison (up to 4) |
+| `app/updates/page.tsx` | Static changelog |
+| `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
+| `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
+| `app/api/upload/route.ts` | Vercel Blob client upload handler |
+
+## Flashlight Detail Page
+
+Sections in order:
+1. Image gallery
+2. Hero info (brand, model, category, key stats, price, wishlist/collection buttons)
+3. "Suggest an edit" link
+4. Notes block — shown only if `flashlight.notes` is not null
+5. Specifications table
+6. Reviews — shown only if reviews exist
+7. User Manual — shown only if `flashlight.manual_url` is not null
+8. Attribution line — "Added by system · [date]" + "Last updated by [nickname] · [date]" if applicable
 
 ## Filter Options
 
 **Categories:** EDC, Tactical, Weapon Light, Thrower, Flood, Headlamp, Search & Rescue, Work, Custom
 
-**Battery types (primary first, then rechargeable small→large):**
-CR123A, D-cell, AA, AAA, 10440, 14500, 18350, 18650, 21700, 26650, Built-in
+**Battery types:** CR123A, D-cell, AA, AAA, 10440, 14500, 18350, 18650, 21700, 26650, Built-in
 
 **Charging:** Any / USB / Magnetic / None
 
@@ -139,19 +192,7 @@ Brand color `#FFBE00` (warm yellow ~3500K) defined as `brand-*` scale in `app/gl
 
 ## Material Options (CollectionEditModal)
 
-Ordered: Aluminum → Copper-based → Exotic
-
 `Aluminum, Raw Aluminum, 7075 Aluminum, Anodized Aluminum, Cerakote Aluminum, Copper, Brass, Bronze, Zirconium, Zircuti, Timascus, Damasteel, Damasteel Fenja, Other`
-
-## Flashlight Detail Page
-
-Sections in order:
-1. Image gallery (ImageGallery component)
-2. Hero info (brand, model, category, key stats, price, wishlist buttons)
-3. Notes block — shown only if `flashlight.notes` is not null
-4. Specifications table
-5. Reviews — shown only if reviews exist
-6. User Manual — shown only if `flashlight.manual_url` is not null
 
 ## Deployment
 

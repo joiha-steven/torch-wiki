@@ -68,10 +68,10 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
         if (sub.type === 'new') {
           const slug = `${d.brand}-${d.model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
           const primaryImg = sub.submission_images?.find(i => i.is_primary) ?? sub.submission_images?.[0]
-          await supabase.from('flashlights').insert({ ...d, slug, image_url: primaryImg?.url ?? null })
+          await supabase.from('flashlights').insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: sub.user_id })
         } else if (sub.target_id) {
           const primaryImg = sub.submission_images?.find(i => i.is_primary)
-          const updateData: Record<string, unknown> = { ...d }
+          const updateData: Record<string, unknown> = { ...d, updated_by: sub.user_id, updated_at: new Date().toISOString() }
           if (primaryImg) updateData.image_url = primaryImg.url
           await supabase.from('flashlights').update(updateData).eq('id', sub.target_id)
         }

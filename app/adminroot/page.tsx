@@ -1,20 +1,24 @@
-import { redirect } from 'next/navigation'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
 import AdminDashboard from './AdminDashboard'
 
 const ADMIN_EMAIL = 'hung.tran@joiha.com'
 
-export default async function AdminRootPage() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } }
-  )
+export default function AdminRootPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) redirect('/')
+  useEffect(() => {
+    if (!loading && (!user || user.email !== ADMIN_EMAIL)) {
+      router.replace('/')
+    }
+  }, [user, loading, router])
+
+  if (loading) return null
+  if (!user || user.email !== ADMIN_EMAIL) return null
 
   return <AdminDashboard />
 }

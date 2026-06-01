@@ -20,6 +20,14 @@ export default async function FlashlightPage({ params }: Props) {
 
   if (!flashlight) notFound()
 
+  // Fetch updater's nickname if someone updated it
+  let updatedByNickname: string | null = null
+  if (flashlight.updated_by) {
+    const { data: profile } = await supabase
+      .from('profiles').select('nickname').eq('id', flashlight.updated_by).single()
+    updatedByNickname = profile?.nickname ?? null
+  }
+
   const specs = [
     { label: 'Brand', value: flashlight.brand },
     { label: 'Model', value: flashlight.model },
@@ -109,7 +117,7 @@ export default async function FlashlightPage({ params }: Props) {
             <WishlistButtons flashlightId={flashlight.id} />
 
             <Link
-              href={`/my?suggest=${flashlight.id}`}
+              href={`/contribute?suggest=${flashlight.id}`}
               className="mt-4 inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
             >
               <FileText size={12} />
@@ -185,6 +193,19 @@ export default async function FlashlightPage({ params }: Props) {
             </a>
           </div>
         )}
+
+        {/* Creation / update info */}
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
+          <span>
+            Added by system · {new Date(flashlight.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </span>
+          {flashlight.updated_by && flashlight.updated_at !== flashlight.created_at && (
+            <span>
+              Last updated by <span className="text-slate-500 font-medium">{updatedByNickname ?? 'user'}</span>
+              {' · '}{new Date(flashlight.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   )

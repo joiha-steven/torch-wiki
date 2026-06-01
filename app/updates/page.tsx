@@ -12,6 +12,19 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 1, 2026',
+    title: 'Community contributions & security',
+    items: [
+      'Contribute page — users can submit new flashlights or suggest edits to existing ones',
+      'All submissions go into a pending queue, reviewed before going live',
+      'Edit existing flashlight — search and pick any flashlight, form pre-fills with current data',
+      'Cloudflare Turnstile captcha on sign up, forgot password, and submit forms',
+      'Login rate limiting — locked for 10 minutes after 5 failed attempts',
+      'Shorter flashlight URLs — /surefire-m600df instead of /flashlight/surefire-m600df',
+      'UI cleanup: removed breadcrumb, neutral gray background, compare bar matches header',
+    ],
+  },
+  {
+    date: 'June 1, 2026',
     title: 'Performance & emitter improvements',
     items: [
       'Server-side filtering with pagination — loads 32 flashlights at a time instead of all at once',

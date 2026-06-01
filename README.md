@@ -16,25 +16,43 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 ## Features
 
-- **Flashlight database** — specs sourced from manufacturers: lumens, beam distance, emitter, battery type, dimensions, weight, IP rating, charging type, and more
-- **Filter & sort** — narrow down by brand, category, battery type, LED/emitter, max lumens, price range, and charging method
-- **Compare** — select up to 4 flashlights and compare specs side by side
-- **Detail pages** — full spec sheet per model, image gallery, notes, linked reviews (articles & videos), user manual
-- **Wishlist** — save flashlights you want (requires free account)
-- **Collection** — track flashlights you own, with purchase price, date, material variant, and quantity
-- **My Lists** — personal dashboard with wishlist and collection tabs, grid/list view toggle
-- **Account** — sign up, sign in, forgot password (email reset link), change password
-- **Mobile friendly** — responsive layout with filter drawer on small screens
-- **Fast** — server-side filtering and pagination, loads 32 items at a time
+**Browsing & discovery**
+- Filter by brand, category, battery type, LED/emitter, max lumens, price range, and charging method
+- Sort by model, lumens, price, beam distance, or weight
+- Search by brand or model name
+- Compare up to 4 flashlights side by side
+
+**Flashlight pages**
+- Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
+- Image gallery, product notes, linked reviews (articles & videos), user manual
+- Attribution: who added it and who last updated it
+
+**User accounts**
+- Free sign up with email + password
+- Wishlist — save flashlights you want
+- Collection — track flashlights you own (purchase price, date, material, quantity)
+- My Account — change email (with verification), permanent nickname, change password
+- Two-factor authentication (TOTP) with recovery codes
+
+**Community contributions**
+- Submit new flashlights or suggest edits to existing ones
+- All submissions go into a pending queue — reviewed before going live
+- Requires a nickname to contribute
+
+**Security**
+- Cloudflare Turnstile captcha on signup, forgot password, and submission forms
+- Login rate limiting: 5 failed attempts → 10-minute lockout
+- 2FA with SHA-256 hashed recovery codes
 
 ---
 
 ## Tech Stack
 
-- [Next.js](https://nextjs.org) — App Router, TypeScript
-- [Supabase](https://supabase.com) — PostgreSQL database + auth
-- [Vercel](https://vercel.com) — hosting, image storage (Blob), analytics
-- [Tailwind CSS](https://tailwindcss.com)
+- [Next.js](https://nextjs.org) — App Router, TypeScript, Turbopack
+- [Supabase](https://supabase.com) — PostgreSQL database + Auth (email/password + TOTP 2FA)
+- [Vercel](https://vercel.com) — hosting, Blob CDN (images), Analytics, Speed Insights
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) — captcha
 
 ---
 
@@ -46,15 +64,18 @@ cd torch-wiki
 npm install
 ```
 
-Create `.env.local` (get values from Supabase + Vercel dashboards):
+Create `.env.local` with values from your Supabase, Vercel, and Cloudflare dashboards:
 ```
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 BLOB_READ_WRITE_TOKEN=...
+BLOB_STORE_ID=...
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
+TURNSTILE_SECRET_KEY=...
 ```
 
-Or pull env vars from Vercel CLI (then add Supabase keys manually):
+Or pull from Vercel CLI (then add Supabase keys + Turnstile keys manually):
 ```bash
 npx vercel env pull .env.local
 ```
@@ -72,6 +93,8 @@ npm run dev
 ```bash
 node scripts/migrate-to-vercel-blob.mjs
 ```
+
+Script is safe to re-run — skips images already on Blob. Some brand CDNs require a `Referer` header (handled via `refererMap` in the script).
 
 ---
 

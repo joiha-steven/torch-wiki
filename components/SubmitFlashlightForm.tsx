@@ -2,10 +2,13 @@
 
 import { useState, useRef } from 'react'
 import { upload } from '@vercel/blob/client'
+import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
-import { X, Upload, GripVertical, Loader2 } from 'lucide-react'
+import { X, Upload, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+
+const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
 const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Work', 'Custom']
 const BATTERY_TYPES = ['CR123A', 'D-cell', 'AA', 'AAA', '10440', '14500', '18350', '18650', '21700', '26650', 'Built-in']
@@ -49,10 +52,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   })
   const [emitterInput, setEmitterInput] = useState((initial.emitters ?? []).join(', '))
   const [images, setImages] = useState<ImageEntry[]>([])
-  const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   const set = (k: keyof Flashlight, v: unknown) => setData(d => ({ ...d, [k]: v }))
   const num = (v: string) => v === '' ? null : Number(v)
@@ -81,9 +85,25 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!data.brand?.trim() || !data.model?.trim()) { setError('Brand và Model là bắt buộc.'); return }
+    if (!captchaToken) { setError('Please complete the captcha.'); return }
     setSubmitting(true)
     setError(null)
     try {
+      // 0. Verify captcha server-side
+      const captchaRes = await fetch('/api/captcha-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: captchaToken }),
+      })
+      const { success } = await captchaRes.json()
+      if (!success) {
+        setError('Captcha failed — please try again.')
+        turnstileRef.current?.reset()
+        setCaptchaToken(null)
+        setSubmitting(false)
+        return
+      }
+
       // 1. Create submission row first
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
@@ -91,7 +111,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       const submissionData = { ...data, emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean) }
       const { data: sub, error: subErr } = await supabase.from('flashlight_submissions').insert({
         user_id: user.id, type: mode, status: 'pending',
-        target_id: targetId ?? null, data: submissionData, note: note || null,
+        target_id: targetId ?? null, data: submissionData, note: null,
       }).select().single()
       if (subErr) throw subErr
 
@@ -227,9 +247,6 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       <Field label="Description">
         <textarea className={input + ' resize-none'} rows={3} value={data.description ?? ''} onChange={e => set('description', e.target.value || null)} placeholder="Short product description..." />
       </Field>
-      <Field label="Notes / Extra info">
-        <textarea className={input + ' resize-none'} rows={2} value={data.notes ?? ''} onChange={e => set('notes', e.target.value || null)} placeholder="Any extra notes about this flashlight..." />
-      </Field>
       <Field label="User Manual URL">
         <input className={input} type="url" value={data.manual_url ?? ''} onChange={e => set('manual_url', e.target.value || null)} placeholder="https://..." />
       </Field>
@@ -278,10 +295,13 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         <p className="text-xs text-slate-400 mt-1.5">Ảnh đầu tiên hoặc ô marked "Primary" sẽ là ảnh chính. Kéo để sắp xếp thứ tự.</p>
       </div>
 
-      {/* Note to admin */}
-      <Field label={mode === 'edit' ? 'Ghi chú cho admin (bạn sửa gì, tại sao)' : 'Ghi chú thêm (tuỳ chọn)'}>
-        <textarea className={input + ' resize-none'} rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder={mode === 'edit' ? 'e.g. Sửa max lumens từ 500 → 1000 vì spec sheet chính thức ghi 1000' : ''} />
-      </Field>
+      <Turnstile
+        ref={turnstileRef}
+        siteKey={SITE_KEY}
+        onSuccess={token => setCaptchaToken(token)}
+        onExpire={() => setCaptchaToken(null)}
+        options={{ theme: 'light', size: 'flexible' }}
+      />
 
       {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
@@ -289,7 +309,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         <button type="button" onClick={onCancel} className="flex-1 text-sm text-slate-600 border border-slate-200 rounded-lg py-2.5 hover:bg-slate-50">
           Cancel
         </button>
-        <button type="submit" disabled={submitting}
+        <button type="submit" disabled={submitting || !captchaToken}
           className="flex-1 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-black text-sm font-medium rounded-lg py-2.5 flex items-center justify-center gap-2">
           {submitting && <Loader2 size={14} className="animate-spin" />}
           {submitting ? 'Submitting…' : mode === 'new' ? 'Submit for review' : 'Submit edit'}
