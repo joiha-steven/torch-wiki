@@ -14,6 +14,7 @@ export default function Header() {
           <Link href="/" className="hover:text-white">Browse</Link>
           <Link href="/compare" className="hover:text-white">Compare</Link>
           <Link href="/updates" className="hover:text-white">Updates</Link>
+          <Link href="/report" className="hover:text-white">Report</Link>
         </nav>
         <div className="ml-auto"><UserMenu /></div>
       </div>

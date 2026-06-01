@@ -5,9 +5,22 @@ import { supabase } from '@/lib/supabase'
 import { FlashlightSubmission, Flashlight } from '@/lib/types'
 import Header from '@/components/Header'
 import Image from 'next/image'
-import { Check, X, ChevronDown, ChevronUp, Clock, Loader2 } from 'lucide-react'
+import { Check, X, ChevronDown, ChevronUp, Clock, Loader2, Bug, Layers } from 'lucide-react'
 
-type Tab = 'pending' | 'approved' | 'rejected'
+type SubmissionTab = 'pending' | 'approved' | 'rejected'
+type ReportStatus  = 'new' | 'read' | 'resolved'
+type Section = 'submissions' | 'reports'
+
+type BugReport = {
+  id: string
+  created_at: string
+  user_id: string | null
+  email: string | null
+  topic: string
+  body: string
+  attachment_url: string | null
+  status: ReportStatus
+}
 
 function formatDate(s: string) {
   return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -189,26 +202,137 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
   )
 }
 
-export default function AdminDashboard() {
-  const [tab, setTab] = useState<Tab>('pending')
-  const [submissions, setSubmissions] = useState<FlashlightSubmission[]>([])
-  const [loading, setLoading] = useState(true)
+// ── Reports panel ────────────────────────────────────────────────────────────
+function ReportsPanel() {
+  const [statusFilter, setStatusFilter] = useState<ReportStatus>('new')
+  const [reports, setReports]           = useState<BugReport[]>([])
+  const [loading, setLoading]           = useState(true)
+  const [expanded, setExpanded]         = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data } = await supabase
-      .from('flashlight_submissions')
-      .select('*, submission_images(*), flashlights(*)')
-      .eq('status', tab)
+      .from('bug_reports')
+      .select('*')
+      .eq('status', statusFilter)
       .order('created_at', { ascending: false })
-    setSubmissions((data ?? []) as FlashlightSubmission[])
+    setReports((data ?? []) as BugReport[])
     setLoading(false)
-  }, [tab])
+  }, [statusFilter])
 
   useEffect(() => { load() }, [load])
 
-  const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'pending', label: 'Pending', icon: <Clock size={14} /> },
+  async function setStatus(id: string, status: ReportStatus) {
+    await supabase.from('bug_reports').update({ status }).eq('id', id)
+    load()
+  }
+
+  const STATUS_TABS: { key: ReportStatus; label: string }[] = [
+    { key: 'new',      label: 'New' },
+    { key: 'read',     label: 'Read' },
+    { key: 'resolved', label: 'Resolved' },
+  ]
+
+  return (
+    <div>
+      <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
+        {STATUS_TABS.map(t => (
+          <button key={t.key} onClick={() => setStatusFilter(t.key)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
+      ) : reports.length === 0 ? (
+        <p className="text-slate-400 text-sm py-16 text-center">No {statusFilter} reports.</p>
+      ) : (
+        <div className="space-y-3">
+          {reports.map(r => (
+            <div key={r.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <button
+                onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                className="w-full flex items-start gap-4 px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{r.topic}</span>
+                    {r.attachment_url && <span className="text-xs text-slate-400">📎</span>}
+                  </div>
+                  <p className="text-sm text-slate-700 truncate">{r.body}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {r.email ?? (r.user_id ? 'Registered user' : 'Anonymous')} · {formatDate(r.created_at)}
+                  </p>
+                </div>
+                {expanded === r.id ? <ChevronUp size={15} className="text-slate-400 mt-1 shrink-0" /> : <ChevronDown size={15} className="text-slate-400 mt-1 shrink-0" />}
+              </button>
+
+              {expanded === r.id && (
+                <div className="border-t border-slate-100 px-5 py-4 space-y-4">
+                  <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{r.body}</p>
+
+                  {r.attachment_url && (
+                    <a href={r.attachment_url} target="_blank" rel="noopener noreferrer"
+                      className="block w-fit">
+                      <Image src={r.attachment_url} alt="attachment" width={320} height={200}
+                        className="rounded-lg border border-slate-200 object-cover max-h-48" />
+                    </a>
+                  )}
+
+                  <div className="flex gap-2 flex-wrap">
+                    {statusFilter !== 'read' && (
+                      <button onClick={() => setStatus(r.id, 'read')}
+                        className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-50">
+                        Mark as read
+                      </button>
+                    )}
+                    {statusFilter !== 'resolved' && (
+                      <button onClick={() => setStatus(r.id, 'resolved')}
+                        className="text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg px-3 py-1.5">
+                        Mark resolved
+                      </button>
+                    )}
+                    {statusFilter !== 'new' && (
+                      <button onClick={() => setStatus(r.id, 'new')}
+                        className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-50">
+                        Move to New
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Main dashboard ────────────────────────────────────────────────────────────
+export default function AdminDashboard() {
+  const [section, setSection]   = useState<Section>('submissions')
+  const [subTab, setSubTab]     = useState<SubmissionTab>('pending')
+  const [submissions, setSubmissions] = useState<FlashlightSubmission[]>([])
+  const [loading, setLoading]   = useState(true)
+
+  const loadSubs = useCallback(async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('flashlight_submissions')
+      .select('*, submission_images(*), flashlights(*)')
+      .eq('status', subTab)
+      .order('created_at', { ascending: false })
+    setSubmissions((data ?? []) as FlashlightSubmission[])
+    setLoading(false)
+  }, [subTab])
+
+  useEffect(() => { if (section === 'submissions') loadSubs() }, [section, loadSubs])
+
+  const SUB_TABS: { key: SubmissionTab; label: string; icon: React.ReactNode }[] = [
+    { key: 'pending',  label: 'Pending',  icon: <Clock size={14} /> },
     { key: 'approved', label: 'Approved', icon: <Check size={14} /> },
     { key: 'rejected', label: 'Rejected', icon: <X size={14} /> },
   ]
@@ -217,25 +341,42 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-100">
       <Header />
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-lg font-bold text-slate-900 mb-6">Submissions</h1>
 
+        {/* Section switcher */}
         <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
-              {t.icon}{t.label}
-            </button>
-          ))}
+          <button onClick={() => setSection('submissions')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'submissions' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            <Layers size={14} /> Submissions
+          </button>
+          <button onClick={() => setSection('reports')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'reports' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            <Bug size={14} /> Reports
+          </button>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
-        ) : submissions.length === 0 ? (
-          <p className="text-slate-400 text-sm py-16 text-center">No {tab} submissions.</p>
+        {section === 'reports' ? (
+          <ReportsPanel />
         ) : (
-          <div className="space-y-3">
-            {submissions.map(s => <SubmissionCard key={s.id} sub={s} onAction={load} />)}
-          </div>
+          <>
+            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
+              {SUB_TABS.map(t => (
+                <button key={t.key} onClick={() => setSubTab(t.key)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${subTab === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+                  {t.icon}{t.label}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
+            ) : submissions.length === 0 ? (
+              <p className="text-slate-400 text-sm py-16 text-center">No {subTab} submissions.</p>
+            ) : (
+              <div className="space-y-3">
+                {submissions.map(s => <SubmissionCard key={s.id} sub={s} onAction={loadSubs} />)}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
