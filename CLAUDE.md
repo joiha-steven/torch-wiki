@@ -8,7 +8,7 @@ Flashlight database web app. Live at **https://torch.edc.wiki**.
 
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#FFBE00`) defined in `app/globals.css` via `@theme`
-- **Supabase** — PostgreSQL database (region: ap-southeast-2, Sydney). Anon key for reads, service role key for writes in scripts.
+- **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
 - **Vercel Blob** — image storage with global CDN
 - **Vercel** — hosting, Analytics, Speed Insights. Function region: `iad1` (US East, set in `vercel.json`)
 - **Supabase Auth** — email/password + TOTP 2FA
@@ -131,9 +131,6 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | Script | Purpose |
 |---|---|
 | `scripts/migrate-to-vercel-blob.mjs` | Download images from any URL → upload to Vercel Blob → update DB |
-| `scripts/rename-images.mjs` | One-time rename of legacy image filenames to SEO format |
-| `scripts/seed-*.mjs` | Historical seed scripts per brand (Surefire, Malkoff) |
-| `scripts/cleanup-supabase-storage.mjs` | Already ran — deleted old Supabase Storage files |
 
 ## Key Components & Pages
 
@@ -194,6 +191,22 @@ Brand color `#FFBE00` (warm yellow ~3500K) defined as `brand-*` scale in `app/gl
 ## Material Options (CollectionEditModal)
 
 `Aluminum, Raw Aluminum, 7075 Aluminum, Anodized Aluminum, Cerakote Aluminum, Copper, Brass, Bronze, Zirconium, Zircuti, Timascus, Damasteel, Damasteel Fenja, Other`
+
+## Database Migration (future reference)
+
+To migrate Supabase to a new region without losing users, use the CLI:
+```bash
+npm install -g supabase
+supabase login          # needs access token from supabase.com/dashboard/account/tokens
+supabase link --project-ref <old-project-ref>
+supabase db dump --file backup.sql   # includes auth.users with password hashes
+# create new project, then:
+supabase link --project-ref <new-project-ref>
+supabase db restore --file backup.sql
+```
+Users only need to sign in again (sessions expire), passwords are preserved.
+
+**Do NOT use the JS API to migrate users** — the API does not expose password hashes.
 
 ## Deployment
 
