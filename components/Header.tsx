@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import UserMenu from './UserMenu'
 
 const NAV = [
   { href: '/',        label: 'Browse' },
+  { href: '/top',     label: 'Top' },
   { href: '/compare', label: 'Compare' },
   { href: '/updates', label: 'Updates' },
   { href: '/report',  label: 'Report' },
@@ -14,6 +16,7 @@ const NAV = [
 
 export default function Header() {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   return (
     <header className="bg-black sticky top-0 z-50">
@@ -24,9 +27,18 @@ export default function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
-          {NAV.map(n => (
-            <Link key={n.href} href={n.href} className="hover:text-white">{n.label}</Link>
-          ))}
+          {NAV.map(n => {
+            const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={active ? 'text-white' : 'hover:text-white'}
+              >
+                {n.label}
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
@@ -45,16 +57,19 @@ export default function Header() {
       {/* Mobile dropdown */}
       {open && (
         <nav className="sm:hidden bg-zinc-950 border-t border-zinc-800 px-4 py-3 flex flex-col gap-0.5">
-          {NAV.map(n => (
-            <Link
-              key={n.href}
-              href={n.href}
-              onClick={() => setOpen(false)}
-              className="text-sm text-gray-400 hover:text-white py-2.5 border-b border-zinc-800 last:border-0"
-            >
-              {n.label}
-            </Link>
-          ))}
+          {NAV.map(n => {
+            const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                onClick={() => setOpen(false)}
+                className={`text-sm py-2.5 border-b border-zinc-800 last:border-0 ${active ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+              >
+                {n.label}
+              </Link>
+            )
+          })}
         </nav>
       )}
     </header>

@@ -174,7 +174,8 @@ export default function BrowsePage() {
             <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
           </Link>
           <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
-            <Link href="/" className="text-gray-300 hover:text-white">Browse</Link>
+            <Link href="/" className="text-white">Browse</Link>
+            <Link href="/top" className="hover:text-white">Top</Link>
             <Link href="/compare" className="hover:text-white">Compare</Link>
             <Link href="/updates" className="hover:text-white">Updates</Link>
             <Link href="/report" className="hover:text-white">Report</Link>
@@ -212,6 +213,7 @@ export default function BrowsePage() {
           <nav className="sm:hidden bg-zinc-950 border-t border-zinc-800 px-4 py-3 flex flex-col gap-0.5">
             {[
               { href: '/',        label: 'Browse' },
+              { href: '/top',     label: 'Top' },
               { href: '/compare', label: 'Compare' },
               { href: '/updates', label: 'Updates' },
               { href: '/report',  label: 'Report' },

@@ -1,0 +1,145 @@
+import { supabase } from '@/lib/supabase'
+import { Flashlight } from '@/lib/types'
+import Header from '@/components/Header'
+import Link from 'next/link'
+import { ChevronLeft } from 'lucide-react'
+
+export const revalidate = 3600
+
+type TopList = {
+  title: string
+  subtitle: string
+  items: Flashlight[]
+  stat: (f: Flashlight) => string | null
+  statLabel: string
+}
+
+async function fetchLists(): Promise<TopList[]> {
+  const [recentlyAdded, newestRelease, mostExpensive, cheapest] = await Promise.all([
+    supabase
+      .from('flashlights')
+      .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .order('created_at', { ascending: false })
+      .limit(10),
+    supabase
+      .from('flashlights')
+      .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .not('year', 'is', null)
+      .order('year', { ascending: false })
+      .limit(10),
+    supabase
+      .from('flashlights')
+      .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .not('price_usd', 'is', null)
+      .order('price_usd', { ascending: false })
+      .limit(10),
+    supabase
+      .from('flashlights')
+      .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .not('price_usd', 'is', null)
+      .gt('price_usd', 0)
+      .order('price_usd', { ascending: true })
+      .limit(10),
+  ])
+
+  return [
+    {
+      title: 'Recently Added',
+      subtitle: 'Mới thêm vào database',
+      items: (recentlyAdded.data ?? []) as Flashlight[],
+      stat: f => f.max_lumens ? `${f.max_lumens.toLocaleString()} lm` : null,
+      statLabel: 'lumens',
+    },
+    {
+      title: 'Newest Release',
+      subtitle: 'Mẫu mới ra mắt gần đây',
+      items: (newestRelease.data ?? []) as Flashlight[],
+      stat: f => f.year ? String(f.year) : null,
+      statLabel: 'year',
+    },
+    {
+      title: 'Most Expensive',
+      subtitle: 'Đắt nhất',
+      items: (mostExpensive.data ?? []) as Flashlight[],
+      stat: f => f.price_usd != null ? `$${f.price_usd.toLocaleString()}` : null,
+      statLabel: 'price',
+    },
+    {
+      title: 'Best Value',
+      subtitle: 'Rẻ nhất',
+      items: (cheapest.data ?? []) as Flashlight[],
+      stat: f => f.price_usd != null ? `$${f.price_usd.toLocaleString()}` : null,
+      statLabel: 'price',
+    },
+  ]
+}
+
+export default async function TopPage() {
+  const lists = await fetchLists()
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Header />
+
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-700 mb-8">
+          <ChevronLeft size={14} /> Back to browse
+        </Link>
+
+        <h1 className="text-2xl font-bold text-slate-900 mb-1">Top Lists</h1>
+        <p className="text-sm text-slate-400 mb-8">Tổng hợp các bảng xếp hạng đèn pin</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {lists.map(list => (
+            <div key={list.title} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h2 className="font-semibold text-slate-900">{list.title}</h2>
+                <p className="text-xs text-slate-400 mt-0.5">{list.subtitle}</p>
+              </div>
+
+              <ol className="divide-y divide-slate-50">
+                {list.items.map((f, i) => {
+                  const stat = list.stat(f)
+                  return (
+                    <li key={f.id}>
+                      <Link
+                        href={`/${f.slug}`}
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors group"
+                      >
+                        {/* Rank */}
+                        <span className={`
+                          shrink-0 w-6 text-center text-sm font-bold
+                          ${i === 0 ? 'text-brand-500' : i === 1 ? 'text-slate-400' : i === 2 ? 'text-amber-700' : 'text-slate-300'}
+                        `}>
+                          {i + 1}
+                        </span>
+
+                        {/* Name */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-800 group-hover:text-slate-900 truncate">
+                            {f.brand} {f.model}
+                          </p>
+                        </div>
+
+                        {/* Stat */}
+                        {stat && (
+                          <span className="shrink-0 text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                            {stat}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  )
+                })}
+
+                {list.items.length === 0 && (
+                  <li className="px-5 py-8 text-sm text-slate-400 text-center">No data yet.</li>
+                )}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
