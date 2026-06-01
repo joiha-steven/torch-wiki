@@ -142,7 +142,11 @@ export default function AuthModal() {
     if (!await verifyCaptcha(captchaToken)) {
       setError('Captcha failed.'); turnstileRef.current?.reset(); setCaptchaToken(null); setLoading(false); return
     }
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    })
     if (error) setError(error.message)
     else setMessage('Check your email for a confirmation link.')
     turnstileRef.current?.reset(); setCaptchaToken(null)
