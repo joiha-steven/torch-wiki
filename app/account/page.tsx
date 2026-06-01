@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase'
 type Tab = 'profile' | 'security'
 type MfaStep = 'idle' | 'qr' | 'verify' | 'codes' | 'disabling'
 
-const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white'
+const inp = 'w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white'
 
 // Nickname: letters, numbers, - and _ only, 3–30 chars
 function nickError(v: string) {

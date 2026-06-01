@@ -258,7 +258,7 @@ function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => 
       <button
         onClick={(e) => { e.preventDefault(); onEdit() }}
         className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white border border-slate-200 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-        title="Chỉnh sửa"
+        title="Edit"
       >
         <Pencil size={12} className="text-slate-600" />
       </button>
@@ -316,7 +316,7 @@ function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => v
       <button
         onClick={onEdit}
         className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
-        title="Chỉnh sửa"
+        title="Edit"
       >
         <Pencil size={15} />
       </button>

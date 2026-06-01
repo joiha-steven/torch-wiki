@@ -36,7 +36,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
   )
 }
 
-const input = "w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+const input = "w-full h-10 text-sm border border-slate-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
 
 export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onSuccess, onCancel }: Props) {
   const [data, setData] = useState<Partial<Flashlight>>({
@@ -84,7 +84,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!data.brand?.trim() || !data.model?.trim()) { setError('Brand và Model là bắt buộc.'); return }
+    if (!data.brand?.trim() || !data.model?.trim()) { setError('Brand and Model are required.'); return }
     if (!captchaToken) { setError('Please complete the captcha.'); return }
     setSubmitting(true)
     setError(null)
@@ -131,7 +131,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       onSuccess()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra.')
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setSubmitting(false)
     }
@@ -182,7 +182,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       </div>
 
       {/* LED */}
-      <Field label="LED / Emitters (phân cách bằng dấu phẩy nếu nhiều LED)">
+      <Field label="LED / Emitters (comma-separated if multiple)">
         <input className={input} value={emitterInput} onChange={e => setEmitterInput(e.target.value)} placeholder="e.g. Cree XHP50.2, Luminus SBT90.3" />
       </Field>
 
@@ -245,7 +245,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Text fields */}
       <Field label="Description">
-        <textarea className={input + ' resize-none'} rows={3} value={data.description ?? ''} onChange={e => set('description', e.target.value || null)} placeholder="Short product description..." />
+        <textarea className={input + ' !h-auto py-2 resize-none'} rows={3} value={data.description ?? ''} onChange={e => set('description', e.target.value || null)} placeholder="Short product description..." />
       </Field>
       <Field label="User Manual URL">
         <input className={input} type="url" value={data.manual_url ?? ''} onChange={e => set('manual_url', e.target.value || null)} placeholder="https://..." />
@@ -292,7 +292,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
           <Upload size={14} />
           Upload images
         </button>
-        <p className="text-xs text-slate-400 mt-1.5">Ảnh đầu tiên hoặc ô marked "Primary" sẽ là ảnh chính. Kéo để sắp xếp thứ tự.</p>
+        <p className="text-xs text-slate-400 mt-1.5">The first image or the one marked "Primary" will be the main image.</p>
       </div>
 
       <Turnstile

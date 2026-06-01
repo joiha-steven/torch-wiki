@@ -31,7 +31,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Free sign up with email + password
 - Wishlist — save flashlights you want
 - Collection — track flashlights you own (purchase price, date, material, quantity)
-- My Account — change email (with verification), permanent nickname, change password
+- My Account — change email (verification link sent to new address), set a permanent nickname (can't be changed after saving), change password
 - Two-factor authentication (TOTP) with recovery codes
 
 **Community contributions**

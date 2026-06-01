@@ -40,7 +40,7 @@ Key tables:
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`)
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
-- `profiles` — `(id, nickname, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**
+- `profiles` — `(id, nickname, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input.
 - `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
 - `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
 - `recovery_codes` — hashed 2FA recovery codes per user (`code_hash`, `used_at`)
@@ -79,8 +79,9 @@ $$;
 - Forgot password → `supabase.auth.resetPasswordForEmail()` → email link → `/reset-password`
 - **2FA (TOTP)** — enroll via `/account` → Security tab → QR code → 10 recovery codes (SHA-256 hashed in `recovery_codes` table)
 - Login with 2FA → AuthModal shows TOTP step; "lost authenticator" → recovery code → calls `/api/recover-account` (admin API deletes factor)
-- Change password / email → `/account` → Security / Profile tab
-- **Email change** requires verification link to new address
+- Change password → `/account` → Security tab (re-authenticates with current password first)
+- **Email change** → `/account` → Profile tab → sends verification link to new address; change only takes effect after confirmation
+- Nickname is **permanent** once saved — field becomes read-only, no edit allowed
 - Captcha (Cloudflare Turnstile) on signup, forgot password, contribution forms
 
 ## User Icon (Header)
