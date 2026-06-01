@@ -25,6 +25,7 @@ BLOB_READ_WRITE_TOKEN=...
 BLOB_STORE_ID=...
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
 TURNSTILE_SECRET_KEY=...
+NEXT_PUBLIC_ADMIN_EMAIL=...
 ```
 
 **After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
@@ -40,7 +41,8 @@ Key tables:
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`)
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
-- `profiles` — `(id, nickname, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input.
+- `profiles` — `(id, nickname, is_admin, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` controls admin access — set via SQL.
+- `settings` — `(key, value)` — site-wide config. Keys: `ga_measurement_id`, `ga_enabled`. RLS disabled.
 - `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
 - `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
 - `recovery_codes` — hashed 2FA recovery codes per user (`code_hash`, `used_at`)
@@ -104,7 +106,8 @@ Three tabs:
 
 ## Admin (`/adminroot`)
 
-- Only accessible when signed in as `hung.tran@joiha.com`
+- Only accessible when `profiles.is_admin = true` (or `NEXT_PUBLIC_ADMIN_EMAIL` as bootstrap fallback)
+- Sections: **Submissions** | **Reports** | **Settings**
 - Tabs: Pending / Approved / Rejected
 - Each submission shows: type badge, before/after diff (highlighted changed fields), image previews
 - Approve → writes to `flashlights` table (insert for new, update for edit), sets `updated_by = submission.user_id`
@@ -150,13 +153,18 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/my/page.tsx` | My Lists — wishlist + collection |
 | `app/account/page.tsx` | My Account — profile (email change, nickname), security (password, 2FA) |
 | `app/contribute/page.tsx` | Contribute — add/edit flashlights, submission history |
-| `app/adminroot/page.tsx` + `AdminDashboard.tsx` | Admin review queue |
+| `app/adminroot/page.tsx` + `AdminDashboard.tsx` | Admin review queue + reports + settings |
 | `app/compare/page.tsx` | Side-by-side spec comparison (up to 4) |
 | `app/updates/page.tsx` | Static changelog |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
 | `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
 | `app/api/upload/route.ts` | Vercel Blob client upload handler |
 | `app/api/revalidate/route.ts` | On-demand cache invalidation — called by admin on approval or force-clear |
+| `app/api/ga-settings/route.ts` | Returns GA `{ enabled, id }` from `settings` table (5 min cache) |
+| `app/sitemap.ts` | Auto-generated `/sitemap.xml` — all flashlight slugs + static pages (1hr revalidate) |
+| `app/robots.ts` | `/robots.txt` — allow all crawlers, block `/adminroot` and `/api/` |
+| `components/GoogleAnalytics.tsx` | Loads GA script client-side if enabled; skipped for admin users |
+| `app/[slug]/page.tsx` | Flashlight detail — `generateMetadata` (dynamic title/description/OG), JSON-LD Product schema |
 
 ## Caching Strategy
 

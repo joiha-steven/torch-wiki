@@ -8,6 +8,7 @@ type AuthContextType = {
   user: User | null
   loading: boolean
   nickname: string | null
+  isAdmin: boolean
   wishlistIds: Set<string>
   collectionIds: Set<string>
   toggleWishlist: (flashlightId: string) => Promise<void>
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   nickname: null,
+  isAdmin: false,
   wishlistIds: new Set(),
   collectionIds: new Set(),
   toggleWishlist: async () => {},
@@ -36,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [nickname, setNickname] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
   const [collectionIds, setCollectionIds] = useState<Set<string>>(new Set())
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -47,11 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [wRes, cRes, pRes] = await Promise.all([
       supabase.from('user_wishlists').select('flashlight_id').eq('user_id', userId),
       supabase.from('user_collections').select('flashlight_id').eq('user_id', userId),
-      supabase.from('profiles').select('nickname').eq('id', userId).single(),
+      supabase.from('profiles').select('nickname, is_admin').eq('id', userId).single(),
     ])
     setWishlistIds(new Set(wRes.data?.map((r) => r.flashlight_id) ?? []))
     setCollectionIds(new Set(cRes.data?.map((r) => r.flashlight_id) ?? []))
     setNickname(pRes.data?.nickname ?? null)
+    setIsAdmin(pRes.data?.is_admin ?? false)
   }, [])
 
   useEffect(() => {
@@ -68,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         fetchedForUser.current = null
         setNickname(null)
+        setIsAdmin(false)
         setWishlistIds(new Set())
         setCollectionIds(new Set())
       }
@@ -112,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading, nickname, wishlistIds, collectionIds,
+      user, loading, nickname, isAdmin, wishlistIds, collectionIds,
       toggleWishlist, toggleCollection, signOut,
       openAuthModal: () => setAuthModalOpen(true),
       authModalOpen,

@@ -50,6 +50,16 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
 - Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency
 
+**SEO**
+- Dynamic `<title>`, `<meta description>`, and Open Graph tags per flashlight page
+- JSON-LD Product structured data on every flashlight page
+- Auto-generated `/sitemap.xml` — updates on deploy or when admin adds a flashlight
+- `/robots.txt` — search engines allowed, admin/api routes blocked
+
+**Analytics**
+- Google Analytics — toggle on/off and set Measurement ID from admin panel
+- Admin user excluded from tracking automatically
+
 ---
 
 ## Tech Stack
@@ -85,6 +95,8 @@ Or pull from Vercel CLI (then add Supabase keys + Turnstile keys manually):
 ```bash
 npx vercel env pull .env.local
 ```
+
+Set `NEXT_PUBLIC_ADMIN_EMAIL` to the email address that should have admin access (bootstrapping fallback — proper admin access is controlled by `profiles.is_admin` in the database).
 
 ```bash
 npm run dev

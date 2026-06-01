@@ -14,12 +14,14 @@ export async function POST(request: Request) {
     const { data } = await supabase.from('flashlights').select('slug')
     for (const f of data ?? []) revalidatePath(`/${f.slug}`)
     revalidatePath('/', 'layout')
+    revalidatePath('/sitemap.xml')
     return NextResponse.json({ revalidated: true, count: data?.length ?? 0 })
   }
 
   if (all) {
-    // New flashlight added — revalidate browse layout
+    // New flashlight added — revalidate browse layout + sitemap
     revalidatePath('/', 'layout')
+    revalidatePath('/sitemap.xml')
   } else if (slug) {
     // Specific flashlight edited
     revalidatePath(`/${slug}`)

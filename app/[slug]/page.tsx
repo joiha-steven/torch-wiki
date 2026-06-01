@@ -1,4 +1,6 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { FlashlightImage } from '@/lib/types'
@@ -11,6 +13,18 @@ import Header from '@/components/Header'
 // Cache forever — cleared on-demand when admin approves a submission
 export const revalidate = false
 
+const BASE = 'https://torch.edc.wiki'
+
+// Deduplicate DB query between generateMetadata and page component
+const getFlashlight = cache(async (slug: string) => {
+  const { data } = await supabase
+    .from('flashlights')
+    .select('*, reviews(*), flashlight_images(*)')
+    .eq('slug', slug)
+    .single()
+  return data
+})
+
 export async function generateStaticParams() {
   const { data } = await supabase.from('flashlights').select('slug')
   return (data ?? []).map(f => ({ slug: f.slug }))
@@ -18,14 +32,48 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ slug: string }> }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const f = await getFlashlight(slug)
+  if (!f) return { title: 'Flashlight — torch.EDC.wiki' }
+
+  const title = `${f.brand} ${f.model} — torch.EDC.wiki`
+
+  // Build a short spec summary for description
+  const parts: string[] = []
+  if (f.max_lumens)      parts.push(`${f.max_lumens.toLocaleString()} lumens`)
+  if (f.beam_distance_m) parts.push(`${f.beam_distance_m}m throw`)
+  if (f.battery_type)    parts.push(`${f.battery_type} battery`)
+  if (f.category)        parts.push(f.category)
+
+  const description = f.description
+    ? f.description.slice(0, 155)
+    : `${f.brand} ${f.model}${parts.length ? ' — ' + parts.join(', ') : ''}. Full specs, reviews and images on torch.EDC.wiki.`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${BASE}/${slug}`,
+      siteName: 'torch.EDC.wiki',
+      images: f.image_url ? [{ url: f.image_url, alt: `${f.brand} ${f.model}` }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: f.image_url ? [f.image_url] : [],
+    },
+    alternates: { canonical: `${BASE}/${slug}` },
+  }
+}
+
 export default async function FlashlightPage({ params }: Props) {
   const { slug } = await params
-
-  const { data: flashlight } = await supabase
-    .from('flashlights')
-    .select('*, reviews(*), flashlight_images(*)')
-    .eq('slug', slug)
-    .single()
+  const flashlight = await getFlashlight(slug)
 
   if (!flashlight) notFound()
 
@@ -59,9 +107,36 @@ export default async function FlashlightPage({ params }: Props) {
     { label: 'Est. Retail Price', value: flashlight.price_usd ? `$${flashlight.price_usd}` : null },
   ].filter((s) => s.value != null)
 
+  // JSON-LD Product structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${flashlight.brand} ${flashlight.model}`,
+    brand: { '@type': 'Brand', name: flashlight.brand },
+    description: flashlight.description ?? undefined,
+    image: flashlight.image_url ?? undefined,
+    url: `${BASE}/${slug}`,
+    ...(flashlight.price_usd ? {
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'USD',
+        price: flashlight.price_usd,
+        availability: flashlight.is_discontinued
+          ? 'https://schema.org/Discontinued'
+          : 'https://schema.org/InStock',
+      },
+    } : {}),
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
+
+      {/* JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
@@ -185,6 +260,7 @@ export default async function FlashlightPage({ params }: Props) {
             </div>
           </div>
         )}
+
         {flashlight.manual_url && (
           <div className="mt-6 bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100">
