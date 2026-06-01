@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { Search, SlidersHorizontal, X, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
@@ -66,6 +66,7 @@ export default function BrowsePage() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
   const [availableBrands, setAvailableBrands] = useState<string[]>([])
   const [availableEmitters, setAvailableEmitters] = useState<string[]>([])
   const fetchId = useRef(0)
@@ -130,7 +131,7 @@ export default function BrowsePage() {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-6">
-          <Link href="/" className="font-bold text-base shrink-0">
+          <Link href="/" className="font-bold text-base shrink-0" onClick={() => setNavOpen(false)}>
             <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
           </Link>
           <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
@@ -156,9 +157,33 @@ export default function BrowsePage() {
                 </button>
               )}
             </div>
+            <button
+              className="sm:hidden flex items-center justify-center text-gray-400 hover:text-white"
+              onClick={() => setNavOpen(o => !o)}
+              aria-label="Menu"
+            >
+              {navOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
             <UserMenu />
           </div>
         </div>
+
+        {/* Mobile nav dropdown */}
+        {navOpen && (
+          <nav className="sm:hidden bg-zinc-950 border-t border-zinc-800 px-4 py-3 flex flex-col gap-0.5">
+            {[
+              { href: '/',        label: 'Browse' },
+              { href: '/compare', label: 'Compare' },
+              { href: '/updates', label: 'Updates' },
+              { href: '/report',  label: 'Report' },
+            ].map(n => (
+              <Link key={n.href} href={n.href} onClick={() => setNavOpen(false)}
+                className="text-sm text-gray-400 hover:text-white py-2.5 border-b border-zinc-800 last:border-0">
+                {n.label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-5 flex gap-6">
