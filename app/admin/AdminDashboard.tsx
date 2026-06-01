@@ -2,14 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth-context'
 import { FlashlightSubmission, Flashlight } from '@/lib/types'
 import Header from '@/components/Header'
 import Image from 'next/image'
-import { Check, X, ChevronDown, ChevronUp, Clock, Loader2, Bug, Layers, Settings } from 'lucide-react'
+import { Check, X, ChevronDown, ChevronUp, Clock, Loader2, Bug, Layers, Settings, UserPlus, Trash2, Users, ShieldOff, ShieldCheck, KeyRound } from 'lucide-react'
 
 type SubmissionTab = 'pending' | 'approved' | 'rejected'
 type ReportStatus  = 'new' | 'read' | 'resolved'
-type Section = 'submissions' | 'reports' | 'settings'
+type Section = 'submissions' | 'reports' | 'users' | 'settings'
 
 type BugReport = {
   id: string
@@ -315,6 +316,282 @@ function ReportsPanel() {
   )
 }
 
+// ── Users panel ──────────────────────────────────────────────────────────────
+type UserRow = {
+  id: string; email: string; nickname: string | null
+  is_admin: boolean; is_moderator: boolean; banned: boolean
+  created_at: string; last_sign_in: string | null
+}
+
+function UsersPanel() {
+  const [query, setQuery]       = useState('')
+  const [users, setUsers]       = useState<UserRow[]>([])
+  const [total, setTotal]       = useState(0)
+  const [page, setPage]         = useState(1)
+  const [loading, setLoading]   = useState(false)
+  const [acting, setActing]     = useState<string | null>(null)
+  const [msg, setMsg]           = useState('')
+  const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null)
+
+  const perPage = 20
+
+  const load = useCallback(async (q: string, p: number) => {
+    setLoading(true)
+    const res = await fetch(`/api/admin/users?q=${encodeURIComponent(q)}&page=${p}`)
+    const data = await res.json()
+    setUsers(data.users ?? [])
+    setTotal(data.total ?? 0)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => { setPage(1); load(query, 1) }, 300)
+    return () => clearTimeout(t)
+  }, [query, load])
+
+  useEffect(() => { load(query, page) }, [page, load, query])
+
+  function flash(m: string) { setMsg(m); setTimeout(() => setMsg(''), 3000) }
+
+  async function act(userId: string, action: string) {
+    setActing(userId + action)
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetId: userId, action }),
+    })
+    const data = await res.json()
+    if (!res.ok) flash(data.error)
+    else flash(data.message ?? 'Done.')
+    setActing(null)
+    setConfirmDelete(null)
+    load(query, page)
+  }
+
+  function fmt(d: string | null) {
+    if (!d) return '—'
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Search */}
+      <input
+        type="text" value={query} onChange={e => setQuery(e.target.value)}
+        placeholder="Search by email or nickname…"
+        className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+      />
+
+      {msg && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">{msg}</p>}
+
+      {loading ? (
+        <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-slate-300" /></div>
+      ) : users.length === 0 ? (
+        <p className="text-slate-400 text-sm py-12 text-center">No users found.</p>
+      ) : (
+        <>
+          <p className="text-xs text-slate-400">{total} user{total !== 1 ? 's' : ''} total</p>
+          <div className="space-y-2">
+            {users.map(u => (
+              <div key={u.id} className={`bg-white rounded-xl border px-5 py-3.5 flex items-center gap-4 ${u.banned ? 'border-red-100 bg-red-50/30' : 'border-slate-200'}`}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-slate-800 truncate">{u.email}</span>
+                    {u.is_admin     && <span className="text-[10px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded font-medium">Admin</span>}
+                    {u.is_moderator && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">Moderator</span>}
+                    {u.banned       && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">Banned</span>}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {u.nickname ? `@${u.nickname} · ` : ''}Joined {fmt(u.created_at)} · Last seen {fmt(u.last_sign_in)}
+                  </p>
+                </div>
+
+                {/* Actions — skip if admin */}
+                {!u.is_admin && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    {/* Reset password */}
+                    <button
+                      onClick={() => act(u.id, 'reset_password')}
+                      disabled={!!acting}
+                      title="Send password reset email"
+                      className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-40"
+                    >
+                      {acting === u.id + 'reset_password' ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
+                    </button>
+                    {/* Ban / Unban */}
+                    <button
+                      onClick={() => act(u.id, u.banned ? 'unban' : 'ban')}
+                      disabled={!!acting}
+                      title={u.banned ? 'Unban user' : 'Ban user'}
+                      className={`p-2 rounded-lg transition-colors disabled:opacity-40 ${u.banned ? 'text-green-500 hover:bg-green-50' : 'text-amber-500 hover:bg-amber-50'}`}
+                    >
+                      {acting === u.id + (u.banned ? 'unban' : 'ban')
+                        ? <Loader2 size={14} className="animate-spin" />
+                        : u.banned ? <ShieldCheck size={14} /> : <ShieldOff size={14} />}
+                    </button>
+                    {/* Delete */}
+                    <button
+                      onClick={() => setConfirmDelete(u)}
+                      disabled={!!acting}
+                      title="Delete account"
+                      className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {total > perPage && (
+            <div className="flex items-center justify-between pt-2">
+              <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+                className="text-sm text-slate-500 hover:text-slate-800 disabled:opacity-30">← Prev</button>
+              <span className="text-xs text-slate-400">Page {page} of {Math.ceil(total / perPage)}</span>
+              <button disabled={page >= Math.ceil(total / perPage)} onClick={() => setPage(p => p + 1)}
+                className="text-sm text-slate-500 hover:text-slate-800 disabled:opacity-30">Next →</button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Delete confirm modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4" onClick={() => setConfirmDelete(null)}>
+          <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="font-bold text-slate-900">Delete account?</h2>
+            <p className="text-sm text-slate-500">
+              This will permanently delete <span className="font-medium text-slate-700">{confirmDelete.email}</span> and all their data. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(null)}
+                className="flex-1 border border-slate-200 text-slate-600 text-sm py-2 rounded-lg hover:bg-slate-50">Cancel</button>
+              <button onClick={() => act(confirmDelete.id, 'delete')} disabled={!!acting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-lg disabled:opacity-50 flex items-center justify-center gap-2">
+                {acting ? <Loader2 size={13} className="animate-spin" /> : null}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Team panel ───────────────────────────────────────────────────────────────
+type AdminUser = { id: string; email: string; nickname: string | null }
+
+
+function TeamPanel() {
+  const [admins, setAdmins]     = useState<AdminUser[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [newEmail, setNewEmail] = useState('')
+  const [adding, setAdding]     = useState(false)
+  const [removing, setRemoving] = useState<string | null>(null)
+  const [msg, setMsg]           = useState('')
+  const [err, setErr]           = useState('')
+
+  async function loadAdmins() {
+    setLoading(true)
+    const res = await fetch('/api/admin/list-moderators')
+    const data = await res.json()
+    setAdmins(data.moderators ?? [])
+    setLoading(false)
+  }
+
+  useEffect(() => { loadAdmins() }, [])
+
+  function flash(message: string, isErr = false) {
+    isErr ? setErr(message) : setMsg(message)
+    setTimeout(() => isErr ? setErr('') : setMsg(''), 3500)
+  }
+
+  async function addAdmin(e: React.FormEvent) {
+    e.preventDefault()
+    if (!newEmail.trim()) return
+    setAdding(true); setErr('')
+    const res = await fetch('/api/admin/set-role', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: newEmail.trim(), is_moderator: true }),
+    })
+    const data = await res.json()
+    if (!res.ok) { flash(data.error, true) }
+    else { setNewEmail(''); flash(`${data.email} is now a moderator.`); loadAdmins() }
+    setAdding(false)
+  }
+
+  async function removeAdmin(admin: AdminUser) {
+    setRemoving(admin.id)
+    const res = await fetch('/api/admin/set-role', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: admin.email, is_moderator: false }),
+    })
+    const data = await res.json()
+    if (!res.ok) flash(data.error, true)
+    else { flash(`${admin.email} removed.`); loadAdmins() }
+    setRemoving(null)
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+      <div>
+        <h2 className="text-sm font-semibold text-slate-900">Moderators</h2>
+        <p className="text-xs text-slate-400 mt-0.5">Moderators can review submissions and reports, but can't change settings</p>
+      </div>
+
+      {/* Current admins */}
+      {loading ? (
+        <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-300" /></div>
+      ) : admins.length === 0 ? (
+        <p className="text-xs text-slate-400">No admins found.</p>
+      ) : (
+        <ul className="divide-y divide-slate-100">
+          {admins.map(a => (
+            <li key={a.id} className="flex items-center justify-between py-2.5 gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-slate-800 truncate">{a.email}</p>
+                {a.nickname && <p className="text-xs text-slate-400">{a.nickname}</p>}
+              </div>
+              <button
+                onClick={() => removeAdmin(a)}
+                disabled={removing === a.id}
+                className="shrink-0 text-slate-300 hover:text-red-400 transition-colors disabled:opacity-40"
+                title="Remove moderator"
+              >
+                {removing === a.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Add new admin */}
+      <form onSubmit={addAdmin} className="flex gap-2 pt-1">
+        <input
+          type="email"
+          value={newEmail}
+          onChange={e => setNewEmail(e.target.value)}
+          placeholder="Email address"
+          className="flex-1 h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+        />
+        <button type="submit" disabled={adding || !newEmail.trim()}
+          className="flex items-center gap-1.5 h-9 px-3 bg-slate-900 hover:bg-slate-800 text-white text-sm rounded-lg disabled:opacity-50 shrink-0">
+          {adding ? <Loader2 size={13} className="animate-spin" /> : <UserPlus size={13} />}
+          Add
+        </button>
+      </form>
+
+      {msg && <p className="text-xs text-green-600">{msg}</p>}
+      {err && <p className="text-xs text-red-500">{err}</p>}
+    </div>
+  )
+}
+
 // ── Settings panel ───────────────────────────────────────────────────────────
 function SettingsPanel() {
   const [gaId, setGaId]         = useState('')
@@ -413,12 +690,16 @@ function SettingsPanel() {
         Changes take effect within ~5 minutes (cached). Get your Measurement ID from{' '}
         <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600">Google Analytics</a>.
       </p>
+
+      {/* Team */}
+      <TeamPanel />
     </div>
   )
 }
 
 // ── Main dashboard ────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
+  const { isAdmin } = useAuth()
   const [section, setSection]   = useState<Section>('submissions')
   const [subTab, setSubTab]     = useState<SubmissionTab>('pending')
   const [submissions, setSubmissions] = useState<FlashlightSubmission[]>([])
@@ -473,24 +754,36 @@ export default function AdminDashboard() {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'reports' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
             <Bug size={14} /> Reports
           </button>
-          <button onClick={() => setSection('settings')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'settings' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
-            <Settings size={14} /> Settings
-          </button>
+          {isAdmin && (
+            <button onClick={() => setSection('users')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'users' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+              <Users size={14} /> Users
+            </button>
+          )}
+          {isAdmin && (
+            <button onClick={() => setSection('settings')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'settings' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+              <Settings size={14} /> Settings
+            </button>
+          )}
         </div>
 
-          <div className="flex items-center gap-3">
-            {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
-            <button onClick={forceClearCache} disabled={clearing}
-              className="flex items-center gap-2 text-xs border border-slate-200 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-50 disabled:opacity-50 bg-white">
-              {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
-              {clearing ? 'Clearing…' : 'Force clear cache'}
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-3">
+              {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
+              <button onClick={forceClearCache} disabled={clearing}
+                className="flex items-center gap-2 text-xs border border-slate-200 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-50 disabled:opacity-50 bg-white">
+                {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
+                {clearing ? 'Clearing…' : 'Force clear cache'}
+              </button>
+            </div>
+          )}
         </div>
 
         {section === 'settings' ? (
           <SettingsPanel />
+        ) : section === 'users' ? (
+          <UsersPanel />
         ) : section === 'reports' ? (
           <ReportsPanel />
         ) : (

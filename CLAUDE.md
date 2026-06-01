@@ -104,7 +104,7 @@ Three tabs:
 - Images uploaded to Vercel Blob at `submissions/{submission_id}/{uuid}.{ext}`
 - "Suggest an edit" link on each flashlight detail page → `/contribute?suggest={id}`
 
-## Admin (`/adminroot`)
+## Admin (`/admin`)
 
 - Only accessible when `profiles.is_admin = true` (or `NEXT_PUBLIC_ADMIN_EMAIL` as bootstrap fallback)
 - Sections: **Submissions** | **Reports** | **Settings**
@@ -153,7 +153,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/my/page.tsx` | My Lists — wishlist + collection |
 | `app/account/page.tsx` | My Account — profile (email change, nickname), security (password, 2FA) |
 | `app/contribute/page.tsx` | Contribute — add/edit flashlights, submission history |
-| `app/adminroot/page.tsx` + `AdminDashboard.tsx` | Admin review queue + reports + settings |
+| `app/admin/page.tsx` + `AdminDashboard.tsx` | Admin review queue + reports + settings |
 | `app/compare/page.tsx` | Side-by-side spec comparison (up to 4) |
 | `app/updates/page.tsx` | Static changelog |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
@@ -162,7 +162,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/api/revalidate/route.ts` | On-demand cache invalidation — called by admin on approval or force-clear |
 | `app/api/ga-settings/route.ts` | Returns GA `{ enabled, id }` from `settings` table (5 min cache) |
 | `app/sitemap.ts` | Auto-generated `/sitemap.xml` — all flashlight slugs + static pages (1hr revalidate) |
-| `app/robots.ts` | `/robots.txt` — allow all crawlers, block `/adminroot` and `/api/` |
+| `app/robots.ts` | `/robots.txt` — allow all crawlers, block `/admin` and `/api/` |
 | `components/GoogleAnalytics.tsx` | Loads GA script client-side if enabled; skipped for admin users |
 | `app/[slug]/page.tsx` | Flashlight detail — `generateMetadata` (dynamic title/description/OG), JSON-LD Product schema |
 
@@ -177,7 +177,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 **On-demand revalidation flow:**
 - Admin approves an **edit** → `revalidatePath('/slug')` clears that one page instantly
 - Admin approves a **new** flashlight → `revalidatePath('/', 'layout')` clears browse
-- Admin edits DB directly (Supabase Table Editor) → use **"Force clear cache"** button in `/adminroot` to clear all flashlight pages at once
+- Admin edits DB directly (Supabase Table Editor) → use **"Force clear cache"** button in `/admin` to clear all flashlight pages at once
 - Every **deploy** → Vercel rebuilds all static pages automatically
 
 `brands` and `emitters` filter lists are cached in **localStorage for 1 hour** (BrowsePage).

@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/adminroot', '/api/'],
+      disallow: ['/admin', '/api/'],
     },
     sitemap: 'https://torch.edc.wiki/sitemap.xml',
   }

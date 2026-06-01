@@ -6,7 +6,7 @@ import { User } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 
 export default function UserMenu() {
-  const { user, nickname, signOut, openAuthModal } = useAuth()
+  const { user, nickname, isAdmin, isModerator, signOut, openAuthModal } = useAuth()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -45,6 +45,14 @@ export default function UserMenu() {
           <Link href="/account" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
             My Account
           </Link>
+          {(isAdmin || isModerator) && (
+            <>
+              <div className="border-t border-slate-100 my-1" />
+              <Link href="/admin" onClick={() => setOpen(false)} className="block px-4 py-2 text-brand-600 hover:bg-brand-50 font-medium">
+                {isAdmin ? 'Admin panel' : 'Review queue'}
+              </Link>
+            </>
+          )}
           <div className="border-t border-slate-100 my-1" />
           <button
             onClick={() => { setOpen(false); signOut() }}

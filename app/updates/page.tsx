@@ -12,6 +12,35 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 1, 2026',
+    title: 'Admin panel, SEO & Google Analytics',
+    items: [
+      'Admin panel moved to /admin — moderator role added (review only, no settings)',
+      'Two-factor authentication now required to access the admin panel',
+      'User management — admin can search users, reset passwords, ban or delete accounts',
+      'Google Analytics integration — toggle on/off and set Measurement ID from admin Settings',
+      'Admin excluded from GA tracking automatically',
+      'Dynamic page titles, meta descriptions and Open Graph tags on every flashlight page',
+      'JSON-LD Product structured data for Google rich results',
+      'Auto-generated sitemap.xml — updates on deploy or when a new flashlight is approved',
+      'robots.txt — search engines allowed, admin/api routes blocked',
+      'PWA support — installable as a home screen app on mobile',
+      'Mobile hamburger menu',
+    ],
+  },
+  {
+    date: 'June 1, 2026',
+    title: 'My Account & bug reports',
+    items: [
+      'Nickname — permanent username, real-time availability check, required to contribute',
+      'Email change with verification link',
+      'Two-factor authentication (TOTP) with 10 recovery codes',
+      'Report an issue page — topic, description, optional screenshot attachment',
+      'Anonymous reports require email + captcha; logged-in users skip both',
+      'Reports visible in admin panel with New / Read / Resolved tabs',
+    ],
+  },
+  {
+    date: 'June 1, 2026',
     title: 'Community contributions & security',
     items: [
       'Contribute page — users can submit new flashlights or suggest edits to existing ones',

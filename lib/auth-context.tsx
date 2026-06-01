@@ -9,6 +9,7 @@ type AuthContextType = {
   loading: boolean
   nickname: string | null
   isAdmin: boolean
+  isModerator: boolean
   wishlistIds: Set<string>
   collectionIds: Set<string>
   toggleWishlist: (flashlightId: string) => Promise<void>
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   nickname: null,
   isAdmin: false,
+  isModerator: false,
   wishlistIds: new Set(),
   collectionIds: new Set(),
   toggleWishlist: async () => {},
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [nickname, setNickname] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isModerator, setIsModerator] = useState(false)
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
   const [collectionIds, setCollectionIds] = useState<Set<string>>(new Set())
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -50,12 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [wRes, cRes, pRes] = await Promise.all([
       supabase.from('user_wishlists').select('flashlight_id').eq('user_id', userId),
       supabase.from('user_collections').select('flashlight_id').eq('user_id', userId),
-      supabase.from('profiles').select('nickname, is_admin').eq('id', userId).single(),
+      supabase.from('profiles').select('nickname, is_admin, is_moderator').eq('id', userId).single(),
     ])
     setWishlistIds(new Set(wRes.data?.map((r) => r.flashlight_id) ?? []))
     setCollectionIds(new Set(cRes.data?.map((r) => r.flashlight_id) ?? []))
     setNickname(pRes.data?.nickname ?? null)
     setIsAdmin(pRes.data?.is_admin ?? false)
+    setIsModerator(pRes.data?.is_moderator ?? false)
   }, [])
 
   useEffect(() => {
@@ -73,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchedForUser.current = null
         setNickname(null)
         setIsAdmin(false)
+        setIsModerator(false)
         setWishlistIds(new Set())
         setCollectionIds(new Set())
       }
@@ -117,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading, nickname, isAdmin, wishlistIds, collectionIds,
+      user, loading, nickname, isAdmin, isModerator, wishlistIds, collectionIds,
       toggleWishlist, toggleCollection, signOut,
       openAuthModal: () => setAuthModalOpen(true),
       authModalOpen,
