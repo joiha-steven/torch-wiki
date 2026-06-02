@@ -39,15 +39,20 @@ async function download(url) {
   // Some CDNs (e.g. Weltool) require the brand's own site as Referer
   const refererMap = {
     'websiteonline.cn': 'https://www.weltool.com/',
+    'coolfall.com': 'https://www.coolfall.com/pTrek.html',
   }
   const referer = Object.entries(refererMap).find(([host]) => url.includes(host))?.[1]
     ?? new URL(url).origin
 
   const res = await fetch(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
       'Referer': referer,
-      'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+      'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Sec-Fetch-Dest': 'image',
+      'Sec-Fetch-Mode': 'no-cors',
+      'Sec-Fetch-Site': 'same-origin',
     }
   })
   if (!res.ok) throw new Error(`HTTP ${res.status} — ${url}`)

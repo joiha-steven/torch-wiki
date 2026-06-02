@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronLeft, Plus, ClipboardList, Pencil, Search, X, Loader2 } from 'lucide-react'
@@ -107,6 +108,7 @@ function SuccessScreen({ onAnother, onView }: { onAnother: () => void; onView: (
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function ContributePage() {
   const { user, loading, nickname, openAuthModal } = useAuth()
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>('add')
   const [submitted, setSubmitted] = useState(false)
 
@@ -117,7 +119,7 @@ export default function ContributePage() {
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('suggest')
     if (!id) return
-    supabase.from('flashlights').select('*').eq('id', id).single()
+    supabase.from('flashlights').select('*, flashlight_images(*)').eq('id', id).single()
       .then(({ data }) => {
         if (data) { setEditTarget(data as Flashlight); setTab('edit') }
       })
@@ -210,7 +212,7 @@ export default function ContributePage() {
                   <div className="bg-white rounded-xl border border-slate-200 p-6">
                     <SubmitFlashlightForm
                       mode="new"
-                      onSuccess={() => setSubmitted(true)}
+                      onSuccess={(slug) => slug ? router.push(`/${slug}`) : setSubmitted(true)}
                       onCancel={() => window.history.back()}
                     />
                   </div>
@@ -238,14 +240,17 @@ export default function ContributePage() {
                         mode="edit"
                         initial={editTarget}
                         targetId={editTarget.id}
-                        onSuccess={() => setSubmitted(true)}
+                        onSuccess={(slug) => slug ? router.push(`/${slug}`) : setSubmitted(true)}
                         onCancel={() => setEditTarget(null)}
                       />
                     </div>
                   )
                   : (
                     <div className="bg-white rounded-xl border border-slate-200 p-6">
-                      <FlashlightPicker onPick={f => setEditTarget(f)} />
+                      <FlashlightPicker onPick={async f => {
+                    const { data } = await supabase.from('flashlights').select('*, flashlight_images(*)').eq('id', f.id).single()
+                    if (data) setEditTarget(data as Flashlight)
+                  }} />
                     </div>
                   )
             )}

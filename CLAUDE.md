@@ -110,9 +110,13 @@ Three tabs:
 - **2FA required** — blocks access until TOTP factor enrolled
 - Sections: **Submissions** | **Reports** | **Users** | **Settings** (users + settings: admin only)
 - Submissions fetched via `/api/admin/submissions` (service role — bypasses RLS, sees all users' submissions)
-- Approve/Reject via PATCH `/api/admin/submissions` — server-side: validates action, looks up user_id from DB (not client), moves PDFs, returns slug for revalidation
+- Approve/Reject via PATCH `/api/admin/submissions` — server-side: validates action, looks up user_id from DB (not client), moves PDFs, handles image removals (`_removeExtraDbIds`, `_primaryImageUrl` directives stored in submission data), returns slug for revalidation
 - PDF move on approval: `submissions/manuals/{uuid}.pdf` → `flashlights/{slug}/manual.pdf` (or `manual-1.pdf`, etc.) using Vercel Blob `copy()` + `del()`
 - Reject → saves reviewer note shown to the submitter
+
+**Inline edit (admin/mod only):** On each flashlight detail page, admins/mods see an "Edit" button (users see "Suggest an edit"). Both go to `/contribute?suggest={id}`. For admin/mod, the form auto-approves on submit (calls PATCH immediately, redirects to flashlight page). For users, submission goes into pending queue.
+
+**Image management in edit form:** Existing images loaded from `flashlight_images` table. On submit, image changes are stored as `_primaryImageUrl` and `_removeExtraDbIds` directives in the submission `data` JSONB. These are applied by the approval handler for both admin auto-approve and mod review.
 
 **Note on `manual_urls` DB column:** requires SQL migration:
 ```sql
@@ -155,11 +159,16 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `components/BrowsePage.tsx` | Main browse page — server-side filter/sort, pagination 32/page |
 | `components/FilterPanel.tsx` | Sidebar filters |
 | `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons |
-| `components/SubmitFlashlightForm.tsx` | Full spec form with image upload + Turnstile captcha |
+| `components/SubmitFlashlightForm.tsx` | Full spec form — image/PDF management, Markdown description, Turnstile captcha (skipped for admin), admin auto-approve |
+| `components/MarkdownContent.tsx` | Renders Markdown with Tailwind styles — used in flashlight detail and form preview |
+| `components/SuggestEditButton.tsx` | Smart "Suggest an edit" / "Edit" link — shows "Edit" for admin/mod, "Suggest an edit" for users |
+| `lib/use-is-admin.ts` | `useIsAdmin()` hook — checks `profiles.is_admin/is_moderator` client-side |
 | `app/[slug]/page.tsx` | Flashlight detail page — gallery, specs, reviews, manual, attribution |
 | `app/top/page.tsx` | Top Lists page — recently added, newest, most expensive, best value |
 | `app/api/ping/route.ts` | Health check endpoint — called daily by Vercel Cron to keep Supabase alive |
-| `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS) + PATCH (approve/reject, move PDFs, validate action) |
+| `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS) + PATCH (approve/reject, move PDFs, apply image directives, validate action) |
+| `app/api/admin/flashlight/route.ts` | PATCH — direct flashlight update (used by admin auto-approve path) |
+| `app/api/admin/upload-image/route.ts` | Admin image upload handler — auth via clientPayload bearer token |
 | `app/api/upload-pdf/route.ts` | Client upload handler for PDFs in contribute form — auth via clientPayload bearer token |
 | `app/api/upload-manual/route.ts` | Direct admin PDF upload — stores to `flashlights/{slug}/manual.pdf` |
 | `lib/cdn.ts` | `cdnUrl()` — rewrites Vercel Blob PDF URLs to Cloudflare CDN proxy domain |
@@ -206,12 +215,14 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 Sections in order:
 1. Image gallery
 2. Hero info (brand, model, category, key stats, price, wishlist/collection buttons)
-3. "Suggest an edit" link
-4. Notes block — shown only if `flashlight.notes` is not null
+3. "Suggest an edit" / "Edit" button (`SuggestEditButton` — admin/mod sees "Edit")
+4. Description block — Markdown rendered, shown only if `flashlight.description` is not null
 5. Specifications table
 6. Reviews — shown only if reviews exist
-7. User Manual — shown only if `flashlight.manual_url` is not null
+7. User Manual — shown only if `flashlight.manual_url` / `manual_urls` exist
 8. Attribution line — "Added by system · [date]" + "Last updated by [nickname] · [date]" if applicable
+
+**Notes field (`flashlight.notes`):** still exists in DB but no longer displayed or editable from the UI. Preserved for backward compat.
 
 ## Filter Options
 

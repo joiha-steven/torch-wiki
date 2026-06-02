@@ -62,7 +62,7 @@ const SPEC_LABELS: [keyof Flashlight, string][] = [
   ['length_mm', 'Length'], ['head_diameter_mm', 'Head Ø'], ['body_diameter_mm', 'Body Ø'],
   ['weight_g', 'Weight'], ['material', 'Material'], ['ip_rating', 'IP Rating'],
   ['impact_resistance_m', 'Impact'], ['price_usd', 'Price'], ['description', 'Description'],
-  ['notes', 'Notes'], ['manual_urls', 'Manual PDFs'], ['is_discontinued', 'Discontinued'],
+  ['manual_urls', 'Manual PDFs'], ['is_discontinued', 'Discontinued'],
 ]
 
 function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction: () => void }) {

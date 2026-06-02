@@ -99,9 +99,41 @@ export async function PATCH(request: Request) {
 
         if (slug) await movePdfs(d, slug)
 
-        const primaryImg = submissionImages?.find((i: { is_primary: boolean }) => i.is_primary)
+        // Extract image management directives (stored in data by the form)
+        const primaryImageUrl = '_primaryImageUrl' in d ? d._primaryImageUrl as string | null : undefined
+        const removeExtraDbIds = (d._removeExtraDbIds as string[] | undefined) ?? []
+        delete d._primaryImageUrl
+        delete d._removeExtraDbIds
+
+        // Delete removed extra images from DB + Vercel Blob
+        if (removeExtraDbIds.length) {
+          const { data: toDelete } = await admin
+            .from('flashlight_images').select('url').in('id', removeExtraDbIds)
+          await admin.from('flashlight_images').delete().in('id', removeExtraDbIds)
+          await Promise.allSettled(
+            (toDelete ?? [])
+              .filter(img => (img.url as string)?.includes('vercel-storage.com'))
+              .map(img => del(img.url as string))
+          )
+        }
+
         const updateData: Record<string, unknown> = { ...d, updated_by: authorId, updated_at: new Date().toISOString() }
-        if (primaryImg) updateData.image_url = (primaryImg as { url: string }).url
+
+        // Primary image: use explicit directive if set, else fall back to newly uploaded primary
+        if (primaryImageUrl !== undefined) {
+          updateData.image_url = primaryImageUrl
+          // If an existing extra was promoted to primary, remove it from flashlight_images
+          if (primaryImageUrl) {
+            await admin.from('flashlight_images')
+              .delete()
+              .eq('flashlight_id', targetId)
+              .eq('url', primaryImageUrl)
+          }
+        } else {
+          const primaryImg = submissionImages?.find((i: { is_primary: boolean }) => i.is_primary)
+          if (primaryImg) updateData.image_url = (primaryImg as { url: string }).url
+        }
+
         await admin.from('flashlights').update(updateData).eq('id', targetId)
       }
     } catch (e) {

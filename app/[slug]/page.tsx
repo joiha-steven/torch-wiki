@@ -4,11 +4,13 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { cdnUrl } from '@/lib/cdn'
-import { FlashlightImage } from '@/lib/types'
+import type { FlashlightImage } from '@/lib/types'
 import { Zap, Target, Battery, Weight, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import ManualSection from '@/components/ManualSection'
+import MarkdownContent from '@/components/MarkdownContent'
+import SuggestEditButton from '@/components/SuggestEditButton'
 import Header from '@/components/Header'
 
 // Pre-render all flashlight pages at build time
@@ -202,25 +204,15 @@ export default async function FlashlightPage({ params }: Props) {
 
             <WishlistButtons flashlightId={flashlight.id} />
 
-            <Link
-              href={`/contribute?suggest=${flashlight.id}`}
-              className="mt-4 inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <FileText size={12} />
-              Suggest an edit
-            </Link>
+            <div className="mt-4">
+              <SuggestEditButton flashlightId={flashlight.id} />
+            </div>
           </div>
         </div>
 
         {flashlight.description && (
           <div className="mt-8 bg-white rounded-xl border border-slate-200 px-6 py-5">
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{flashlight.description}</p>
-          </div>
-        )}
-
-        {flashlight.notes && (
-          <div className={`${flashlight.description ? 'mt-3' : 'mt-8'} bg-amber-50 border border-amber-100 rounded-xl px-6 py-5`}>
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{flashlight.notes}</p>
+            <MarkdownContent>{flashlight.description}</MarkdownContent>
           </div>
         )}
 

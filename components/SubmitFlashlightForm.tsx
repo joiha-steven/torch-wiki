@@ -5,8 +5,10 @@ import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
-import { X, Upload, Loader2, FileText } from 'lucide-react'
+import { X, Upload, Loader2, FileText, Star } from 'lucide-react'
 import Image from 'next/image'
+import MarkdownContent from '@/components/MarkdownContent'
+import { useIsAdmin } from '@/lib/use-is-admin'
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
@@ -15,13 +17,21 @@ const BATTERY_TYPES = ['CR123A', 'D-cell', 'AA', 'AAA', '10440', '14500', '18350
 const BEAM_TYPES = ['Spot', 'Flood', 'Spot+Flood', 'Thrower']
 const CHARGING_TYPES = ['usb', 'magnetic', 'none']
 
-type ImageEntry = { id: string; url: string; file?: File; isPrimary: boolean; uploading: boolean }
+type ImageEntry = {
+  id: string           // 'existing-primary' | 'existing-{dbId}' | uuid for new
+  url: string          // Vercel Blob URL for existing, object URL for new
+  file?: File          // only for new images
+  isPrimary: boolean
+  uploading: boolean
+  isExisting: boolean  // already stored in DB
+  existingDbId?: string // flashlight_images.id (for extras)
+}
 
 type Props = {
   mode: 'new' | 'edit'
   initial?: Partial<Flashlight>
   targetId?: string
-  onSuccess: () => void
+  onSuccess: (slug?: string) => void
   onCancel: () => void
 }
 
@@ -38,7 +48,46 @@ function Field({ label, required, children }: { label: string; required?: boolea
 
 const input = "w-full h-10 text-sm border border-slate-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
 
+function DescriptionField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [preview, setPreview] = useState(false)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className="text-xs font-medium text-slate-600">Description</label>
+        <div className="flex text-xs rounded-md overflow-hidden border border-slate-200">
+          <button
+            type="button"
+            onClick={() => setPreview(false)}
+            className={`px-2.5 py-0.5 transition-colors ${!preview ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+          >Write</button>
+          <button
+            type="button"
+            onClick={() => setPreview(true)}
+            className={`px-2.5 py-0.5 transition-colors ${preview ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+          >Preview</button>
+        </div>
+      </div>
+      {preview ? (
+        <div className="min-h-[76px] text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white">
+          {value
+            ? <MarkdownContent>{value}</MarkdownContent>
+            : <span className="text-slate-300">Nothing to preview</span>}
+        </div>
+      ) : (
+        <textarea
+          className={input + ' !h-auto py-2 resize-none'}
+          rows={4}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={"Supports Markdown: **bold**, _italic_, - lists, ## headings…"}
+        />
+      )}
+    </div>
+  )
+}
+
 export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onSuccess, onCancel }: Props) {
+  const isAdmin = useIsAdmin()
   const [data, setData] = useState<Partial<Flashlight>>({
     brand: '', model: '', category: null, year: null,
     max_lumens: null, min_lumens: null, beam_distance_m: null, beam_type: null,
@@ -46,12 +95,26 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     charging_type: null, has_usb_charging: false,
     length_mm: null, head_diameter_mm: null, body_diameter_mm: null, weight_g: null,
     material: null, ip_rating: null, impact_resistance_m: null,
-    price_usd: null, description: null, notes: null, manual_url: null,
+    price_usd: null, description: null, manual_url: null,
     is_discontinued: false,
     ...initial,
   })
   const [emitterInput, setEmitterInput] = useState((initial.emitters ?? []).join(', '))
-  const [images, setImages] = useState<ImageEntry[]>([])
+  // Initialise with existing images for edit mode
+  const [images, setImages] = useState<ImageEntry[]>(() => {
+    if (mode !== 'edit') return []
+    const existing: ImageEntry[] = []
+    if (initial?.image_url) {
+      existing.push({ id: 'existing-primary', url: initial.image_url, isPrimary: true, uploading: false, isExisting: true })
+    }
+    const extras = (initial?.flashlight_images ?? []).slice().sort((a, b) => a.sort_order - b.sort_order)
+    for (const img of extras) {
+      existing.push({ id: `existing-${img.id}`, url: img.url, isPrimary: false, uploading: false, isExisting: true, existingDbId: img.id })
+    }
+    return existing
+  })
+  // Track which existing extras were removed (DB ids)
+  const [removedExtraDbIds, setRemovedExtraDbIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
@@ -73,7 +136,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   async function handleImageFiles(files: FileList) {
     const newEntries: ImageEntry[] = Array.from(files).map(f => ({
       id: crypto.randomUUID(), url: URL.createObjectURL(f), file: f,
-      isPrimary: false, uploading: false,
+      isPrimary: false, uploading: false, isExisting: false,
     }))
     if (images.length === 0 && newEntries.length > 0) newEntries[0].isPrimary = true
     setImages(prev => [...prev, ...newEntries])
@@ -108,6 +171,10 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   }
 
   function removeImage(id: string) {
+    const img = images.find(i => i.id === id)
+    if (img?.isExisting && img.existingDbId) {
+      setRemovedExtraDbIds(r => [...r, img.existingDbId!])
+    }
     setImages(prev => {
       const next = prev.filter(i => i.id !== id)
       if (next.length > 0 && !next.some(i => i.isPrimary)) next[0].isPrimary = true
@@ -122,27 +189,32 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!data.brand?.trim() || !data.model?.trim()) { setError('Brand and Model are required.'); return }
-    if (!captchaToken) { setError('Please complete the captcha.'); return }
+    if (!isAdmin && !captchaToken) { setError('Please complete the captcha.'); return }
     setSubmitting(true)
     setError(null)
     try {
-      // 0. Verify captcha server-side
-      const captchaRes = await fetch('/api/captcha-verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: captchaToken }),
-      })
-      const { success } = await captchaRes.json()
-      if (!success) {
-        setError('Captcha failed — please try again.')
-        turnstileRef.current?.reset()
-        setCaptchaToken(null)
-        setSubmitting(false)
-        return
+      // 0. Verify captcha (skipped for admin/mod)
+      if (!isAdmin) {
+        const captchaRes = await fetch('/api/captcha-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: captchaToken }),
+        })
+        const { success } = await captchaRes.json()
+        if (!success) {
+          setError('Captcha failed — please try again.')
+          turnstileRef.current?.reset()
+          setCaptchaToken(null)
+          setSubmitting(false)
+          return
+        }
       }
 
-      // 1. Create submission row first
-      const { data: { user } } = await supabase.auth.getUser()
+      // 1. Create submission row — always 'pending'; admin PATCH promotes to 'approved'
+      const [{ data: { session } }, { data: { user } }] = await Promise.all([
+        supabase.auth.getSession(),
+        supabase.auth.getUser(),
+      ])
       if (!user) throw new Error('Not signed in')
 
       const submissionData = { ...data, emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean) }
@@ -152,18 +224,72 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       }).select().single()
       if (subErr) throw subErr
 
-      // 2. Upload images to Vercel Blob
+      // 2. Upload NEW images to Vercel Blob, track URLs for approval
+      const uploadedImages: { url: string; sort_order: number; is_primary: boolean }[] = []
+      const uploadedUrlById = new Map<string, string>() // img.id → vercel URL
+
       for (const img of images) {
-        if (!img.file) continue
+        if (!img.file || img.isExisting) continue
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: true } : i))
         const ext = img.file.name.split('.').pop()
         const path = `submissions/${sub.id}/${img.id}.${ext}`
         const blob = await upload(path, img.file, { access: 'public', handleUploadUrl: '/api/upload' })
-        await supabase.from('submission_images').insert({
-          submission_id: sub.id, url: blob.url,
-          sort_order: images.indexOf(img), is_primary: img.isPrimary,
-        })
+        uploadedUrlById.set(img.id, blob.url)
+        const imgRecord = { submission_id: sub.id, url: blob.url, sort_order: images.indexOf(img), is_primary: img.isPrimary }
+        await supabase.from('submission_images').insert(imgRecord)
+        uploadedImages.push({ url: blob.url, sort_order: images.indexOf(img), is_primary: img.isPrimary })
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: false } : i))
+      }
+
+      // For edit mode: compute final primary URL and extras to remove
+      let _primaryImageUrl: string | null | undefined = undefined
+      if (mode === 'edit') {
+        const primaryEntry = images.find(i => i.isPrimary)
+        if (!primaryEntry) {
+          _primaryImageUrl = null
+        } else if (!primaryEntry.isExisting) {
+          _primaryImageUrl = uploadedUrlById.get(primaryEntry.id) ?? null
+        } else {
+          // Existing image (primary or promoted extra)
+          _primaryImageUrl = primaryEntry.url
+        }
+      }
+
+      // Rebuild submissionData with image directives for edit
+      const finalSubmissionData = {
+        ...submissionData,
+        ...(mode === 'edit' ? {
+          _primaryImageUrl,
+          _removeExtraDbIds: removedExtraDbIds,
+        } : {}),
+      }
+
+      // 2b. Persist image directives into the submission row (for both admin and pending paths)
+      //     so that when a mod approves a pending edit the image changes are applied correctly.
+      if (mode === 'edit') {
+        await supabase.from('flashlight_submissions').update({ data: finalSubmissionData }).eq('id', sub.id)
+      }
+
+      // 3. Admin/mod: auto-approve — apply changes immediately
+      if (isAdmin) {
+        const token = session?.access_token ?? ''
+        const res = await fetch('/api/admin/submissions', {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: sub.id,
+            action: 'approved',
+            submissionData: { type: mode, data: finalSubmissionData },
+            targetId: targetId ?? null,
+            submissionImages: uploadedImages,
+          }),
+        })
+        const json = await res.json() as { ok?: boolean; slug?: string; error?: string }
+        if (!res.ok) throw new Error(json.error ?? 'Auto-approve failed')
+        await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) })
+        localStorage.removeItem('meta_cache')
+        onSuccess(json.slug ?? undefined)
+        return
       }
 
       onSuccess()
@@ -281,9 +407,8 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       </div>
 
       {/* Text fields */}
-      <Field label="Description">
-        <textarea className={input + ' !h-auto py-2 resize-none'} rows={3} value={data.description ?? ''} onChange={e => set('description', e.target.value || null)} placeholder="Short product description..." />
-      </Field>
+      <DescriptionField value={data.description ?? ''} onChange={v => set('description', v || null)} />
+
       <Field label="User Manual (PDF)">
         <div className="space-y-2">
           {pdfFiles.map((f, i) => (
@@ -326,25 +451,30 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
           <div className="flex flex-wrap gap-3 mb-3">
             {images.map((img) => (
               <div key={img.id} className="relative group">
-                <div className={`w-24 h-24 rounded-lg border-2 overflow-hidden bg-white ${img.isPrimary ? 'border-brand-500' : 'border-slate-200'}`}>
-                  <Image src={img.url} alt="" fill className="object-contain p-1" />
+                <div className={`w-24 h-24 rounded-lg border-2 overflow-hidden bg-white relative ${img.isPrimary ? 'border-brand-500' : 'border-slate-200'}`}>
+                  <Image src={img.url} alt="" fill className="object-contain p-1" unoptimized={img.url.startsWith('blob:')} />
                   {img.uploading && (
                     <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
                       <Loader2 size={16} className="animate-spin text-brand-500" />
                     </div>
                   )}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100">
+                    {!img.isPrimary && (
+                      <button type="button" onClick={() => setPrimary(img.id)}
+                        className="bg-white rounded-full p-1 hover:bg-brand-50" title="Set as primary">
+                        <Star size={11} className="text-brand-600" />
+                      </button>
+                    )}
+                    <button type="button" onClick={() => removeImage(img.id)}
+                      className="bg-white rounded-full p-1 hover:bg-red-50" title="Remove">
+                      <X size={11} className="text-red-500" />
+                    </button>
+                  </div>
                 </div>
-                <div className="absolute -top-1.5 -right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => removeImage(img.id)} className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center">
-                    <X size={10} />
-                  </button>
-                </div>
-                {!img.isPrimary && (
-                  <button type="button" onClick={() => setPrimary(img.id)} className="mt-1 w-full text-[10px] text-slate-400 hover:text-brand-600 text-center">
-                    Set primary
-                  </button>
-                )}
-                {img.isPrimary && <p className="mt-1 text-[10px] text-brand-600 text-center font-medium">Primary</p>}
+                {img.isPrimary
+                  ? <p className="mt-1 text-[10px] text-brand-600 text-center font-medium">Primary</p>
+                  : <p className="mt-1 text-[10px] text-slate-300 text-center">&nbsp;</p>}
               </div>
             ))}
           </div>
@@ -353,18 +483,20 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         <button type="button" onClick={() => fileRef.current?.click()}
           className="flex items-center gap-2 text-sm text-slate-600 border border-dashed border-slate-300 rounded-lg px-4 py-2.5 hover:border-brand-400 hover:text-brand-600 transition-colors">
           <Upload size={14} />
-          Upload images
+          Add images
         </button>
-        <p className="text-xs text-slate-400 mt-1.5">The first image or the one marked "Primary" will be the main image.</p>
+        <p className="text-xs text-slate-400 mt-1.5">Hover an image to remove it or set it as primary (⭐).</p>
       </div>
 
-      <Turnstile
-        ref={turnstileRef}
-        siteKey={SITE_KEY}
-        onSuccess={token => setCaptchaToken(token)}
-        onExpire={() => setCaptchaToken(null)}
-        options={{ theme: 'light', size: 'flexible' }}
-      />
+      {!isAdmin && (
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={SITE_KEY}
+          onSuccess={token => setCaptchaToken(token)}
+          onExpire={() => setCaptchaToken(null)}
+          options={{ theme: 'light', size: 'flexible' }}
+        />
+      )}
 
       {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
@@ -372,10 +504,14 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         <button type="button" onClick={onCancel} className="flex-1 text-sm text-slate-600 border border-slate-200 rounded-lg py-2.5 hover:bg-slate-50">
           Cancel
         </button>
-        <button type="submit" disabled={submitting || !captchaToken}
+        <button type="submit" disabled={submitting || (!isAdmin && !captchaToken)}
           className="flex-1 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-black text-sm font-medium rounded-lg py-2.5 flex items-center justify-center gap-2">
           {submitting && <Loader2 size={14} className="animate-spin" />}
-          {submitting ? 'Submitting…' : mode === 'new' ? 'Submit for review' : 'Submit edit'}
+          {submitting
+            ? (isAdmin ? 'Saving…' : 'Submitting…')
+            : isAdmin
+              ? (mode === 'new' ? 'Add flashlight' : 'Save changes')
+              : (mode === 'new' ? 'Submit for review' : 'Submit edit')}
         </button>
       </div>
     </form>

@@ -12,6 +12,20 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 2, 2026',
+    title: 'Inline editing, image management & markdown',
+    items: [
+      '"Edit" button on flashlight pages for admin/mod — skips review queue and saves directly',
+      'Regular users still submit edits for review via "Suggest an edit"',
+      'Edit form shows existing images — hover to remove or set as primary (⭐), add new images',
+      'Edit form shows existing PDFs — remove or upload new ones',
+      'All image changes (removals, primary swap) applied correctly on approval for pending submissions',
+      'Description field supports Markdown — bold, italic, lists, headings, links',
+      'Write/Preview toggle on the description field',
+      'Cool Fall Trek added to the database',
+    ],
+  },
+  {
+    date: 'June 2, 2026',
     title: 'Contributions, manuals & top lists',
     items: [
       'Top Lists page — Recently Added, Newest Release, Most Expensive, Best Value (top 10 each)',
@@ -22,7 +36,6 @@ const UPDATES: UpdateEntry[] = [
       'Approve/Reject submissions fixed — status update now correctly persists via server-side API',
       'Submission list shows flashlight name for edit submissions, not just raw data',
       'Description field now displayed on flashlight detail pages',
-      'Notes section visually separated from description with amber background',
     ],
   },
   {

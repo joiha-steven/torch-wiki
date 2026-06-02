@@ -25,7 +25,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 **Flashlight pages**
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
-- Image gallery, description, notes, linked reviews (articles & videos), user manual PDFs
+- Image gallery, Markdown description, linked reviews (articles & videos), user manual PDFs
 - Attribution: who added it and who last updated it
 
 **User accounts**
@@ -37,6 +37,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 **Community contributions**
 - Submit new flashlights or suggest edits to existing ones
+- Edit form shows existing images and PDFs — remove, reorder, or upload new
 - Attach one or more PDF user manuals to any submission
 - All submissions go into a pending queue — reviewed before going live
 - Requires a nickname to contribute
@@ -44,9 +45,10 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 **Admin panel** (`/admin`)
 - Role-based access: admin (full control) and moderator (review only)
 - 2FA required to access the admin panel
+- "Edit" button on each flashlight page — admin/mod edits apply instantly, bypassing the queue
 - Review queue with before/after diff for edits
 - User management: search, reset password, ban, delete
-- On PDF approval: files automatically moved from temp storage to `flashlights/{slug}/` folder
+- On approval: PDFs moved from temp storage to `flashlights/{slug}/`, removed images deleted from Blob
 - Google Analytics toggle and Measurement ID setting
 - Force cache clear button
 
