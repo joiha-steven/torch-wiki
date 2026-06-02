@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, Plus, Pencil } from 'lucide-react'
+import { ChevronLeft, Plus, Pencil, Bookmark } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import Header from '@/components/Header'
@@ -30,14 +30,30 @@ export default async function UserProfilePage({ params }: Props) {
   // Fetch profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, nickname, updated_at')
+    .select('id, nickname, updated_at, show_collection')
     .eq('nickname', username)
     .single()
 
   if (!profile) notFound()
 
-  // Use service role to bypass RLS on flashlight_submissions
+  // Use service role to bypass RLS on flashlight_submissions / user_collections
   const adminDb = getSupabaseAdmin()
+
+  // Collection — only when the user has opted in. Public view shows flashlight + quantity only
+  // (never purchase price or date).
+  type CollectionRow = {
+    flashlight_id: string
+    quantity: number
+    flashlights: { brand: string; model: string; slug: string; image_url: string | null } | null
+  }
+  const { data: collectionData } = profile.show_collection
+    ? await adminDb
+        .from('user_collections')
+        .select('flashlight_id, quantity, flashlights(brand, model, slug, image_url)')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+    : { data: [] }
+  const collection = ((collectionData ?? []) as unknown as CollectionRow[]).filter(c => c.flashlights)
 
   // Fetch approved submissions
   const { data: submissions } = await adminDb
@@ -113,10 +129,15 @@ export default async function UserProfilePage({ params }: Props) {
                 <span className="font-semibold text-slate-900">{editSubs.length}</span> edits
               </span>
             )}
+            {collection.length > 0 && (
+              <span className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">
+                <span className="font-semibold text-slate-900">{collection.length}</span> owned
+              </span>
+            )}
           </div>
         </div>
 
-        {subs.length === 0 && (
+        {subs.length === 0 && collection.length === 0 && (
           <div className="bg-white rounded-xl border border-slate-200 px-6 py-12 text-center">
             <p className="text-slate-400 text-sm">No approved contributions yet.</p>
           </div>
@@ -200,6 +221,43 @@ export default async function UserProfilePage({ params }: Props) {
             </div>
           )
         })()}
+
+        {/* Collection — opt-in, shows flashlight + quantity only (no price or purchase date) */}
+        {collection.length > 0 && (
+          <div className={subs.length > 0 ? 'mt-8' : ''}>
+            <h2 className="text-xs font-semibold text-slate-400 tracking-wide mb-3 flex items-center gap-2">
+              <Bookmark size={13} /> Collection
+            </h2>
+            <div className="space-y-2">
+              {collection.map(item => {
+                const fl = item.flashlights!
+                return (
+                  <Link
+                    key={item.flashlight_id}
+                    href={`/${fl.slug}`}
+                    className="flex items-center gap-4 bg-white border border-slate-200 hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors"
+                  >
+                    <div className="relative w-12 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+                      {fl.image_url
+                        ? <Image src={fl.image_url} alt="" fill className="object-contain p-1" />
+                        : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-400">{fl.brand}</p>
+                      <p className="text-sm font-medium text-slate-900 truncate">{fl.model}</p>
+                    </div>
+                    {item.quantity > 1 && (
+                      <span className="text-xs font-mono text-slate-500 bg-slate-100 rounded px-2 py-0.5 shrink-0">
+                        ×{item.quantity}
+                      </span>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

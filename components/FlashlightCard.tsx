@@ -75,11 +75,13 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
           )}
         </div>
 
-        {/* Brand + Model */}
-        <Link href={`/${flashlight.slug}`} className="flex-1">
-          <p className="text-xs text-slate-400 leading-none mb-0.5">{flashlight.brand}</p>
-          <h3 className="font-semibold text-slate-900 text-sm leading-snug">{flashlight.model}</h3>
-        </Link>
+        {/* Brand + Model — div carries flex-1, Link only wraps the text */}
+        <div className="flex-1">
+          <Link href={`/${flashlight.slug}`} className="block">
+            <p className="text-xs text-slate-400 leading-none mb-0.5">{flashlight.brand}</p>
+            <h3 className="font-semibold text-slate-900 text-sm leading-snug">{flashlight.model}</h3>
+          </Link>
+        </div>
 
         {/* Spec line — fixed height so missing-spec cards don't shrink */}
         <p className="mt-2.5 text-xs text-slate-400 font-mono h-4 truncate">

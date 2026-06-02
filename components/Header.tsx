@@ -22,7 +22,7 @@ export default function Header() {
     <header className="bg-black sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-6">
         <Link href="/" className="font-bold text-base shrink-0" onClick={() => setOpen(false)}>
-          <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
+          <span style={{ color: '#eba00b' }}>torch.</span><span className="text-white">EDC.wiki</span>
         </Link>
 
         {/* Desktop nav */}

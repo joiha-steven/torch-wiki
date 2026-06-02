@@ -74,33 +74,45 @@ export default function BrowsePage() {
   const [navOpen, setNavOpen] = useState(false)
   const [availableBrands, setAvailableBrands] = useState<string[]>([])
   const [availableEmitters, setAvailableEmitters] = useState<string[]>([])
+  const [siteStats, setSiteStats] = useState<{ flashlights: number; brands: number; users: number } | null>(null)
   const fetchId = useRef(0)
   const searchRef = useRef<HTMLInputElement>(null)
 
-  // Load brand + emitter lists — cached in localStorage for 1 hour
+  // Load brand + emitter lists — cached in localStorage for 5 minutes
   useEffect(() => {
     const CACHE_KEY = 'meta_cache'
     const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
     async function loadMeta() {
+      let brands: string[] | null = null
+      let emitters: string[] | null = null
+      let stats: { flashlights: number; brands: number; users: number } | null = null
+
       try {
         const cached = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null')
-        if (cached && Date.now() - cached.ts < CACHE_TTL) {
+        if (cached && Date.now() - cached.ts < CACHE_TTL && cached.stats) {
           setAvailableBrands(cached.brands)
           setAvailableEmitters(cached.emitters)
+          setSiteStats(cached.stats)
           return
         }
       } catch {}
 
-      const [{ data: b }, { data: e }] = await Promise.all([
+      // Fetch lists + counts in parallel
+      const [{ data: b }, { data: e }, { count: fCount }, { count: uCount }] = await Promise.all([
         supabase.rpc('get_distinct_brands'),
         supabase.rpc('get_distinct_emitters'),
+        supabase.from('flashlights').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
       ])
-      const brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]
-      const emitters = (e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[]
+      brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]
+      emitters = (e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[]
+      stats = { flashlights: fCount ?? 0, brands: brands.length, users: uCount ?? 0 }
+
       setAvailableBrands(brands)
       setAvailableEmitters(emitters)
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ brands, emitters, ts: Date.now() })) } catch {}
+      setSiteStats(stats)
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ brands, emitters, stats, ts: Date.now() })) } catch {}
     }
     loadMeta()
   }, [])
@@ -175,7 +187,7 @@ export default function BrowsePage() {
       <header className="bg-black sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-6">
           <Link href="/" className="font-bold text-base shrink-0" onClick={() => setNavOpen(false)}>
-            <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
+            <span style={{ color: '#eba00b' }}>torch.</span><span className="text-white">EDC.wiki</span>
           </Link>
           <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
             <Link href="/" className="text-white">Browse</Link>
@@ -238,6 +250,7 @@ export default function BrowsePage() {
             onChange={setFilters}
             availableBrands={availableBrands}
             availableEmitters={availableEmitters}
+            siteStats={siteStats ?? undefined}
           />
         </div>
 

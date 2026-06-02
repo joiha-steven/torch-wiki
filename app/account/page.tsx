@@ -14,11 +14,11 @@ type MfaStep = 'idle' | 'qr' | 'verify' | 'codes' | 'disabling'
 
 const inp = 'w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white'
 
-// Nickname: letters, numbers, - and _ only, 3–30 chars
+// Nickname: letters, numbers, - and _ only, 3–20 chars
 function nickError(v: string) {
   if (!v) return null
   if (v.length < 3) return 'Minimum 3 characters'
-  if (v.length > 30) return 'Maximum 30 characters'
+  if (v.length > 20) return 'Maximum 20 characters'
   if (!/^[a-zA-Z0-9_-]+$/.test(v)) return 'Only letters, numbers, - and _ allowed'
   return null
 }
@@ -341,13 +341,27 @@ export default function AccountPage() {
   const [nickAvail, setNickAvail] = useState<'available' | 'taken' | 'checking' | null>(null)
   const [savedNickname, setSavedNickname] = useState('')  // the value already in DB
 
+  // Public collection toggle (default off)
+  const [showCollection, setShowCollection] = useState(false)
+  const [collSaving, setCollSaving] = useState(false)
+
   useEffect(() => {
     if (!user) return
-    supabase.from('profiles').select('nickname').eq('id', user.id).single()
+    supabase.from('profiles').select('nickname, show_collection').eq('id', user.id).single()
       .then(({ data }) => {
         if (data?.nickname) { setNickname(data.nickname); setSavedNickname(data.nickname) }
+        if (data) setShowCollection(!!data.show_collection)
       })
   }, [user])
+
+  async function toggleCollection() {
+    const next = !showCollection
+    setShowCollection(next); setCollSaving(true)
+    const { error } = await supabase.from('profiles')
+      .upsert({ id: user!.id, show_collection: next, updated_at: new Date().toISOString() })
+    if (error) setShowCollection(!next)  // revert on failure
+    setCollSaving(false)
+  }
 
   // Debounced availability check
   useEffect(() => {
@@ -472,7 +486,7 @@ export default function AccountPage() {
                           value={nickname}
                           onChange={e => { setNickname(e.target.value); setNickErr(nickError(e.target.value)); setNickAvail(null) }}
                           placeholder="e.g. flashlight_nerd"
-                          maxLength={30}
+                          maxLength={20}
                           autoComplete="off"
                         />
                         {nickAvail === 'checking' && (
@@ -511,6 +525,31 @@ export default function AccountPage() {
                     </form>
                   )}
                 </div>
+              </div>
+
+              <div className="border-t border-slate-100" />
+
+              {/* Public collection toggle */}
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-slate-500">Public collection</label>
+                <div className="flex items-center justify-between gap-4 max-w-sm">
+                  <p className="text-sm text-slate-600">
+                    Show your collection on your public profile. Only the flashlight and quantity are shown — never purchase price or date.
+                  </p>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={showCollection}
+                    onClick={toggleCollection}
+                    disabled={collSaving}
+                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors disabled:opacity-50 ${showCollection ? 'bg-brand-500' : 'bg-slate-200'}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${showCollection ? 'translate-x-5' : ''}`} />
+                  </button>
+                </div>
+                {!savedNickname && (
+                  <p className="text-xs text-amber-600">Set a nickname first — your public profile lives at <span className="font-mono">/u/your-nickname</span>.</p>
+                )}
               </div>
             </>
           )}

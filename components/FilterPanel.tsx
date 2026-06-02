@@ -2,11 +2,11 @@
 
 import { FilterState } from '@/lib/types'
 
-const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Work', 'Custom']
+const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Diving', 'Work', 'Custom']
 
 const BATTERY_TYPES = [
   'CR123A', 'D-cell', 'AA', 'AAA',
-  '10440', '14500', '18350', '18650', '21700', '26650', 'Built-in',
+  '10440', '14500', '16340', '18350', '18650', '21700', '26650', 'Built-in',
 ]
 
 const SORT_OPTIONS = [
@@ -97,9 +97,10 @@ type Props = {
   onChange: (filters: FilterState) => void
   availableBrands: string[]
   availableEmitters: string[]
+  siteStats?: { flashlights: number; brands: number; users: number }
 }
 
-export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters }: Props) {
+export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, siteStats }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
 
@@ -258,7 +259,10 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-3 border-t border-[#e7e7e1]">
         All specs and images belong to their respective brands. Non-commercial.{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>.
+        {siteStats && (
+          <> Currently {siteStats.flashlights.toLocaleString()} flashlights · {siteStats.brands} brands · {siteStats.users} users.</>
+        )}
       </p>
     </aside>
   )

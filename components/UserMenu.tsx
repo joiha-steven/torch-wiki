@@ -29,21 +29,31 @@ export default function UserMenu() {
   return (
     <div className="relative" ref={ref}>
       <button onClick={() => setOpen((o) => !o)} className="flex items-center justify-center hover:opacity-70 transition-opacity">
-        <User size={20} strokeWidth={1.75} style={{ color: '#FFBE00' }} />
+        <User size={20} strokeWidth={1.75} style={{ color: '#eba00b' }} />
       </button>
 
       {open && (
         <div className="absolute right-0 top-9 bg-white rounded-xl shadow-lg border border-slate-100 py-1 w-48 z-50 text-sm">
-          <p className="px-4 py-2 text-slate-500 text-xs truncate font-medium">{nickname ?? user.email}</p>
+          {nickname ? (
+            <Link
+              href={`/u/${nickname}`}
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 text-slate-900 text-[15px] font-semibold truncate hover:bg-slate-50"
+            >
+              {nickname}
+            </Link>
+          ) : (
+            <p className="px-4 py-2.5 text-slate-500 text-xs truncate font-medium">{user.email}</p>
+          )}
           <div className="border-t border-slate-100 my-1" />
-          <Link href="/my" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
-            My Lists
-          </Link>
-          <Link href="/contribute" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
-            Contribute
-          </Link>
           <Link href="/account" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
             My Account
+          </Link>
+          <Link href="/my" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
+            My Library
+          </Link>
+          <Link href="/contribute" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
+            My Contribute
           </Link>
           {(isAdmin || isModerator) && (
             <>

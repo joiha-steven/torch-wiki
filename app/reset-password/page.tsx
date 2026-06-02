@@ -37,8 +37,8 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-lg border border-slate-100 w-full max-w-sm p-6">
-        <Link href="/" className="block text-base font-bold mb-6" style={{ color: '#FFBE00' }}>
-          <span style={{ color: '#FFBE00' }}>torch.</span><span className="text-white">EDC.wiki</span>
+        <Link href="/" className="block text-base font-bold mb-6" style={{ color: '#eba00b' }}>
+          <span style={{ color: '#eba00b' }}>torch.</span><span className="text-white">EDC.wiki</span>
         </Link>
 
         <h1 className="text-lg font-bold text-slate-900 mb-5">Set new password</h1>

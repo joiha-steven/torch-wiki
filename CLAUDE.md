@@ -41,13 +41,25 @@ Key tables:
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`)
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
-- `profiles` — `(id, nickname, is_admin, is_moderator, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` / `is_moderator` control access — set via SQL.
+- `profiles` — `(id, nickname, is_admin, is_moderator, show_collection, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` / `is_moderator` control access — set via SQL. `show_collection` (bool, default false): when on, the user's collection appears on their public `/u/[nickname]` page (flashlight + quantity only — never price/date); toggled in My Account → Profile.
 - `settings` — `(key, value)` — site-wide config. Keys: `ga_measurement_id`, `ga_enabled`. RLS disabled.
 - `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
 - `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
 - `recovery_codes` — hashed 2FA recovery codes per user (`code_hash`, `used_at`)
 
+**Migration — `profiles.show_collection`** (run once if missing; DDL must be run in the Supabase SQL editor — the REST/service key can't run ALTER):
+```sql
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS show_collection boolean NOT NULL DEFAULT false;
+```
+
 **Note on emitters:** `emitter` (text) is legacy. `emitters` (text[]) is canonical — always use for filtering and display.
+
+**Emitter naming convention** (so duplicates don't fragment the `get_distinct_emitters` filter list):
+- Brand name in **proper case**, never ALL-CAPS: `Cree` (not CREE), `Luxeon` (not LUXEON), `Luminus`, `Nichia`, `Osram`. Always include the brand prefix (`Luminus SST-36R`, not bare `SST-36R`).
+- Cree **XHP** series gets a hyphen: `Cree XHP-70.2`, `Cree XHP-70.3 HI`, `Cree XHP-50.3 HI`. XP-series already hyphenated: `Cree XP-L`, `Cree XP-LR`.
+- Luminus series hyphenated: `Luminus SFT-90X`, `Luminus SST-20`, `Luminus SBT-90.3`.
+- LEP / laser lights use emitter `LEP`.
+- To normalize after a bad import, extend the `EMITTER_MAP` in `scripts/normalize-emitters.mjs` and re-run, then force-clear cache.
 
 **Database indexes** (run once if missing):
 ```sql
@@ -153,6 +165,11 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | Script | Purpose |
 |---|---|
 | `scripts/migrate-to-vercel-blob.mjs` | Download images from any URL → upload to Vercel Blob → update DB |
+| `scripts/seed-ledlenser.mjs` | Scrape LED Lenser Shopify API → insert |
+| `scripts/seed-acebeam-edc.mjs` · `seed-acebeam-tactical.mjs` · `seed-acebeam-more.mjs` | Acebeam EDC / tactical / headlamp+high-power+LEP+diving seeds |
+| `scripts/normalize-emitters.mjs` | Normalize emitter names DB-wide (see emitter naming convention above) |
+
+**Seeding convention:** Always set `image_url` in the **same upsert** as the row data, then migrate the blob in the same script (see `seed-acebeam-tactical.mjs` / `seed-acebeam-more.mjs` for the combined pattern). Do NOT insert rows first and add images in a second pass — detail pages are SSG with `revalidate = false`, so a page rendered during the null-image window freezes with "No image" (the browse grid still shows it because it fetches client-side). After any direct DB seed/edit, force-clear cache: `curl -X POST https://torch.edc.wiki/api/revalidate -H 'Content-Type: application/json' -d '{"force":true}'`.
 
 ## Key Components & Pages
 
@@ -240,9 +257,11 @@ Sections in order:
 
 ## Filter Options
 
-**Categories:** EDC, Tactical, Weapon Light, Thrower, Flood, Headlamp, Search & Rescue, Work, Custom
+**Categories:** EDC, Tactical, Weapon Light, Thrower, Flood, Headlamp, Search & Rescue, Diving, Work, Custom
 
-**Battery types:** CR123A, D-cell, AA, AAA, 10440, 14500, 18350, 18650, 21700, 26650, Built-in
+**Battery types:** CR123A, D-cell, AA, AAA, 10440, 14500, 16340, 18350, 18650, 21700, 26650, Built-in
+
+(Note: `16340` = RCR123 rechargeable Li-ion — use for lights with USB-C charging in a CR123-size cell, e.g. Acebeam W20/E10/G10. Reserve `CR123A` for lights that take non-rechargeable primaries, e.g. SureFire/Malkoff. Both `CATEGORIES` and `BATTERY_TYPES` are hardcoded in `components/FilterPanel.tsx` — adding a value there is a code change that needs a deploy to show on prod.)
 
 **Charging:** Any / USB / Magnetic / None
 
