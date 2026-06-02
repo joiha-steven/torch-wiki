@@ -35,7 +35,8 @@ export type Flashlight = {
   image_url: string | null
   description: string | null
   notes: string | null
-  manual_url: string | null
+  manual_url: string | null       // legacy single PDF — prefer manual_urls
+  manual_urls: string[] | null    // multiple PDFs: manual.pdf, manual-1.pdf, …
   is_discontinued: boolean
   created_at: string
   updated_at: string

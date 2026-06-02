@@ -5,7 +5,7 @@ import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
-import { X, Upload, Loader2 } from 'lucide-react'
+import { X, Upload, Loader2, FileText } from 'lucide-react'
 import Image from 'next/image'
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
@@ -55,7 +55,16 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [pdfUploading, setPdfUploading] = useState(false)
+  // Multiple PDFs: list of {url, name}
+  const [pdfFiles, setPdfFiles] = useState<{ url: string; name: string }[]>(() => {
+    // Use manual_urls if it has entries, else fall back to legacy manual_url
+    const urls = (initial?.manual_urls?.length ? initial.manual_urls : null)
+      ?? (initial?.manual_url ? [initial.manual_url] : [])
+    return urls.map((url, i) => ({ url, name: i === 0 ? 'manual.pdf' : `manual-${i}.pdf` }))
+  })
   const fileRef = useRef<HTMLInputElement>(null)
+  const pdfRef = useRef<HTMLInputElement>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
 
   const set = (k: keyof Flashlight, v: unknown) => setData(d => ({ ...d, [k]: v }))
@@ -68,6 +77,34 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     }))
     if (images.length === 0 && newEntries.length > 0) newEntries[0].isPrimary = true
     setImages(prev => [...prev, ...newEntries])
+  }
+
+  async function handlePdfFile(file: File) {
+    if (file.type !== 'application/pdf') return
+    setPdfUploading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const blob = await upload(`submissions/manuals/${crypto.randomUUID()}.pdf`, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload-pdf',
+        clientPayload: session?.access_token ?? '',
+      })
+      const newFiles = [...pdfFiles, { url: blob.url, name: file.name }]
+      setPdfFiles(newFiles)
+      // sync manual_urls into form data
+      setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setPdfUploading(false)
+      if (pdfRef.current) pdfRef.current.value = ''
+    }
+  }
+
+  function removePdf(idx: number) {
+    const newFiles = pdfFiles.filter((_, i) => i !== idx)
+    setPdfFiles(newFiles)
+    setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
   }
 
   function removeImage(id: string) {
@@ -247,8 +284,34 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       <Field label="Description">
         <textarea className={input + ' !h-auto py-2 resize-none'} rows={3} value={data.description ?? ''} onChange={e => set('description', e.target.value || null)} placeholder="Short product description..." />
       </Field>
-      <Field label="User Manual URL">
-        <input className={input} type="url" value={data.manual_url ?? ''} onChange={e => set('manual_url', e.target.value || null)} placeholder="https://..." />
+      <Field label="User Manual (PDF)">
+        <div className="space-y-2">
+          {pdfFiles.map((f, i) => (
+            <div key={f.url} className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
+              <FileText size={14} className="text-brand-500 shrink-0" />
+              <span className="truncate flex-1">{f.name}</span>
+              <button type="button" onClick={() => removePdf(i)} className="text-slate-400 hover:text-red-500 shrink-0">
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => pdfRef.current?.click()}
+            disabled={pdfUploading}
+            className="flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition-colors"
+          >
+            {pdfUploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+            {pdfUploading ? 'Uploading…' : pdfFiles.length ? 'Add another PDF' : 'Upload PDF'}
+          </button>
+          <input
+            ref={pdfRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handlePdfFile(f) }}
+          />
+        </div>
       </Field>
 
       <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">

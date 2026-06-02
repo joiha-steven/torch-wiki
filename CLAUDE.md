@@ -35,13 +35,13 @@ NEXT_PUBLIC_ADMIN_EMAIL=...
 Key tables:
 - `flashlights` — main product table. RLS disabled (public read). Key columns:
   - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter` (legacy text), `emitters` (text[]), `battery_type`, `battery_count`, `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
-  - content: `image_url` (Vercel Blob URL), `slug`, `notes`, `manual_url`, `description`, `is_discontinued`
+  - content: `image_url` (Vercel Blob URL), `slug`, `notes`, `manual_url` (legacy), `manual_urls` (text[]), `description`, `is_discontinued`
   - attribution: `updated_by` (uuid → auth.users) — set when admin approves a user edit
 - `flashlight_images` — extra images per flashlight (`url`, `sort_order`)
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`)
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
-- `profiles` — `(id, nickname, is_admin, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` controls admin access — set via SQL.
+- `profiles` — `(id, nickname, is_admin, is_moderator, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` / `is_moderator` control access — set via SQL.
 - `settings` — `(key, value)` — site-wide config. Keys: `ga_measurement_id`, `ga_enabled`. RLS disabled.
 - `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
 - `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
@@ -106,12 +106,19 @@ Three tabs:
 
 ## Admin (`/admin`)
 
-- Only accessible when `profiles.is_admin = true` (or `NEXT_PUBLIC_ADMIN_EMAIL` as bootstrap fallback)
-- Sections: **Submissions** | **Reports** | **Settings**
-- Tabs: Pending / Approved / Rejected
-- Each submission shows: type badge, before/after diff (highlighted changed fields), image previews
-- Approve → writes to `flashlights` table (insert for new, update for edit), sets `updated_by = submission.user_id`
+- Accessible when `profiles.is_admin = true` OR `profiles.is_moderator = true` OR email = `NEXT_PUBLIC_ADMIN_EMAIL`
+- **2FA required** — blocks access until TOTP factor enrolled
+- Sections: **Submissions** | **Reports** | **Users** | **Settings** (users + settings: admin only)
+- Submissions fetched via `/api/admin/submissions` (service role — bypasses RLS, sees all users' submissions)
+- Approve/Reject via PATCH `/api/admin/submissions` — server-side: validates action, looks up user_id from DB (not client), moves PDFs, returns slug for revalidation
+- PDF move on approval: `submissions/manuals/{uuid}.pdf` → `flashlights/{slug}/manual.pdf` (or `manual-1.pdf`, etc.) using Vercel Blob `copy()` + `del()`
 - Reject → saves reviewer note shown to the submitter
+
+**Note on `manual_urls` DB column:** requires SQL migration:
+```sql
+ALTER TABLE flashlights ADD COLUMN IF NOT EXISTS manual_urls text[] DEFAULT '{}';
+UPDATE flashlights SET manual_urls = ARRAY[manual_url] WHERE manual_url IS NOT NULL AND (manual_urls IS NULL OR manual_urls = '{}');
+```
 
 ## Image Workflow
 
@@ -150,7 +157,12 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons |
 | `components/SubmitFlashlightForm.tsx` | Full spec form with image upload + Turnstile captcha |
 | `app/[slug]/page.tsx` | Flashlight detail page — gallery, specs, reviews, manual, attribution |
+| `app/top/page.tsx` | Top Lists page — recently added, newest, most expensive, best value |
 | `app/api/ping/route.ts` | Health check endpoint — called daily by Vercel Cron to keep Supabase alive |
+| `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS) + PATCH (approve/reject, move PDFs, validate action) |
+| `app/api/upload-pdf/route.ts` | Client upload handler for PDFs in contribute form — auth via clientPayload bearer token |
+| `app/api/upload-manual/route.ts` | Direct admin PDF upload — stores to `flashlights/{slug}/manual.pdf` |
+| `lib/cdn.ts` | `cdnUrl()` — rewrites Vercel Blob PDF URLs to Cloudflare CDN proxy domain |
 | `components/FlashlightCardSkeleton.tsx` | Shimmer skeleton card shown while browse page loads |
 | `components/PageFade.tsx` | Wraps page content with fade-in animation on navigation |
 | `scripts/seed-ledlenser.mjs` | Scrapes ledlenserusa.com Shopify API → inserts flashlights/headlamps/area lights |

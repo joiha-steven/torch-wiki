@@ -62,7 +62,7 @@ const SPEC_LABELS: [keyof Flashlight, string][] = [
   ['length_mm', 'Length'], ['head_diameter_mm', 'Head Ø'], ['body_diameter_mm', 'Body Ø'],
   ['weight_g', 'Weight'], ['material', 'Material'], ['ip_rating', 'IP Rating'],
   ['impact_resistance_m', 'Impact'], ['price_usd', 'Price'], ['description', 'Description'],
-  ['notes', 'Notes'], ['manual_url', 'Manual URL'], ['is_discontinued', 'Discontinued'],
+  ['notes', 'Notes'], ['manual_urls', 'Manual PDFs'], ['is_discontinued', 'Discontinued'],
 ]
 
 function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction: () => void }) {
@@ -76,29 +76,36 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
   async function act(action: 'approved' | 'rejected') {
     setActing(true)
     try {
-      if (action === 'approved') {
-        const d = sub.data
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token ?? ''
+      if (!token) return
+
+      const res = await fetch('/api/admin/submissions', {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: sub.id,
+          action,
+          reviewerNote,
+          submissionData: { type: sub.type, data: sub.data },
+          targetId: sub.target_id,
+          submissionImages: sub.submission_images,
+        }),
+      })
+
+      if (res.ok && action === 'approved') {
+        // Server returns slug — no extra DB round-trip needed
+        const { slug } = await res.json() as { ok: boolean; slug: string | null }
         if (sub.type === 'new') {
-          const slug = `${d.brand}-${d.model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-          const primaryImg = sub.submission_images?.find(i => i.is_primary) ?? sub.submission_images?.[0]
-          await supabase.from('flashlights').insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: sub.user_id })
           await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) })
-          localStorage.removeItem('meta_cache') // new brand may have been added
-        } else if (sub.target_id) {
-          const primaryImg = sub.submission_images?.find(i => i.is_primary)
-          const updateData: Record<string, unknown> = { ...d, updated_by: sub.user_id, updated_at: new Date().toISOString() }
-          if (primaryImg) updateData.image_url = primaryImg.url
-          await supabase.from('flashlights').update(updateData).eq('id', sub.target_id)
-          const { data: fl } = await supabase.from('flashlights').select('slug').eq('id', sub.target_id).single()
-          if (fl?.slug) await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: fl.slug }) })
-          localStorage.removeItem('meta_cache') // brand/emitter may have changed
+          localStorage.removeItem('meta_cache')
+        } else if (slug) {
+          await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug }) })
+          localStorage.removeItem('meta_cache')
         }
       }
-      await supabase.from('flashlight_submissions').update({
-        status: action,
-        reviewer_note: reviewerNote || null,
-        reviewed_at: new Date().toISOString(),
-      }).eq('id', sub.id)
+
+      // Always refresh list to show current DB state
       onAction()
     } finally {
       setActing(false)
@@ -745,12 +752,13 @@ export default function AdminDashboard() {
 
   const loadSubs = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('flashlight_submissions')
-      .select('*, submission_images(*), flashlights(*)')
-      .eq('status', subTab)
-      .order('created_at', { ascending: false })
-    setSubmissions((data ?? []) as FlashlightSubmission[])
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token ?? ''
+    const res = await fetch(`/api/admin/submissions?status=${subTab}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const data = res.ok ? await res.json() : []
+    setSubmissions(data as FlashlightSubmission[])
     setLoading(false)
   }, [subTab])
 

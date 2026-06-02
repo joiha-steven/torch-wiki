@@ -21,10 +21,11 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Sort by model, lumens, price, beam distance, or weight
 - Search by brand or model name
 - Compare up to 4 flashlights side by side
+- Top Lists — recently added, newest releases, most expensive, best value
 
 **Flashlight pages**
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
-- Image gallery, product notes, linked reviews (articles & videos), user manual
+- Image gallery, description, notes, linked reviews (articles & videos), user manual PDFs
 - Attribution: who added it and who last updated it
 
 **User accounts**
@@ -36,8 +37,18 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 **Community contributions**
 - Submit new flashlights or suggest edits to existing ones
+- Attach one or more PDF user manuals to any submission
 - All submissions go into a pending queue — reviewed before going live
 - Requires a nickname to contribute
+
+**Admin panel** (`/admin`)
+- Role-based access: admin (full control) and moderator (review only)
+- 2FA required to access the admin panel
+- Review queue with before/after diff for edits
+- User management: search, reset password, ban, delete
+- On PDF approval: files automatically moved from temp storage to `flashlights/{slug}/` folder
+- Google Analytics toggle and Measurement ID setting
+- Force cache clear button
 
 **Security**
 - Cloudflare Turnstile captcha on signup, forgot password, and submission forms
@@ -70,7 +81,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 - [Next.js](https://nextjs.org) — App Router, TypeScript, Turbopack
 - [Supabase](https://supabase.com) — PostgreSQL database + Auth (email/password + TOTP 2FA)
-- [Vercel](https://vercel.com) — hosting, Blob CDN (images), Analytics, Speed Insights
+- [Vercel](https://vercel.com) — hosting, Blob CDN (images + PDFs), Analytics, Speed Insights
 - [Tailwind CSS v4](https://tailwindcss.com)
 - [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) — captcha
 
@@ -104,6 +115,19 @@ Set `NEXT_PUBLIC_ADMIN_EMAIL` to the email address that should have admin access
 
 ```bash
 npm run dev
+```
+
+---
+
+## Database migration (manual_urls)
+
+To support multiple PDFs per flashlight, run this SQL in Supabase:
+
+```sql
+ALTER TABLE flashlights ADD COLUMN IF NOT EXISTS manual_urls text[] DEFAULT '{}';
+UPDATE flashlights
+SET manual_urls = ARRAY[manual_url]
+WHERE manual_url IS NOT NULL AND (manual_urls IS NULL OR manual_urls = '{}');
 ```
 
 ---

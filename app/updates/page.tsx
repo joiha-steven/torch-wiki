@@ -11,6 +11,21 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 2, 2026',
+    title: 'Contributions, manuals & top lists',
+    items: [
+      'Top Lists page — Recently Added, Newest Release, Most Expensive, Best Value (top 10 each)',
+      'Nav active state — current page highlighted in header across all pages',
+      'User Manual upload — attach one or more PDF manuals when submitting a flashlight',
+      'Multiple PDFs per flashlight — stored as manual.pdf, manual-1.pdf, manual-2.pdf…',
+      'Submissions now visible in admin panel (fixed RLS bypass using service role)',
+      'Approve/Reject submissions fixed — status update now correctly persists via server-side API',
+      'Submission list shows flashlight name for edit submissions, not just raw data',
+      'Description field now displayed on flashlight detail pages',
+      'Notes section visually separated from description with amber background',
+    ],
+  },
+  {
     date: 'June 1, 2026',
     title: 'Performance & UX improvements',
     items: [

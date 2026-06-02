@@ -131,7 +131,7 @@ export default function ContributePage() {
     setLoadingSubmissions(true)
     supabase
       .from('flashlight_submissions')
-      .select('*, submission_images(*)')
+      .select('*, submission_images(*), flashlights(brand, model, slug)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .then(({ data }) => {
@@ -262,27 +262,34 @@ export default function ContributePage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {submissions.map(s => (
-                    <div key={s.id} className="bg-white rounded-xl border border-slate-200 px-5 py-4">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[s.status]}`}>{s.status}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${s.type === 'new' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                          {s.type === 'new' ? 'New' : 'Edit'}
-                        </span>
-                        <span className="font-medium text-slate-900 text-sm">
-                          {(s.data.brand ?? '') + ' ' + (s.data.model ?? '')}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400">
-                        {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                      {s.reviewer_note && (
-                        <p className="mt-3 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2 italic">
-                          Admin: "{s.reviewer_note}"
+                  {submissions.map(s => {
+                    // For new: brand+model from submitted data
+                    // For edit: original flashlight name from joined flashlights table
+                    const isNew = s.type === 'new'
+                    const fl = s.flashlights as { brand: string; model: string; slug: string } | null
+                    const title = isNew
+                      ? [s.data.brand, s.data.model].filter(Boolean).join(' ') || 'New flashlight'
+                      : fl ? `${fl.brand} ${fl.model}` : [s.data.brand, s.data.model].filter(Boolean).join(' ') || 'Edit'
+                    return (
+                      <div key={s.id} className="bg-white rounded-xl border border-slate-200 px-5 py-4">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[s.status]}`}>{s.status}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${isNew ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                            {isNew ? 'New flashlight' : 'Edit'}
+                          </span>
+                          <span className="font-medium text-slate-900 text-sm">{title}</span>
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
-                      )}
-                    </div>
-                  ))}
+                        {s.reviewer_note && (
+                          <p className="mt-3 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2 italic">
+                            Admin: &quot;{s.reviewer_note}&quot;
+                          </p>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )
             )}
