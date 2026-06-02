@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
-import { ChevronLeft, Plus, Pencil, Bookmark } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import Header from '@/components/Header'
+import ProfileTabs, { ProfileItem } from './ProfileTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,6 +102,33 @@ export default async function UserProfilePage({ params }: Props) {
     ? subs[subs.length - 1].created_at
     : profile.updated_at
 
+  // Build serializable lists for the client tab component
+  const added: ProfileItem[] = newSubs.map(sub => {
+    const d = sub.data as { brand?: string; model?: string } | null
+    const brand = d?.brand ?? ''
+    const model = d?.model ?? ''
+    const slug = makeSlug(brand, model)
+    return { key: sub.id, slug, brand, model, imgUrl: imageBySlug[slug] ?? null, date: formatDate(sub.created_at) }
+  })
+
+  const seen = new Set<string>()
+  const edits: ProfileItem[] = editSubs.flatMap(sub => {
+    if (!sub.target_id || seen.has(sub.target_id)) return []
+    seen.add(sub.target_id)
+    const fl = flashlightById[sub.target_id]
+    if (!fl) return []
+    return [{ key: sub.target_id, slug: fl.slug, brand: fl.brand, model: fl.model, imgUrl: fl.image_url, date: formatDate(sub.created_at) }]
+  })
+
+  const collectionItems: ProfileItem[] = collection.map(item => ({
+    key: item.flashlight_id,
+    slug: item.flashlights!.slug,
+    brand: item.flashlights!.brand,
+    model: item.flashlights!.model,
+    imgUrl: item.flashlights!.image_url,
+    quantity: item.quantity,
+  }))
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -129,135 +156,20 @@ export default async function UserProfilePage({ params }: Props) {
                 <span className="font-semibold text-slate-900">{editSubs.length}</span> edits
               </span>
             )}
-            {collection.length > 0 && (
+            {collectionItems.length > 0 && (
               <span className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">
-                <span className="font-semibold text-slate-900">{collection.length}</span> owned
+                <span className="font-semibold text-slate-900">{collectionItems.length}</span> owned
               </span>
             )}
           </div>
         </div>
 
-        {subs.length === 0 && collection.length === 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 px-6 py-12 text-center">
-            <p className="text-slate-400 text-sm">No approved contributions yet.</p>
-          </div>
-        )}
-
-        {/* Flashlights added */}
-        {newSubs.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xs font-semibold text-slate-400 tracking-wide mb-3 flex items-center gap-2">
-              <Plus size={13} /> Flashlights added
-            </h2>
-            <div className="space-y-2">
-              {newSubs.map(sub => {
-                const d = sub.data as { brand?: string; model?: string } | null
-                const brand = d?.brand ?? ''
-                const model = d?.model ?? ''
-                const slug = makeSlug(brand, model)
-                const imgUrl = imageBySlug[slug] ?? null
-                return (
-                  <Link
-                    key={sub.id}
-                    href={`/${slug}`}
-                    className="flex items-center gap-4 bg-white border border-slate-200 hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors"
-                  >
-                    <div className="relative w-12 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                      {imgUrl
-                        ? <Image src={imgUrl} alt="" fill className="object-contain p-1" />
-                        : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
-                      }
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-slate-400">{brand}</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{model}</p>
-                    </div>
-                    <p className="text-xs text-slate-400 shrink-0">{formatDate(sub.created_at)}</p>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Edits contributed — deduplicated by flashlight */}
-        {editSubs.length > 0 && (() => {
-          const seen = new Set<string>()
-          const unique = editSubs.filter(s => {
-            if (!s.target_id || seen.has(s.target_id)) return false
-            seen.add(s.target_id)
-            return true
-          })
-          return (
-            <div>
-              <h2 className="text-xs font-semibold text-slate-400 tracking-wide mb-3 flex items-center gap-2">
-                <Pencil size={13} /> Edit contributions
-              </h2>
-              <div className="space-y-2">
-                {unique.map(sub => {
-                  const fl = sub.target_id ? flashlightById[sub.target_id] : null
-                  if (!fl) return null
-                  return (
-                    <Link
-                      key={sub.target_id}
-                      href={`/${fl.slug}`}
-                      className="flex items-center gap-4 bg-white border border-slate-200 hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors"
-                    >
-                      <div className="relative w-12 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                        {fl.image_url
-                          ? <Image src={fl.image_url} alt="" fill className="object-contain p-1" />
-                          : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-slate-400">{fl.brand}</p>
-                        <p className="text-sm font-medium text-slate-900 truncate">{fl.model}</p>
-                      </div>
-                      <p className="text-xs text-slate-400 shrink-0">{formatDate(sub.created_at)}</p>
-                    </Link>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })()}
-
-        {/* Collection — opt-in, shows flashlight + quantity only (no price or purchase date) */}
-        {collection.length > 0 && (
-          <div className={subs.length > 0 ? 'mt-8' : ''}>
-            <h2 className="text-xs font-semibold text-slate-400 tracking-wide mb-3 flex items-center gap-2">
-              <Bookmark size={13} /> Collection
-            </h2>
-            <div className="space-y-2">
-              {collection.map(item => {
-                const fl = item.flashlights!
-                return (
-                  <Link
-                    key={item.flashlight_id}
-                    href={`/${fl.slug}`}
-                    className="flex items-center gap-4 bg-white border border-slate-200 hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors"
-                  >
-                    <div className="relative w-12 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                      {fl.image_url
-                        ? <Image src={fl.image_url} alt="" fill className="object-contain p-1" />
-                        : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
-                      }
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-slate-400">{fl.brand}</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{fl.model}</p>
-                    </div>
-                    {item.quantity > 1 && (
-                      <span className="text-xs font-mono text-slate-500 bg-slate-100 rounded px-2 py-0.5 shrink-0">
-                        ×{item.quantity}
-                      </span>
-                    )}
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        <ProfileTabs
+          added={added}
+          edits={edits}
+          collection={collectionItems}
+          showCollection={!!profile.show_collection}
+        />
       </div>
     </div>
   )
