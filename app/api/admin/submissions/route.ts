@@ -82,14 +82,34 @@ export async function PATCH(request: Request) {
       const { data: sub } = await admin.from('flashlight_submissions').select('user_id').eq('id', id).single()
       const authorId = sub?.user_id ?? null
 
+      // Helper: insert non-primary submission images into flashlight_images
+      async function insertExtraImages(
+        flashlightId: string,
+        imgs: { url: string; sort_order: number; is_primary: boolean }[]
+      ) {
+        const extras = imgs.filter(i => !i.is_primary)
+        if (!extras.length) return
+        await admin.from('flashlight_images').insert(
+          extras.map(i => ({ flashlight_id: flashlightId, url: i.url, sort_order: i.sort_order }))
+        )
+      }
+
       if (submissionData?.type === 'new') {
         const d: Record<string, unknown> = { ...(submissionData.data ?? {}) }
         const slug = `${d.brand ?? ''}-${d.model ?? ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
         responseSlug = slug
-        const primaryImg = submissionImages?.find((i: { is_primary: boolean }) => i.is_primary) ?? submissionImages?.[0]
+        const imgs = (submissionImages ?? []) as { url: string; sort_order: number; is_primary: boolean }[]
+        const primaryImg = imgs.find(i => i.is_primary) ?? imgs[0]
 
         await movePdfs(d, slug)
-        await admin.from('flashlights').insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: authorId })
+        const { data: newFl } = await admin
+          .from('flashlights')
+          .insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: authorId })
+          .select('id')
+          .single()
+
+        // Insert extra images into flashlight_images
+        if (newFl?.id) await insertExtraImages(newFl.id, imgs)
 
       } else if (targetId) {
         const d: Record<string, unknown> = { ...(submissionData?.data ?? {}) }
@@ -120,6 +140,7 @@ export async function PATCH(request: Request) {
         const updateData: Record<string, unknown> = { ...d, updated_by: authorId, updated_at: new Date().toISOString() }
 
         // Primary image: use explicit directive if set, else fall back to newly uploaded primary
+        const imgs = (submissionImages ?? []) as { url: string; sort_order: number; is_primary: boolean }[]
         if (primaryImageUrl !== undefined) {
           updateData.image_url = primaryImageUrl
           // If an existing extra was promoted to primary, remove it from flashlight_images
@@ -130,14 +151,19 @@ export async function PATCH(request: Request) {
               .eq('url', primaryImageUrl)
           }
         } else {
-          const primaryImg = submissionImages?.find((i: { is_primary: boolean }) => i.is_primary)
-          if (primaryImg) updateData.image_url = (primaryImg as { url: string }).url
+          const primaryImg = imgs.find(i => i.is_primary)
+          if (primaryImg) updateData.image_url = primaryImg.url
         }
 
         await admin.from('flashlights').update(updateData).eq('id', targetId)
+
+        // Insert newly uploaded extra images into flashlight_images
+        await insertExtraImages(targetId, imgs)
       }
     } catch (e) {
-      console.error('[submissions PATCH] flashlights write error:', e)
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('[submissions PATCH] flashlights write error:', msg)
+      return NextResponse.json({ error: `Apply failed: ${msg}` }, { status: 500 })
     }
   }
 

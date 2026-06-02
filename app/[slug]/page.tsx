@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { cdnUrl } from '@/lib/cdn'
 import type { FlashlightImage } from '@/lib/types'
-import { Zap, Target, Battery, Weight, ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
+import { ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import ManualSection from '@/components/ManualSection'
@@ -81,7 +81,12 @@ export default async function FlashlightPage({ params }: Props) {
 
   if (!flashlight) notFound()
 
-  // Fetch updater's nickname if someone updated it
+  // Determine attribution:
+  // updated_by set + updated_at == created_at → user submitted this as new
+  // updated_by set + updated_at != created_at → user edited an existing one
+  const addedByUser = !!flashlight.updated_by && flashlight.updated_at === flashlight.created_at
+  const editedByUser = !!flashlight.updated_by && flashlight.updated_at !== flashlight.created_at
+
   let updatedByNickname: string | null = null
   if (flashlight.updated_by) {
     const { data: profile } = await supabase
@@ -136,7 +141,6 @@ export default async function FlashlightPage({ params }: Props) {
     <div className="min-h-screen bg-gray-100">
       <Header />
 
-      {/* JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -147,7 +151,7 @@ export default async function FlashlightPage({ params }: Props) {
           <ChevronLeft size={14} /> Back to browse
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-10">
           <ImageGallery
             primaryUrl={flashlight.image_url}
             extraImages={(flashlight.flashlight_images ?? [] as FlashlightImage[]).sort((a: FlashlightImage, b: FlashlightImage) => a.sort_order - b.sort_order)}
@@ -155,51 +159,31 @@ export default async function FlashlightPage({ params }: Props) {
           />
 
           <div>
-            <div className="flex items-start justify-between gap-2 mb-1">
-              <div>
-                <p className="text-slate-500 text-sm">{flashlight.brand}</p>
-                <h1 className="text-2xl font-bold text-slate-900">{flashlight.model}</h1>
-              </div>
-              {flashlight.is_discontinued && (
-                <span className="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded shrink-0">Discontinued</span>
-              )}
-            </div>
-
+            {/* Category */}
             {flashlight.category && (
-              <span className="inline-block bg-brand-100 text-brand-800 text-xs px-2 py-0.5 rounded font-medium mb-3">
-                {flashlight.category}
-              </span>
+              <div className="mb-2">
+                <span className="inline-block bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded font-medium">
+                  {flashlight.category}
+                </span>
+              </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {flashlight.max_lumens && (
-                <div className="bg-brand-50 rounded-lg p-3">
-                  <div className="flex items-center gap-1 text-brand-600 text-xs mb-0.5"><Zap size={12} /> Max Output</div>
-                  <div className="font-bold text-slate-900">{flashlight.max_lumens.toLocaleString()} lm</div>
-                </div>
-              )}
-              {flashlight.beam_distance_m && (
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <div className="flex items-center gap-1 text-blue-600 text-xs mb-0.5"><Target size={12} /> Beam Distance</div>
-                  <div className="font-bold text-slate-900">{flashlight.beam_distance_m} m</div>
-                </div>
-              )}
-              {flashlight.battery_type && (
-                <div className="bg-green-50 rounded-lg p-3">
-                  <div className="flex items-center gap-1 text-green-600 text-xs mb-0.5"><Battery size={12} /> Battery</div>
-                  <div className="font-bold text-slate-900">{flashlight.battery_type}</div>
-                </div>
-              )}
-              {flashlight.weight_g && (
-                <div className="bg-slate-50 rounded-lg p-3">
-                  <div className="flex items-center gap-1 text-slate-500 text-xs mb-0.5"><Weight size={12} /> Weight</div>
-                  <div className="font-bold text-slate-900">{flashlight.weight_g} g</div>
-                </div>
+            {/* Brand + Model */}
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div>
+                <p className="text-slate-400 text-sm">{flashlight.brand}</p>
+                <h1 className="text-2xl font-bold text-slate-900 leading-tight">{flashlight.model}</h1>
+              </div>
+              {flashlight.is_discontinued && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 border border-[#e7e7e1] rounded px-2 py-0.5 shrink-0 mt-1">
+                  Discontinued
+                </span>
               )}
             </div>
 
+            {/* Price */}
             {flashlight.price_usd && (
-              <div className="text-xl font-bold text-slate-900">${flashlight.price_usd}</div>
+              <div className="mt-4 text-xl font-mono font-bold text-slate-900">${flashlight.price_usd.toLocaleString()}</div>
             )}
 
             <WishlistButtons flashlightId={flashlight.id} />
@@ -210,57 +194,57 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
+        {/* Description */}
         {flashlight.description && (
-          <div className="mt-8 bg-white rounded-xl border border-slate-200 px-6 py-5">
+          <div className="mt-8 pt-6 border-t border-[#e7e7e1] text-sm text-slate-600 leading-relaxed">
             <MarkdownContent>{flashlight.description}</MarkdownContent>
           </div>
         )}
 
-        <div className="mt-6 bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100">
-            <h2 className="font-semibold text-slate-900">Specifications</h2>
-          </div>
-          <table className="w-full text-sm">
+        {/* Specifications — flat table, no zebra, no outer card */}
+        <div className="mt-8 border-t border-[#e7e7e1]">
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 py-3">Specifications</h2>
+          <table className="w-full">
             <tbody>
-              {specs.map((s, i) => (
-                <tr key={s.label} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                  <td className="px-6 py-2.5 text-slate-500 font-medium w-48">{s.label}</td>
-                  <td className="px-6 py-2.5 text-slate-900">{s.value as string}</td>
+              {specs.map(s => (
+                <tr key={s.label} className="border-t border-[#e7e7e1]">
+                  <td className="py-2.5 pr-6 text-xs text-slate-400 w-44">{s.label}</td>
+                  <td className="py-2.5 text-sm text-slate-900 font-mono">{s.value as string}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
+        {/* Reviews */}
         {flashlight.reviews && flashlight.reviews.length > 0 && (
-          <div className="mt-6 bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h2 className="font-semibold text-slate-900">Reviews</h2>
-            </div>
-            <div className="divide-y divide-slate-100">
+          <div className="mt-8 border-t border-[#e7e7e1]">
+            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 py-3">Reviews</h2>
+            <div className="space-y-0">
               {flashlight.reviews.map((r: { id: string; type: string | null; title: string; reviewer: string | null; summary: string | null; url: string }) => (
                 <a
                   key={r.id}
                   href={r.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-3 px-6 py-4 hover:bg-slate-50 group"
+                  className="flex items-start gap-3 py-3 border-t border-[#e7e7e1] hover:text-brand-600 group"
                 >
-                  <div className="mt-0.5 text-slate-400 group-hover:text-brand-500">
-                    {r.type === 'video' ? <Video size={16} /> : <FileText size={16} />}
+                  <div className="mt-0.5 text-slate-300 group-hover:text-brand-500 shrink-0">
+                    {r.type === 'video' ? <Video size={14} /> : <FileText size={14} />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 group-hover:text-brand-600">{r.title}</p>
-                    {r.reviewer && <p className="text-xs text-slate-500 mt-0.5">{r.reviewer}</p>}
-                    {r.summary && <p className="text-xs text-slate-600 mt-1 leading-relaxed">{r.summary}</p>}
+                    <p className="text-sm font-medium text-slate-900 group-hover:text-brand-700">{r.title}</p>
+                    {r.reviewer && <p className="text-xs text-slate-400 mt-0.5">{r.reviewer}</p>}
+                    {r.summary && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{r.summary}</p>}
                   </div>
-                  <ExternalLink size={12} className="text-slate-300 group-hover:text-brand-400 mt-1 shrink-0" />
+                  <ExternalLink size={11} className="text-slate-300 group-hover:text-brand-400 mt-0.5 shrink-0" />
                 </a>
               ))}
             </div>
           </div>
         )}
 
+        {/* User manual */}
         <ManualSection
           slug={flashlight.slug}
           urls={Array.from(new Set([
@@ -269,18 +253,34 @@ export default async function FlashlightPage({ params }: Props) {
           ]))}
         />
 
-        {/* Creation / update info */}
-        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
-          <span>
-            Added by system · {new Date(flashlight.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </span>
-          {flashlight.updated_by && flashlight.updated_at !== flashlight.created_at && (
-            <span>
-              Last updated by <span className="text-slate-500 font-medium">{updatedByNickname ?? 'user'}</span>
-              {' · '}{new Date(flashlight.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </span>
+        {/* Timeline */}
+        <div className="mt-8 pt-4 border-t border-[#e7e7e1] space-y-1 text-xs text-slate-400">
+          {editedByUser && (
+            <div className="flex items-center gap-2">
+              <span className="text-slate-300">–</span>
+              <span>
+                Updated by{' '}
+                {updatedByNickname
+                  ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                  : 'user'
+                }
+                {' · '}{new Date(flashlight.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </span>
+            </div>
           )}
+          <div className="flex items-center gap-2">
+            <span className="text-slate-300">–</span>
+            <span>
+              Added by{' '}
+              {addedByUser && updatedByNickname
+                ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                : 'system'
+              }
+              {' · '}{new Date(flashlight.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+          </div>
         </div>
+
       </div>
     </div>
   )

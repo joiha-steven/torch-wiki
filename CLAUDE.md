@@ -92,6 +92,14 @@ $$;
 - Logged in → `User` icon, brand yellow (`#FFBE00`)
 - Dropdown shows nickname (if set) or email, plus: My Lists / Contribute / My Account / Sign out
 
+## User Profiles (`/u/[username]`)
+
+- Public page, `force-dynamic`
+- Fetches profile by nickname via anon client (RLS: public SELECT on profiles)
+- Fetches approved submissions via **service role** (bypasses RLS on `flashlight_submissions`)
+- Shows: flashlights added (type=new), edit contributions (type=edit, deduplicated by flashlight)
+- Submission images looked up from `flashlights` table by slug for thumbnails
+
 ## Contribution System (`/contribute`)
 
 Three tabs:
@@ -163,7 +171,9 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `components/MarkdownContent.tsx` | Renders Markdown with Tailwind styles — used in flashlight detail and form preview |
 | `components/SuggestEditButton.tsx` | Smart "Suggest an edit" / "Edit" link — shows "Edit" for admin/mod, "Suggest an edit" for users |
 | `lib/use-is-admin.ts` | `useIsAdmin()` hook — checks `profiles.is_admin/is_moderator` client-side |
-| `app/[slug]/page.tsx` | Flashlight detail page — gallery, specs, reviews, manual, attribution |
+| `app/[slug]/page.tsx` | Flashlight detail page — gallery, specs, reviews, manual, attribution timeline |
+| `app/[slug]/ImageGallery.tsx` | Image gallery — white main area, warm thumbnails, amber active border |
+| `app/u/[username]/page.tsx` | Public user profile — shows approved contributions (added + edits), uses service role to bypass RLS |
 | `app/top/page.tsx` | Top Lists page — recently added, newest, most expensive, best value |
 | `app/api/ping/route.ts` | Health check endpoint — called daily by Vercel Cron to keep Supabase alive |
 | `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS) + PATCH (approve/reject, move PDFs, apply image directives, validate action) |
@@ -213,16 +223,20 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 ## Flashlight Detail Page
 
 Sections in order:
-1. Image gallery
-2. Hero info (brand, model, category, key stats, price, wishlist/collection buttons)
-3. "Suggest an edit" / "Edit" button (`SuggestEditButton` — admin/mod sees "Edit")
-4. Description block — Markdown rendered, shown only if `flashlight.description` is not null
-5. Specifications table
-6. Reviews — shown only if reviews exist
-7. User Manual — shown only if `flashlight.manual_url` / `manual_urls` exist
-8. Attribution line — "Added by system · [date]" + "Last updated by [nickname] · [date]" if applicable
+1. Image gallery (white bg, `rounded-2xl`, warm thumbnails)
+2. Hero: category badge (gray), brand, model, discontinued tag, price, wishlist, "Edit"/"Suggest an edit"
+3. Description — Markdown rendered, hairline top border separator
+4. Specifications — flat table, hairline row borders, `font-mono` values, no zebra
+5. Reviews — hairline-separated list
+6. User Manual — hairline-separated PDF links
+7. Attribution timeline — newest event on top, bullet "–" prefix, links to `/u/[nickname]`
 
-**Notes field (`flashlight.notes`):** still exists in DB but no longer displayed or editable from the UI. Preserved for backward compat.
+**Attribution logic:**
+- `updated_by != null && updated_at == created_at` → "Added by [user]" (user submitted new flashlight)
+- `updated_by == null` → "Added by system"
+- `updated_by != null && updated_at != created_at` → also show "Updated by [user]" above
+
+**Notes field (`flashlight.notes`):** still exists in DB but no longer displayed or editable. Preserved for backward compat.
 
 ## Filter Options
 
@@ -238,10 +252,20 @@ Sections in order:
 
 ## Color System
 
-Brand color `#FFBE00` (warm yellow ~3500K) defined as `brand-*` scale in `app/globals.css`:
-- `brand-500` → primary accents, buttons, active states
-- `brand-100` / `brand-50` → light backgrounds
+Brand color `#eba00b` (refined amber) defined as `brand-*` scale in `app/globals.css`:
+- `brand-500` → primary accents, active filter buttons, active wishlist/collection, logo
+- `brand-100` / `brand-50` → light backgrounds (rare)
 - **Never use `amber-*`** — always use `brand-*`
+
+Page surface: `#f6f6f3` (warm off-white) — defined via `--color-gray-100` override in `@theme`, and as body background. All pages use `bg-gray-100` which resolves to this.
+
+Card borders: `#e7e7e1` (warm light gray). Hover border: `#c8c8c0`. Use these instead of `border-slate-200`.
+
+No box-shadows anywhere. Hover = border darkens only.
+
+**JetBrains Mono** loaded via `next/font/google` in `app/layout.tsx` as `--font-mono` CSS variable. Used via `font-mono` Tailwind class for all numeric values (lumens, price, dimensions, spec table values).
+
+**Custom checkbox/radio CSS** in `globals.css` — classes `.cb` (checkbox) and `.rb` (radio). Flat, amber accent on check. Use instead of `accent-brand-500`.
 
 ## Material Options (CollectionEditModal)
 

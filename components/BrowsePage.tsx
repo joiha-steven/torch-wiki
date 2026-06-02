@@ -40,8 +40,12 @@ function buildQuery(filters: FilterState, from: number, to: number): any {
   if (filters.maxPrice < 99999) q = q.lte('price_usd', filters.maxPrice)
   if (filters.chargingType !== null) q = q.eq('charging_type', filters.chargingType)
   if (filters.search.trim()) {
-    const s = filters.search.trim()
-    q = q.or(`model.ilike.%${s}%,brand.ilike.%${s}%`)
+    // Split into words — each word must match brand OR model (AND between words)
+    // "surefire 6px" → (brand|model has "surefire") AND (brand|model has "6px")
+    const words = filters.search.trim().split(/\s+/).filter(Boolean)
+    for (const word of words) {
+      q = q.or(`model.ilike.%${word}%,brand.ilike.%${word}%`)
+    }
   }
 
   switch (filters.sortBy) {

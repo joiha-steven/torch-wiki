@@ -217,7 +217,9 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       ])
       if (!user) throw new Error('Not signed in')
 
-      const submissionData = { ...data, emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean) }
+      // Strip join fields (reviews, flashlight_images) — not DB columns, would cause update to fail
+      const { reviews: _r, flashlight_images: _fi, ...cleanData } = data as Record<string, unknown>
+      const submissionData = { ...cleanData, emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean) }
       const { data: sub, error: subErr } = await supabase.from('flashlight_submissions').insert({
         user_id: user.id, type: mode, status: 'pending',
         target_id: targetId ?? null, data: submissionData, note: null,
@@ -286,9 +288,18 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         })
         const json = await res.json() as { ok?: boolean; slug?: string; error?: string }
         if (!res.ok) throw new Error(json.error ?? 'Auto-approve failed')
-        await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) })
+        // Edit → revalidate that specific page; new → revalidate browse layout
+        const revalidateBody = mode === 'edit' && json.slug
+          ? { slug: json.slug }
+          : { all: true }
+        await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(revalidateBody) })
         localStorage.removeItem('meta_cache')
-        onSuccess(json.slug ?? undefined)
+        // Hard navigate — bypasses Next.js client-side router cache to guarantee fresh page
+        if (json.slug) {
+          window.location.href = `/${json.slug}`
+        } else {
+          onSuccess()
+        }
         return
       }
 

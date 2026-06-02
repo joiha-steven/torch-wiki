@@ -12,6 +12,24 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 2, 2026',
+    title: 'UI redesign, user profiles & search improvements',
+    items: [
+      'Full UI redesign — flat minimalism: warm off-white (#f6f6f3) background, no shadows, 1px borders',
+      'JetBrains Mono for all numeric values (lumens, price, specs)',
+      'Flashlight cards: single compact spec line "600 lm · 187 m · CR123A", fixed-height layout',
+      'Detail page: flat spec table (no zebra), hairline section dividers, no tinted stat boxes',
+      'Sidebar filters: custom checkboxes and radio buttons, lighter section headings',
+      'Category badges: subtle gray, no all-caps',
+      'Image gallery: white background, warm thumbnails with amber active border',
+      'Multi-word search — "surefire 6px" now returns correct results',
+      'User profile pages at /u/[username] — shows flashlights added and edit contributions',
+      'Attribution on flashlight pages now links to contributor profile',
+      '"Added by system" shows actual contributor name when a user submitted the flashlight',
+      'Cool Fall Tri-V and Trek added to the database',
+    ],
+  },
+  {
+    date: 'June 2, 2026',
     title: 'Inline editing, image management & markdown',
     items: [
       '"Edit" button on flashlight pages for admin/mod — skips review queue and saves directly',

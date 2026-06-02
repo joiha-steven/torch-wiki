@@ -19,14 +19,18 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 **Browsing & discovery**
 - Filter by brand, category, battery type, LED/emitter, max lumens, price range, and charging method
 - Sort by model, lumens, price, beam distance, or weight
-- Search by brand or model name
+- Multi-word search — "surefire 6px" matches brand + model simultaneously
 - Compare up to 4 flashlights side by side
 - Top Lists — recently added, newest releases, most expensive, best value
 
 **Flashlight pages**
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
 - Image gallery, Markdown description, linked reviews (articles & videos), user manual PDFs
-- Attribution: who added it and who last updated it
+- Attribution timeline — links to contributor profile
+
+**User profiles** (`/u/[username]`)
+- Public profile showing all approved contributions
+- Flashlights added and edits contributed, with thumbnails and dates
 
 **User accounts**
 - Free sign up with email + password
@@ -84,7 +88,8 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - [Next.js](https://nextjs.org) — App Router, TypeScript, Turbopack
 - [Supabase](https://supabase.com) — PostgreSQL database + Auth (email/password + TOTP 2FA)
 - [Vercel](https://vercel.com) — hosting, Blob CDN (images + PDFs), Analytics, Speed Insights
-- [Tailwind CSS v4](https://tailwindcss.com)
+- [Tailwind CSS v4](https://tailwindcss.com) — custom brand scale (`#eba00b`), warm off-white surface
+- [JetBrains Mono](https://www.jetbrains.com/lp/mono/) — numeric values via `next/font/google`
 - [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) — captcha
 
 ---

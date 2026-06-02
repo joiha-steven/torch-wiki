@@ -1,25 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50:  #fffdf0;
-  --color-brand-100: #fff5cc;
-  --color-brand-200: #ffe999;
-  --color-brand-300: #ffd966;
-  --color-brand-400: #ffca1f;
-  --color-brand-500: #ffbe00;
-  --color-brand-600: #cc9900;
-  --color-brand-700: #997300;
-  --color-brand-800: #7a5800;
+  /* Brand — amber #eba00b */
+  --color-brand-50:  #fef9ec;
+  --color-brand-100: #fdedc8;
+  --color-brand-200: #fbd991;
+  --color-brand-300: #f8bf50;
+  --color-brand-400: #f4a820;
+  --color-brand-500: #eba00b;
+  --color-brand-600: #c47e07;
+  --color-brand-700: #9a5f05;
+  --color-brand-800: #7a4904;
+
+  /* Warm off-white page surface — overrides Tailwind's gray-100 */
+  --color-gray-100: #f6f6f3;
+
+  /* JetBrains Mono for numeric values */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 }
 
 :root {
-  --background: #f8f8f6;
-  --foreground: #1a1a1a;
+  --border: #e7e7e1;
+  --border-hover: #c8c8c0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #f6f6f3;
+  color: #1a1a1a;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -33,6 +40,46 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Custom checkbox / radio — flat, amber accent */
+.cb {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  border: 1.5px solid #d4d4cc;
+  background: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.1s, border-color 0.1s;
+  position: relative;
+}
+.cb:checked {
+  background: #eba00b;
+  border-color: #eba00b;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 7L5.5 10L11.5 4' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 11px 11px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.cb:hover:not(:checked) { border-color: #eba00b; }
+
+.rb {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid #d4d4cc;
+  background: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.1s, border-color 0.1s;
+}
+.rb:checked {
+  border-color: #eba00b;
+  background: radial-gradient(circle, #eba00b 40%, #fff 42%);
+}
+.rb:hover:not(:checked) { border-color: #eba00b; }
+
 /* Skeleton shimmer */
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
@@ -40,7 +87,7 @@ body {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #efefec 25%, #e5e5e0 50%, #efefec 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }

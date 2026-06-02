@@ -5,66 +5,85 @@ import { FilterState } from '@/lib/types'
 const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Work', 'Custom']
 
 const BATTERY_TYPES = [
-  // Single-use / primary
   'CR123A', 'D-cell', 'AA', 'AAA',
-  // Rechargeable, small to large
   '10440', '14500', '18350', '18650', '21700', '26650', 'Built-in',
 ]
 
 const SORT_OPTIONS = [
-  { value: 'model_asc', label: 'Model A–Z' },
+  { value: 'model_asc',   label: 'Model A–Z' },
   { value: 'lumens_desc', label: 'Lumens (High–Low)' },
-  { value: 'lumens_asc', label: 'Lumens (Low–High)' },
-  { value: 'price_asc', label: 'Price (Low–High)' },
-  { value: 'price_desc', label: 'Price (High–Low)' },
-  { value: 'throw_desc', label: 'Beam Distance (Far–Near)' },
-  { value: 'weight_asc', label: 'Weight (Light–Heavy)' },
+  { value: 'lumens_asc',  label: 'Lumens (Low–High)' },
+  { value: 'price_asc',   label: 'Price (Low–High)' },
+  { value: 'price_desc',  label: 'Price (High–Low)' },
+  { value: 'throw_desc',  label: 'Beam Distance (Far–Near)' },
+  { value: 'weight_asc',  label: 'Weight (Light–Heavy)' },
 ]
 
 const LUMEN_STEPS = [100, 300, 500, 800, 1000, 2000, 5000, 10000]
 const PRICE_STEPS = [50, 100, 200, 300, 500, 800, 1000, 2000, 3000, 5000, 10000]
 
 const CHARGING_OPTIONS = [
-  { value: null, label: 'Any' },
-  { value: 'usb', label: 'USB' },
-  { value: 'magnetic', label: 'Magnetic' },
-  { value: 'none', label: 'None' },
+  { value: null,        label: 'Any' },
+  { value: 'usb',       label: 'USB' },
+  { value: 'magnetic',  label: 'Magnetic' },
+  { value: 'none',      label: 'None' },
 ]
 
-type Props = {
-  filters: FilterState
-  onChange: (filters: FilterState) => void
-  availableBrands: string[]
-  availableEmitters: string[]
+// Shared section title style
+const sectionTitle = 'text-[10px] font-semibold uppercase tracking-widest text-[#a8a89e] mb-2'
+
+// Shared label wrapper
+function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+  return (
+    <label className="flex items-center gap-2 cursor-pointer group">
+      <input type="checkbox" checked={checked} onChange={onChange} className="cb" />
+      <span className={`text-[13px] transition-colors ${checked ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-700'}`}>
+        {label}
+      </span>
+    </label>
+  )
 }
 
-function StepButtons({ steps, value, maxSentinel, onChange }: {
+function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+  return (
+    <label className="flex items-center gap-2 cursor-pointer group">
+      <input type="radio" checked={checked} onChange={onChange} className="rb" />
+      <span className={`text-[13px] transition-colors ${checked ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-700'}`}>
+        {label}
+      </span>
+    </label>
+  )
+}
+
+function StepButtons({ steps, value, maxSentinel, onChange, format }: {
   steps: number[]
   value: number
   maxSentinel: number
   onChange: (v: number) => void
+  format?: (n: number) => string
 }) {
+  const fmt = format ?? ((n: number) => n >= 1000 ? `${n / 1000}K` : String(n))
   return (
     <div className="flex flex-wrap gap-1">
-      {steps.map((s) => (
+      {steps.map(s => (
         <button
           key={s}
           onClick={() => onChange(s === value ? maxSentinel : s)}
           className={`px-2 py-0.5 rounded text-xs border transition-colors ${
             value === s
-              ? 'bg-brand-500 border-brand-500 text-white'
-              : 'border-slate-200 text-slate-600 hover:border-brand-300'
+              ? 'bg-brand-500 border-brand-500 text-white font-medium'
+              : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 hover:text-slate-700 bg-white'
           }`}
         >
-          {s >= 1000 ? `${s / 1000}K` : s}
+          {fmt(s)}
         </button>
       ))}
       <button
         onClick={() => onChange(maxSentinel)}
         className={`px-2 py-0.5 rounded text-xs border transition-colors ${
           value === maxSentinel
-            ? 'bg-brand-500 border-brand-500 text-white'
-            : 'border-slate-200 text-slate-600 hover:border-brand-300'
+            ? 'bg-brand-500 border-brand-500 text-white font-medium'
+            : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 hover:text-slate-700 bg-white'
         }`}
       >
         Any
@@ -73,9 +92,16 @@ function StepButtons({ steps, value, maxSentinel, onChange }: {
   )
 }
 
+type Props = {
+  filters: FilterState
+  onChange: (filters: FilterState) => void
+  availableBrands: string[]
+  availableEmitters: string[]
+}
+
 export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters }: Props) {
   const toggle = (arr: string[], val: string) =>
-    arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]
+    arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
 
   const hasActiveFilters =
     filters.brands.length > 0 ||
@@ -88,167 +114,151 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
     filters.chargingType !== null
 
   return (
-    <aside className="w-56 shrink-0 space-y-5">
+    <aside className="w-52 shrink-0 space-y-5">
+
+      {/* Sort */}
       <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">Sort by</p>
+        <p className={sectionTitle}>Sort by</p>
         <select
           value={filters.sortBy}
-          onChange={(e) => onChange({ ...filters, sortBy: e.target.value })}
-          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
+          onChange={e => onChange({ ...filters, sortBy: e.target.value })}
+          className="w-full text-[13px] border border-[#e0e0d8] rounded-md px-2.5 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-1 focus:ring-brand-400 appearance-none"
         >
-          {SORT_OPTIONS.map((o) => (
+          {SORT_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
       </div>
 
+      {/* Brands */}
       {availableBrands.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-slate-600 mb-2">Brand</p>
+          <p className={sectionTitle}>Brand</p>
           <div className="space-y-1.5">
-            {availableBrands.map((brand) => (
-              <label key={brand} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.brands.includes(brand)}
-                  onChange={() => onChange({ ...filters, brands: toggle(filters.brands, brand) })}
-                  className="accent-brand-500"
-                />
-                {brand}
-              </label>
+            {availableBrands.map(brand => (
+              <CheckRow
+                key={brand}
+                checked={filters.brands.includes(brand)}
+                onChange={() => onChange({ ...filters, brands: toggle(filters.brands, brand) })}
+                label={brand}
+              />
             ))}
           </div>
         </div>
       )}
 
+      {/* Max Lumens */}
       <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">
-          Max Lumens {filters.maxLumens < 50000 && <span className="text-brand-600 normal-case font-bold">≤{filters.maxLumens >= 1000 ? `${filters.maxLumens / 1000}K` : filters.maxLumens}</span>}
+        <p className={sectionTitle}>
+          Max Lumens{filters.maxLumens < 50000 && (
+            <span className="ml-1.5 text-brand-500 normal-case">
+              ≤{filters.maxLumens >= 1000 ? `${filters.maxLumens / 1000}K` : filters.maxLumens}
+            </span>
+          )}
         </p>
-        <StepButtons
-          steps={LUMEN_STEPS}
-          value={filters.maxLumens}
-          maxSentinel={50000}
-          onChange={(v) => onChange({ ...filters, maxLumens: v })}
-        />
+        <StepButtons steps={LUMEN_STEPS} value={filters.maxLumens} maxSentinel={50000}
+          onChange={v => onChange({ ...filters, maxLumens: v })} />
       </div>
 
+      {/* Price Range */}
       <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">
-          Min Price {filters.minPrice > 0 && <span className="text-brand-600 normal-case font-bold">≥${filters.minPrice}</span>}
+        <p className={sectionTitle}>
+          Price Range
+          {(filters.minPrice > 0 || filters.maxPrice < 99999) && (
+            <span className="ml-1.5 text-brand-500 normal-case">
+              {filters.minPrice > 0 ? `$${filters.minPrice}` : ''}{filters.minPrice > 0 && filters.maxPrice < 99999 ? '–' : ''}{filters.maxPrice < 99999 ? `$${filters.maxPrice}` : ''}
+            </span>
+          )}
         </p>
-        <StepButtons
-          steps={PRICE_STEPS}
-          value={filters.minPrice}
-          maxSentinel={0}
-          onChange={(v) => onChange({ ...filters, minPrice: v })}
-        />
-      </div>
-
-      <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">
-          Max Price {filters.maxPrice < 99999 && <span className="text-brand-600 normal-case font-bold">≤${filters.maxPrice}</span>}
-        </p>
-        <StepButtons
-          steps={PRICE_STEPS}
-          value={filters.maxPrice}
-          maxSentinel={99999}
-          onChange={(v) => onChange({ ...filters, maxPrice: v })}
-        />
-      </div>
-
-      <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">Category</p>
         <div className="space-y-1.5">
-          {CATEGORIES.map((cat) => (
-            <label key={cat} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.categories.includes(cat)}
-                onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
-                className="accent-brand-500"
-              />
-              {cat}
-            </label>
+          <div className="flex flex-wrap gap-1">
+            {[50, 150, 500].map(v => {
+              const label = v === 50 ? '<$50' : v === 150 ? '$50–150' : '$150–500'
+              const active = filters.maxPrice === v
+              return (
+                <button key={v} onClick={() => onChange({ ...filters, maxPrice: active ? 99999 : v, minPrice: 0 })}
+                  className={`px-2 py-0.5 rounded text-xs border transition-colors ${active ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex flex-wrap gap-1">
+            <button onClick={() => onChange({ ...filters, minPrice: filters.minPrice === 500 ? 0 : 500 })}
+              className={`px-2 py-0.5 rounded text-xs border transition-colors ${filters.minPrice === 500 ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
+              $500+
+            </button>
+            <button onClick={() => onChange({ ...filters, minPrice: 0, maxPrice: 99999 })}
+              className={`px-2 py-0.5 rounded text-xs border transition-colors ${filters.minPrice === 0 && filters.maxPrice === 99999 ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
+              Any
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Category */}
+      <div>
+        <p className={sectionTitle}>Category</p>
+        <div className="space-y-1.5">
+          {CATEGORIES.map(cat => (
+            <CheckRow key={cat} checked={filters.categories.includes(cat)}
+              onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
+              label={cat} />
           ))}
         </div>
       </div>
 
+      {/* Battery */}
       <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">Battery Type</p>
+        <p className={sectionTitle}>Battery</p>
         <div className="space-y-1.5">
-          {BATTERY_TYPES.map((bt) => (
-            <label key={bt} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.batteryTypes.includes(bt)}
-                onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
-                className="accent-brand-500"
-              />
-              {bt}
-            </label>
+          {BATTERY_TYPES.map(bt => (
+            <CheckRow key={bt} checked={filters.batteryTypes.includes(bt)}
+              onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
+              label={bt} />
           ))}
         </div>
       </div>
 
+      {/* Emitters */}
       {availableEmitters.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-slate-600 mb-2">LED / Emitter</p>
+          <p className={sectionTitle}>LED / Emitter</p>
           <div className="space-y-1.5">
-            {availableEmitters.map((emitter) => (
-              <label key={emitter} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.emitters.includes(emitter)}
-                  onChange={() => onChange({ ...filters, emitters: toggle(filters.emitters, emitter) })}
-                  className="accent-brand-500"
-                />
-                {emitter}
-              </label>
+            {availableEmitters.map(e => (
+              <CheckRow key={e} checked={filters.emitters.includes(e)}
+                onChange={() => onChange({ ...filters, emitters: toggle(filters.emitters, e) })}
+                label={e} />
             ))}
           </div>
         </div>
       )}
 
+      {/* Charging */}
       <div>
-        <p className="text-sm font-semibold text-slate-600 mb-2">Charging</p>
+        <p className={sectionTitle}>Charging</p>
         <div className="space-y-1.5">
           {CHARGING_OPTIONS.map(({ value, label }) => (
-            <label key={label} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input
-                type="radio"
-                checked={filters.chargingType === value}
-                onChange={() => onChange({ ...filters, chargingType: value })}
-                className="accent-brand-500"
-              />
-              {label}
-            </label>
+            <RadioRow key={label} checked={filters.chargingType === value}
+              onChange={() => onChange({ ...filters, chargingType: value })}
+              label={label} />
           ))}
         </div>
       </div>
 
+      {/* Clear */}
       {hasActiveFilters && (
         <button
-          onClick={() => onChange({
-            ...filters,
-            brands: [],
-            categories: [],
-            batteryTypes: [],
-            emitters: [],
-            maxLumens: 50000,
-            minPrice: 0,
-            maxPrice: 99999,
-            chargingType: null,
-          })}
-          className="w-full text-xs text-red-500 hover:text-red-700 py-1"
+          onClick={() => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })}
+          className="w-full text-xs text-slate-400 hover:text-red-500 py-1 transition-colors"
         >
           Clear all filters
         </button>
       )}
 
-      <p className="text-xs text-slate-400 leading-relaxed pt-3 border-t border-slate-100">
-        All specs and images belong to their respective brands. Non-commercial, no ads, no profit.{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 underline underline-offset-2">GitHub</a>
+      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-3 border-t border-[#e7e7e1]">
+        All specs and images belong to their respective brands. Non-commercial.{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>
       </p>
     </aside>
   )
