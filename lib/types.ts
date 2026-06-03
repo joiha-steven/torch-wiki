@@ -120,6 +120,7 @@ export type FilterState = {
   categories: string[]
   batteryTypes: string[]
   emitters: string[]
+  madeIn: string[]
   minLumens: number
   maxLumens: number
   minPrice: number

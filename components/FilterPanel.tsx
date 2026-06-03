@@ -29,8 +29,8 @@ const CHARGING_OPTIONS = [
   { value: 'none',      label: 'None' },
 ]
 
-// Shared section title style
-const sectionTitle = 'text-[10px] font-semibold uppercase tracking-widest text-[#a8a89e] mb-2'
+// Shared section title style — normal case, not uppercase
+const sectionTitle = 'text-xs font-semibold text-slate-500 mb-2'
 
 // Shared label wrapper
 function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
@@ -97,10 +97,11 @@ type Props = {
   onChange: (filters: FilterState) => void
   availableBrands: string[]
   availableEmitters: string[]
+  availableMadeIn?: string[]
   siteStats?: { flashlights: number; brands: number; users: number }
 }
 
-export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, siteStats }: Props) {
+export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [], siteStats }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
 
@@ -109,6 +110,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
     filters.categories.length > 0 ||
     filters.batteryTypes.length > 0 ||
     filters.emitters.length > 0 ||
+    filters.madeIn.length > 0 ||
     filters.maxLumens < 50000 ||
     filters.minPrice > 0 ||
     filters.maxPrice < 99999 ||
@@ -214,6 +216,20 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         </div>
       </div>
 
+      {/* Made in */}
+      {availableMadeIn.length > 0 && (
+        <div>
+          <p className={sectionTitle}>Made in</p>
+          <div className="space-y-1.5">
+            {availableMadeIn.map(c => (
+              <CheckRow key={c} checked={filters.madeIn.includes(c)}
+                onChange={() => onChange({ ...filters, madeIn: toggle(filters.madeIn, c) })}
+                label={c} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Battery */}
       <div>
         <p className={sectionTitle}>Battery</p>
@@ -255,7 +271,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Clear */}
       {hasActiveFilters && (
         <button
-          onClick={() => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })}
+          onClick={() => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })}
           className="w-full text-xs text-slate-400 hover:text-red-500 py-1 transition-colors"
         >
           Clear all filters
