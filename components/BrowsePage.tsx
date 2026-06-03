@@ -33,7 +33,7 @@ function buildQuery(filters: FilterState, from: number, to: number): any {
 
   if (filters.brands.length > 0) q = q.in('brand', filters.brands)
   if (filters.categories.length > 0) q = q.in('category', filters.categories)
-  if (filters.batteryTypes.length > 0) q = q.in('battery_type', filters.batteryTypes)
+  if (filters.batteryTypes.length > 0) q = q.overlaps('battery_types', filters.batteryTypes)
   if (filters.emitters.length > 0) q = q.overlaps('emitters', filters.emitters)
   if (filters.maxLumens < 50000) q = q.lte('max_lumens', filters.maxLumens)
   if (filters.minPrice > 0) q = q.gte('price_usd', filters.minPrice)

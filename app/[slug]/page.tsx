@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { cdnUrl } from '@/lib/cdn'
+import { formatBatteries } from '@/lib/battery'
 import type { FlashlightImage } from '@/lib/types'
 import { ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
 import ImageGallery from './ImageGallery'
@@ -104,7 +105,7 @@ export default async function FlashlightPage({ params }: Props) {
     { label: 'Beam Distance', value: flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m` : null },
     { label: 'Beam Type', value: flashlight.beam_type },
     { label: 'LED / Emitter', value: flashlight.emitters?.length ? flashlight.emitters.join(' + ') : null },
-    { label: 'Battery', value: flashlight.battery_type ? `${flashlight.battery_count ? `${flashlight.battery_count}× ` : ''}${flashlight.battery_type}` : null },
+    { label: 'Battery', value: formatBatteries(flashlight) },
     { label: 'Charging', value: flashlight.charging_type === 'usb' ? 'USB' : flashlight.charging_type === 'magnetic' ? 'Magnetic' : 'None' },
     { label: 'Length', value: flashlight.length_mm ? `${flashlight.length_mm} mm` : null },
     { label: 'Head Diameter', value: flashlight.head_diameter_mm ? `${flashlight.head_diameter_mm} mm` : null },

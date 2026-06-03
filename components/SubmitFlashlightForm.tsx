@@ -4,16 +4,17 @@ import { useState, useRef } from 'react'
 import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
-import { Flashlight } from '@/lib/types'
-import { X, Upload, Loader2, FileText, Star } from 'lucide-react'
+import { Flashlight, BatteryOption } from '@/lib/types'
+import { X, Upload, Loader2, FileText, Star, Plus } from 'lucide-react'
 import Image from 'next/image'
 import MarkdownContent from '@/components/MarkdownContent'
 import { useIsAdmin } from '@/lib/use-is-admin'
+import { batteryOptions } from '@/lib/battery'
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
-const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Work', 'Custom']
-const BATTERY_TYPES = ['CR123A', 'D-cell', 'AA', 'AAA', '10440', '14500', '18350', '18650', '21700', '26650', 'Built-in']
+const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Diving', 'Work', 'Custom']
+const BATTERY_TYPES = ['CR123A', 'D-cell', 'AA', 'AAA', '10440', '14500', '16340', '18350', '18650', '21700', '26650', 'Built-in']
 const BEAM_TYPES = ['Spot', 'Flood', 'Spot+Flood', 'Thrower']
 const CHARGING_TYPES = ['usb', 'magnetic', 'none']
 
@@ -100,6 +101,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     ...initial,
   })
   const [emitterInput, setEmitterInput] = useState((initial.emitters ?? []).join(', '))
+  // Battery configurations — each row is a { type, count } pair (e.g. 2×18350 OR 1×18650)
+  const [batteryRows, setBatteryRows] = useState<BatteryOption[]>(() => {
+    const opts = batteryOptions(initial)
+    return opts.length > 0 ? opts.map(o => ({ type: o.type, count: o.count })) : [{ type: '', count: 1 }]
+  })
   // Initialise with existing images for edit mode
   const [images, setImages] = useState<ImageEntry[]>(() => {
     if (mode !== 'edit') return []
@@ -132,6 +138,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
   const set = (k: keyof Flashlight, v: unknown) => setData(d => ({ ...d, [k]: v }))
   const num = (v: string) => v === '' ? null : Number(v)
+
+  const updateBatteryRow = (i: number, patch: Partial<BatteryOption>) =>
+    setBatteryRows(rows => rows.map((r, j) => j === i ? { ...r, ...patch } : r))
+  const addBatteryRow = () => setBatteryRows(rows => [...rows, { type: '', count: 1 }])
+  const removeBatteryRow = (i: number) => setBatteryRows(rows => rows.filter((_, j) => j !== i))
 
   async function handleImageFiles(files: FileList) {
     const newEntries: ImageEntry[] = Array.from(files).map(f => ({
@@ -219,7 +230,18 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       // Strip join fields (reviews, flashlight_images) — not DB columns, would cause update to fail
       const { reviews: _r, flashlight_images: _fi, ...cleanData } = data as Record<string, unknown>
-      const submissionData = { ...cleanData, emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean) }
+      const battery_options = batteryRows
+        .filter(r => r.type)
+        .map(r => ({ type: r.type, count: r.count > 0 ? r.count : 1 }))
+      const battery_types = battery_options.map(o => o.type)
+      const submissionData = {
+        ...cleanData,
+        emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean),
+        battery_options,
+        battery_types,
+        battery_type: battery_options[0]?.type ?? null,   // legacy mirror
+        battery_count: battery_options[0]?.count ?? null,  // legacy mirror
+      }
       const { data: sub, error: subErr } = await supabase.from('flashlight_submissions').insert({
         user_id: user.id, type: mode, status: 'pending',
         target_id: targetId ?? null, data: submissionData, note: null,
@@ -363,16 +385,34 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       {/* Battery */}
       <div>
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Battery & Charging</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Field label="Battery Type">
-            <select className={input} value={data.battery_type ?? ''} onChange={e => set('battery_type', e.target.value || null)}>
-              <option value="">— Select —</option>
-              {BATTERY_TYPES.map(b => <option key={b}>{b}</option>)}
-            </select>
-          </Field>
-          <Field label="Battery Count">
-            <input className={input} type="number" value={data.battery_count ?? ''} onChange={e => set('battery_count', num(e.target.value))} placeholder="e.g. 1" />
-          </Field>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Battery options</label>
+            <div className="space-y-2">
+              {batteryRows.map((row, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input type="number" min={1} aria-label="Count" className={input + ' w-16 shrink-0'}
+                    value={row.count} onChange={e => updateBatteryRow(i, { count: Number(e.target.value) || 1 })} />
+                  <span className="text-slate-400 text-sm shrink-0">×</span>
+                  <select className={input + ' flex-1'} value={row.type} onChange={e => updateBatteryRow(i, { type: e.target.value })}>
+                    <option value="">— Select —</option>
+                    {BATTERY_TYPES.map(b => <option key={b}>{b}</option>)}
+                  </select>
+                  {batteryRows.length > 1 && (
+                    <button type="button" onClick={() => removeBatteryRow(i)} title="Remove"
+                      className="text-slate-300 hover:text-red-400 shrink-0"><X size={15} /></button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {batteryRows.length < 4 && (
+              <button type="button" onClick={addBatteryRow}
+                className="mt-2 inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700">
+                <Plus size={13} /> Add battery option
+              </button>
+            )}
+            <p className="mt-1 text-xs text-slate-400">Add more than one if the light accepts alternatives — e.g. 2× 18350 or 1× 18650.</p>
+          </div>
           <Field label="Charging">
             <select className={input} value={data.charging_type ?? ''} onChange={e => set('charging_type', e.target.value || null)}>
               <option value="">— Select —</option>

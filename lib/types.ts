@@ -1,3 +1,8 @@
+export type BatteryOption = {
+  type: string
+  count: number
+}
+
 export type FlashlightImage = {
   id: string
   flashlight_id: string
@@ -20,8 +25,10 @@ export type Flashlight = {
   beam_type: string | null
   emitter: string | null  // legacy text field — use emitters[] for display/filter
   emitters: string[]
-  battery_type: string | null
-  battery_count: number | null
+  battery_type: string | null    // legacy single value — use battery_options/battery_types
+  battery_count: number | null   // legacy single value — count of battery_type
+  battery_types: string[]        // canonical: distinct battery sizes, used for filtering
+  battery_options: BatteryOption[]  // canonical: per-type cell count, e.g. 2×18350 OR 1×18650
   has_usb_charging: boolean
   charging_type: string | null
   length_mm: number | null

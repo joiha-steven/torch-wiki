@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
+import { formatBatteries } from '@/lib/battery'
 import { Check, X, ChevronLeft } from 'lucide-react'
 import Header from '@/components/Header'
 
@@ -19,8 +20,7 @@ const SPEC_ROWS = [
   { label: 'Beam Distance',     key: 'beam_distance_m',    format: (v: number) => `${v} m` },
   { label: 'Beam Type',         key: 'beam_type' },
   { label: 'LED / Emitter',     key: 'emitters',           format: (v: string[]) => Array.isArray(v) ? v.join(' + ') : v },
-  { label: 'Battery',           key: 'battery_type' },
-  { label: 'Battery Count',     key: 'battery_count' },
+  { label: 'Battery',           key: 'battery_type',       render: (f: Flashlight) => formatBatteries(f) },
   { label: 'Charging',          key: 'charging_type',      format: (v: string) => v === 'usb' ? 'USB' : v === 'magnetic' ? 'Magnetic' : 'None' },
   { label: 'Length',            key: 'length_mm',          format: (v: number) => `${v} mm` },
   { label: 'Head Diameter',     key: 'head_diameter_mm',   format: (v: number) => `${v} mm` },
@@ -127,6 +127,7 @@ export default function ComparePage() {
             <tbody>
               {SPEC_ROWS.map(row => {
                 const values = flashlights.map(f => {
+                  if (row.render) return row.render(f)
                   const raw = f[row.key as keyof Flashlight]
                   if (raw == null) return null
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any

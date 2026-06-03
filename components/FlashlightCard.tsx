@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Bookmark } from 'lucide-react'
 import { Flashlight } from '@/lib/types'
+import { formatBatteries } from '@/lib/battery'
 import { useAuth } from '@/lib/auth-context'
 
 type Props = {
@@ -23,7 +24,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
   const specParts = [
     flashlight.max_lumens    ? `${flashlight.max_lumens.toLocaleString()} lm` : null,
     flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m`            : null,
-    flashlight.battery_type  ?? null,
+    formatBatteries(flashlight, false),
   ].filter(Boolean)
   const specLine = specParts.join(' · ')
 
