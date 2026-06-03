@@ -17,7 +17,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 ## Features
 
 **Browsing & discovery**
-- Filter by brand, category, battery type, LED/emitter, max lumens, price range, and charging method
+- Filter by brand, category, battery type, LED/emitter, country of manufacture ("Made in"), max lumens, price range, and charging method
 - Sort by model, lumens, price, beam distance, or weight
 - Multi-word search — "surefire 6px" matches brand + model simultaneously
 - Compare up to 4 flashlights side by side
@@ -25,17 +25,20 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 **Flashlight pages**
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
+- Multiple battery options per light (e.g. 2× 18350 or 1× 18650), with per-type cell counts
+- Brand origin and country of manufacture ("Made in")
 - Image gallery, Markdown description, linked reviews (articles & videos), user manual PDFs
 - Attribution timeline — links to contributor profile
 
 **User profiles** (`/u/[username]`)
-- Public profile showing all approved contributions
-- Flashlights added and edits contributed, with thumbnails and dates
+- Public profile with Contribute and Collection tabs
+- Contribute tab: flashlights added and edits contributed, with thumbnails and dates
+- Collection tab (opt-in): flashlights owned and quantity — price and purchase date stay private
 
 **User accounts**
 - Free sign up with email + password
 - Wishlist — save flashlights you want
-- Collection — track flashlights you own (purchase price, date, material, quantity)
+- Collection — track flashlights you own (purchase price, date, material, quantity); optionally make it public on your profile
 - My Account — change email (verification link sent to new address), set a permanent nickname (can't be changed after saving), change password
 - Two-factor authentication (TOTP) with recovery codes
 

@@ -11,6 +11,28 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 3, 2026',
+    title: 'Acebeam catalog, multi-battery support & filters',
+    items: [
+      '81 Acebeam flashlights added — EDC, tactical, headlamps, high-power searchlights, LEP throwers and dive lights',
+      'Flashlights can now list multiple battery options — e.g. "2× 18350 or 1× 18650" — with per-type cell counts',
+      'New "Made in" filter, plus brand origin and country of manufacture shown on each flashlight page',
+      'New Diving category and 16340 battery type added to filters',
+      'Price filter: added $1K+ and $2K+ tiers',
+      'LED/emitter names normalized for consistency (e.g. Cree XHP-70.2, Luminus SBT-90.3)',
+      'Filter section titles cleaned up — normal case instead of all-caps',
+    ],
+  },
+  {
+    date: 'June 3, 2026',
+    title: 'Public collections & profile tabs',
+    items: [
+      'Show your collection on your public profile — opt-in toggle in My Account, off by default',
+      'Public collection lists only the flashlight and quantity — purchase price and date stay private',
+      'Profile pages now split into Contribute and Collection tabs',
+    ],
+  },
+  {
     date: 'June 2, 2026',
     title: 'UI redesign, user profiles & search improvements',
     items: [
