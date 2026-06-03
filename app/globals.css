@@ -30,6 +30,16 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* iOS Safari auto-zooms into any input with font-size < 16px on focus, and often
+   doesn't zoom back out on blur. Force min 16px on touch-sized screens to prevent it. */
+@media (max-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 /* Page fade-in on navigation — opacity only, no transform (transform breaks position:fixed) */
 .page-fade {
   animation: page-fade-in 0.2s ease-out both;
