@@ -3,6 +3,13 @@ export type BatteryOption = {
   count: number
 }
 
+export type Brand = {
+  name: string
+  country: string | null   // where the brand is from, e.g. China, USA, Germany
+  made_in: string | null   // where its products are manufactured
+  created_at?: string
+}
+
 export type FlashlightImage = {
   id: string
   flashlight_id: string

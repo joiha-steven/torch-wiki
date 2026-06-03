@@ -43,6 +43,7 @@ Key tables:
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
 - `profiles` — `(id, nickname, is_admin, is_moderator, show_collection, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` / `is_moderator` control access — set via SQL. `show_collection` (bool, default false): when on, the user's collection appears on their public `/u/[nickname]` page (flashlight + quantity only — never price/date); toggled in My Account → Profile.
 - `settings` — `(key, value)` — site-wide config. Keys: `ga_measurement_id`, `ga_enabled`. RLS disabled.
+- `brands` — `(name pk, country, made_in)` — per-brand metadata (brand's origin country + where products are made). RLS: public SELECT. `name` must match `flashlights.brand` exactly. Detail page looks it up by brand name and shows "Brand Origin" / "Made In". Managed centrally (SQL/script), not via the contribute form.
 - `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
 - `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
 - `recovery_codes` — hashed 2FA recovery codes per user (`code_hash`, `used_at`)
@@ -50,6 +51,28 @@ Key tables:
 **Migration — `profiles.show_collection`** (run once if missing; DDL must be run in the Supabase SQL editor — the REST/service key can't run ALTER):
 ```sql
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS show_collection boolean NOT NULL DEFAULT false;
+```
+
+**Migration — `brands` table** (run once in Supabase SQL editor):
+```sql
+CREATE TABLE IF NOT EXISTS brands (
+  name text PRIMARY KEY,
+  country text,
+  made_in text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "public read brands" ON brands;
+CREATE POLICY "public read brands" ON brands FOR SELECT USING (true);
+
+INSERT INTO brands (name, country, made_in) VALUES
+  ('Acebeam', 'China', 'China'),
+  ('Imalent', 'China', 'China'),
+  ('Weltool', 'China', 'China'),
+  ('Malkoff', 'USA', 'USA'),
+  ('SureFire', 'USA', 'USA'),
+  ('LED Lenser', 'Germany', 'China')
+ON CONFLICT (name) DO UPDATE SET country = EXCLUDED.country, made_in = EXCLUDED.made_in;
 ```
 
 **Note on emitters:** `emitter` (text) is legacy. `emitters` (text[]) is canonical — always use for filtering and display.

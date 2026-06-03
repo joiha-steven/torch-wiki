@@ -82,6 +82,13 @@ export default async function FlashlightPage({ params }: Props) {
 
   if (!flashlight) notFound()
 
+  // Brand-level metadata (origin + manufacturing country) — looked up by brand name
+  const { data: brandInfo } = await supabase
+    .from('brands')
+    .select('country, made_in')
+    .eq('name', flashlight.brand)
+    .maybeSingle()
+
   // Determine attribution:
   // updated_by set + updated_at == created_at → user submitted this as new
   // updated_by set + updated_at != created_at → user edited an existing one
@@ -98,6 +105,8 @@ export default async function FlashlightPage({ params }: Props) {
   const specs = [
     { label: 'Brand', value: flashlight.brand },
     { label: 'Model', value: flashlight.model },
+    { label: 'Brand Origin', value: brandInfo?.country ?? null },
+    { label: 'Made In', value: brandInfo?.made_in ?? null },
     { label: 'Year', value: flashlight.year },
     { label: 'Category', value: flashlight.category },
     { label: 'Max Output', value: flashlight.max_lumens ? `${flashlight.max_lumens.toLocaleString()} lm` : null },

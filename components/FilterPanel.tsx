@@ -185,10 +185,15 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
             })}
           </div>
           <div className="flex flex-wrap gap-1">
-            <button onClick={() => onChange({ ...filters, minPrice: filters.minPrice === 500 ? 0 : 500 })}
-              className={`px-2 py-0.5 rounded text-xs border transition-colors ${filters.minPrice === 500 ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
-              $500+
-            </button>
+            {[500, 1000, 2000].map(v => {
+              const active = filters.minPrice === v
+              return (
+                <button key={v} onClick={() => onChange({ ...filters, minPrice: active ? 0 : v, maxPrice: 99999 })}
+                  className={`px-2 py-0.5 rounded text-xs border transition-colors ${active ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
+                  ${v >= 1000 ? `${v / 1000}K` : v}+
+                </button>
+              )
+            })}
             <button onClick={() => onChange({ ...filters, minPrice: 0, maxPrice: 99999 })}
               className={`px-2 py-0.5 rounded text-xs border transition-colors ${filters.minPrice === 0 && filters.maxPrice === 99999 ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
               Any
