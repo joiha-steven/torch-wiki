@@ -189,16 +189,9 @@ export default async function FlashlightPage({ params }: Props) {
               </span>
             )}
 
-            {/* Description — sits under the category, above the price */}
-            {flashlight.description && (
-              <div className="my-5 max-w-[540px] text-[15px] leading-[1.7] text-[#6c6c66]">
-                <MarkdownContent>{flashlight.description}</MarkdownContent>
-              </div>
-            )}
-
             {/* Price */}
             {flashlight.price_usd && (
-              <div className={`font-mono text-[28px] font-semibold text-[#17171a] ${flashlight.description ? '' : 'mt-5'}`}>
+              <div className="mt-5 font-mono text-[28px] font-semibold text-[#17171a]">
                 ${flashlight.price_usd.toLocaleString()}
               </div>
             )}
@@ -211,15 +204,22 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
+        {/* Description — full width, above the spec table */}
+        {flashlight.description && (
+          <div className="mt-10 pt-6 border-t border-[#e7e7e1] max-w-[720px] text-[15px] leading-[1.7] text-[#6c6c66]">
+            <MarkdownContent>{flashlight.description}</MarkdownContent>
+          </div>
+        )}
+
         {/* Specifications — flat table, hairline rows, mono values */}
-        <div className="mt-12 border-t border-[#e7e7e1]">
-          <h2 className="text-[13px] font-semibold text-[#17171a] py-4">Specifications</h2>
+        <div className="mt-10 border-t border-[#e7e7e1]">
+          <h2 className="text-[13px] font-semibold text-[#17171a] py-3.5">Specifications</h2>
           <table className="w-full">
             <tbody>
               {specs.map(s => (
                 <tr key={s.label} className="border-t border-[#e7e7e1]">
-                  <td className="py-[13px] pr-6 text-[14px] text-[#6c6c66] w-[220px]">{s.label}</td>
-                  <td className="py-[13px] text-[13px] text-[#17171a] font-mono">{s.value as string}</td>
+                  <td className="py-2 pr-6 text-[14px] text-[#6c6c66] w-[220px]">{s.label}</td>
+                  <td className="py-2 text-[13px] text-[#17171a] font-mono">{s.value as string}</td>
                 </tr>
               ))}
             </tbody>
