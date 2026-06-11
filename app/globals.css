@@ -47,8 +47,24 @@ body {
     linear-gradient(180deg, #fbfbf9 0%, var(--bg) 60%);
   background-repeat: no-repeat;
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  /* San Francisco on Apple (per design), Inter everywhere else for a consistent,
+     well-hinted look on both standard and Retina displays. */
+  font-family: -apple-system, BlinkMacSystemFont, var(--font-inter), 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Lighter, smoother weight on macOS/iOS; grayscale AA on Firefox/macOS */
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Let SF/Inter pick their display optical size at large sizes; enable kerning + ligatures */
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-feature-settings: 'kern', 'liga', 'calt';
+  /* NOTE: text-rendering:optimizeLegibility removed — it can cause uneven glyph
+     spacing/jank on body copy; kerning above gives the nice spacing without it. */
+}
+
+/* Crisp, tighter display rendering for headings */
+h1, h2, h3 {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 

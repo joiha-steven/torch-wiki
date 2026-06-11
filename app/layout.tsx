@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Providers from '@/components/Providers'
@@ -7,6 +7,14 @@ import PageFade from '@/components/PageFade'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { SITE_URL, SITE_NAME, OG_IMAGE } from '@/lib/seo'
 import './globals.css'
+
+// Inter — clean, well-hinted variable UI/display font. Apple devices still get
+// San Francisco (via -apple-system in the CSS stack); Inter covers everyone else.
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -100,7 +108,7 @@ const siteJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={jetbrainsMono.variable}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
