@@ -11,6 +11,21 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 11, 2026',
+    title: 'Liquid Glass redesign',
+    items: [
+      'New "Liquid Glass" look — frosted translucent cards and a floating glass navigation bar, inspired by iOS',
+      'Floating dark-glass header that page content scrolls underneath; compare bar matches it',
+      'Flashlight cards restyled with a soft glass surface, light edge-highlight and a gentle lift on hover',
+      'Filter rail: glass pills for lumens and price, minimal underline sort menu, tighter row spacing',
+      'Detail page: glass image frame, description moved above the price, refined spec table',
+      'White image backgrounds so product photos blend in seamlessly',
+      'Amber accent kept scarce — used only for the logo, active filters, the primary button and saved items',
+      'Typography cleanup — system (San Francisco) font, no all-caps labels anywhere',
+      'Smoother scrolling — reworked the glass effects so the page stays fluid even with many cards',
+    ],
+  },
+  {
     date: 'June 3, 2026',
     title: 'Acebeam catalog, multi-battery support & filters',
     items: [
@@ -192,7 +207,7 @@ const UPDATES: UpdateEntry[] = [
 
 export default function UpdatesPage() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
 
       <div className="max-w-2xl mx-auto px-4 py-10">
