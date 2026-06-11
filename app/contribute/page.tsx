@@ -178,24 +178,24 @@ export default function ContributePage() {
         ) : (
           <>
             {/* Tabs */}
-            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 w-fit mb-6">
+            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto mb-8">
               <button
                 onClick={() => { setTab('add'); setSubmitted(false) }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'add' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'add' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}
               >
                 <Plus size={14} />
                 Add flashlight
               </button>
               <button
                 onClick={() => { setTab('edit'); setSubmitted(false) }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'edit' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'edit' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}
               >
                 <Pencil size={14} />
                 Edit existing
               </button>
               <button
                 onClick={() => setTab('submissions')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'submissions' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'submissions' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}
               >
                 <ClipboardList size={14} />
                 My submissions

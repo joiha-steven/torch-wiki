@@ -248,10 +248,10 @@ function ReportsPanel() {
 
   return (
     <div>
-      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 mb-8 w-fit mx-auto">
         {STATUS_TABS.map(t => (
           <button key={t.key} onClick={() => setStatusFilter(t.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${statusFilter === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
             {t.label}
           </button>
         ))}
@@ -779,10 +779,10 @@ function BrandsPanel() {
 
   return (
     <>
-      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 mb-8 w-fit mx-auto">
         {TABS.map(t => (
           <button key={t.key} onClick={() => setStatusFilter(t.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${statusFilter === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
             {t.icon}{t.label}
           </button>
         ))}
@@ -887,46 +887,57 @@ export default function AdminDashboard() {
       <Header />
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
-        {/* Top bar: section switcher + force clear */}
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 w-fit">
+        {/* Top bar: section switcher (centered) + force clear (right) */}
+        <div className="relative flex justify-center mb-8">
+        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit flex-wrap justify-center">
           <button onClick={() => setSection('submissions')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'submissions' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'submissions' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
             <Layers size={14} /> Submissions
           </button>
           <button onClick={() => setSection('brands')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'brands' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'brands' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
             <Tag size={14} /> Brands
           </button>
           <button onClick={() => setSection('reports')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'reports' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'reports' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
             <Bug size={14} /> Reports
           </button>
           {isAdmin && (
             <button onClick={() => setSection('users')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'users' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'users' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
               <Users size={14} /> Users
             </button>
           )}
           {isAdmin && (
             <button onClick={() => setSection('settings')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'settings' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'settings' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
               <Settings size={14} /> Settings
             </button>
           )}
         </div>
 
           {isAdmin && (
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3 absolute right-0 top-1/2 -translate-y-1/2">
               {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
               <button onClick={forceClearCache} disabled={clearing}
-                className="flex items-center gap-2 text-xs border border-slate-200 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-50 disabled:opacity-50 bg-white">
+                className="flex items-center gap-2 text-xs border border-[#e7e7e1] rounded-xl px-3 py-2 text-[#6c6c66] hover:bg-gray-100 disabled:opacity-50 bg-white">
                 {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
                 {clearing ? 'Clearing…' : 'Force clear cache'}
               </button>
             </div>
           )}
         </div>
+
+        {isAdmin && (
+          <div className="md:hidden flex items-center justify-center gap-3 mb-8 -mt-4">
+            {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
+            <button onClick={forceClearCache} disabled={clearing}
+              className="flex items-center gap-2 text-xs border border-[#e7e7e1] rounded-xl px-3 py-2 text-[#6c6c66] hover:bg-gray-100 disabled:opacity-50 bg-white">
+              {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
+              {clearing ? 'Clearing…' : 'Force clear cache'}
+            </button>
+          </div>
+        )}
 
         {section === 'settings' ? (
           <SettingsPanel />
@@ -938,10 +949,10 @@ export default function AdminDashboard() {
           <BrandsPanel />
         ) : (
           <>
-            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 mb-6 w-fit">
+            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 mb-8 w-fit mx-auto">
               {SUB_TABS.map(t => (
                 <button key={t.key} onClick={() => setSubTab(t.key)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${subTab === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${subTab === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
                   {t.icon}{t.label}
                 </button>
               ))}

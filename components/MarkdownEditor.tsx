@@ -110,9 +110,9 @@ export default function MarkdownEditor({ value, onChange, label = 'Description',
         <label className="text-xs font-medium text-slate-600">{label}</label>
         <div className="flex text-xs rounded-md overflow-hidden border border-slate-200">
           <button type="button" onClick={() => setPreview(false)}
-            className={`px-2.5 py-0.5 transition-colors ${!preview ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>Write</button>
+            className={`px-2.5 py-0.5 transition-colors ${!preview ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>Write</button>
           <button type="button" onClick={() => setPreview(true)}
-            className={`px-2.5 py-0.5 transition-colors ${preview ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>Preview</button>
+            className={`px-2.5 py-0.5 transition-colors ${preview ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>Preview</button>
         </div>
       </div>
 

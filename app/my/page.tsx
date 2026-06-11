@@ -75,12 +75,12 @@ export default function MyListsPage() {
         ) : (
           <>
             {/* Tabs + controls */}
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 flex-wrap">
+            <div className="relative flex flex-col sm:block items-center mb-8">
+              <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto flex-wrap justify-center">
                 <button
                   onClick={() => setTab('wishlist')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    tab === 'wishlist' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
+                    tab === 'wishlist' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'
                   }`}
                 >
                   <Heart size={14} fill={tab === 'wishlist' ? 'currentColor' : 'none'} />
@@ -93,8 +93,8 @@ export default function MyListsPage() {
                 </button>
                 <button
                   onClick={() => setTab('collection')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    tab === 'collection' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
+                    tab === 'collection' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'
                   }`}
                 >
                   <Bookmark size={14} fill={tab === 'collection' ? 'currentColor' : 'none'} />
@@ -108,7 +108,7 @@ export default function MyListsPage() {
               </div>
 
               {tab === 'collection' && collection.length > 0 && (
-                <div className="flex items-center gap-3">
+                <div className="mt-3 sm:mt-0 flex items-center gap-3 sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
                   {totalValue > 0 && (
                     <span className="text-sm text-slate-500">
                       Total: <span className="font-semibold text-slate-800">${totalValue.toLocaleString()}</span>
@@ -117,14 +117,14 @@ export default function MyListsPage() {
                   <div className="flex bg-white border border-[#e7e7e1] rounded-lg p-0.5">
                     <button
                       onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}
+                      className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-[#17171a] text-white' : 'text-slate-400 hover:text-slate-700'}`}
                       title="Grid view"
                     >
                       <LayoutGrid size={15} />
                     </button>
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}
+                      className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-[#17171a] text-white' : 'text-slate-400 hover:text-slate-700'}`}
                       title="List view"
                     >
                       <List size={15} />
