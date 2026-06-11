@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { copy, del } from '@vercel/blob'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 const ALLOWED_ACTIONS = new Set(['approved', 'rejected'])
+
+const slugify = (brand: string, model: string) =>
+  `${brand}-${model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
 // Server-side copy within Vercel Blob — no data transfer through function
 async function moveBlob(oldUrl: string, newPath: string): Promise<string> {
@@ -137,8 +141,21 @@ export async function PATCH(request: Request) {
       } else if (targetId) {
         const d: Record<string, unknown> = { ...(submissionData?.data ?? {}) }
         const { data: fl } = await admin.from('flashlights').select('slug').eq('id', targetId).single()
-        const slug = fl?.slug
-        responseSlug = slug ?? null
+        const oldSlug = (fl?.slug as string | undefined) ?? null
+
+        // Regenerate the slug from the (possibly edited) brand + model so the URL
+        // tracks the name. Keep the old slug if the new one is empty or already
+        // taken by a different flashlight.
+        let slug = oldSlug
+        if (d.brand && d.model) {
+          const candidate = slugify(String(d.brand), String(d.model))
+          if (candidate && candidate !== oldSlug) {
+            const { data: clash } = await admin
+              .from('flashlights').select('id').eq('slug', candidate).neq('id', targetId).maybeSingle()
+            if (!clash) slug = candidate
+          }
+        }
+        responseSlug = slug
 
         if (slug) await movePdfs(d, slug)
 
@@ -162,7 +179,8 @@ export async function PATCH(request: Request) {
           )
         }
 
-        const updateData: Record<string, unknown> = { ...d, updated_by: authorId, updated_at: new Date().toISOString() }
+        // `slug` last so it overrides the stale slug the form carries in `d`
+        const updateData: Record<string, unknown> = { ...d, slug, updated_by: authorId, updated_at: new Date().toISOString() }
 
         // Primary image: use explicit directive if set, else fall back to newly uploaded primary
         const imgs = (submissionImages ?? []) as { url: string; sort_order: number; is_primary: boolean }[]
@@ -185,6 +203,9 @@ export async function PATCH(request: Request) {
         // Insert newly uploaded extra images into flashlight_images
         await insertExtraImages(targetId, imgs)
         await applyReviews(targetId, reviews)
+
+        // If the slug changed, drop the old URL from cache (client revalidates the new one)
+        if (oldSlug && slug !== oldSlug) revalidatePath(`/${oldSlug}`)
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
