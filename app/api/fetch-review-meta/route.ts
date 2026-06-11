@@ -24,6 +24,33 @@ function pickMeta(html: string, patterns: RegExp[]): string | null {
   return null
 }
 
+// oEmbed gives a clean title without hitting YouTube's consent wall. Vimeo's
+// oEmbed also returns upload_date; YouTube's does not (date comes from HTML).
+async function fetchOEmbed(targetUrl: string, host: string): Promise<{ title: string | null; published_at: string | null } | null> {
+  let endpoint: string | null = null
+  if (/youtube\.com|youtu\.be/.test(host)) endpoint = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(targetUrl)}`
+  else if (/vimeo\.com/.test(host)) endpoint = `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(targetUrl)}`
+  if (!endpoint) return null
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 6000)
+    const res = await fetch(endpoint, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; torchEDCwikiBot/1.0; +https://torch.edc.wiki)' },
+    }).finally(() => clearTimeout(timer))
+    if (!res.ok) return null
+    const j = (await res.json()) as { title?: string; upload_date?: string }
+    let published_at: string | null = null
+    if (j.upload_date) {
+      const d = new Date(j.upload_date.replace(' ', 'T'))
+      if (!isNaN(d.getTime())) published_at = d.toISOString()
+    }
+    return { title: j.title ? decodeEntities(j.title) : null, published_at }
+  } catch {
+    return null
+  }
+}
+
 function decodeEntities(s: string): string {
   return s
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
@@ -54,60 +81,69 @@ export async function POST(request: Request) {
   const host = parsed.hostname.replace(/^www\./, '')
   const type = /youtube\.com|youtu\.be|vimeo\.com/.test(host) ? 'video' : 'article'
 
-  try {
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 8000)
-    const res = await fetch(parsed.toString(), {
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; torchEDCwikiBot/1.0; +https://torch.edc.wiki)' },
-    }).finally(() => clearTimeout(timer))
+  let title: string | null = null
+  let published_at: string | null = null
 
-    if (!res.ok) {
-      return NextResponse.json({ error: `Fetch failed (${res.status})`, type, siteName: host }, { status: 200 })
-    }
-
-    // Read up to ~2MB — most sites keep meta in <head>, but YouTube pushes its
-    // og:title / uploadDate past 600KB, so a small cap would miss them.
-    const raw = await res.text()
-    const html = raw.slice(0, 2 * 1024 * 1024)
-
-    // Content is captured up to the matching quote (not [^"'] — that truncates
-    // any title containing an apostrophe inside a double-quoted attribute).
-    const title = pickMeta(html, [
-      /<meta[^>]+property=["']og:title["'][^>]+content="([^"]*)"/i,
-      /<meta[^>]+property=["']og:title["'][^>]+content='([^']*)'/i,
-      /<meta[^>]+content="([^"]*)"[^>]+property=["']og:title["']/i,
-      /<meta[^>]+name=["']twitter:title["'][^>]+content="([^"]*)"/i,
-      /<title[^>]*>([^<]+)<\/title>/i,
-    ])
-
-    const published = pickMeta(html, [
-      /<meta[^>]+property=["']article:published_time["'][^>]+content="([^"]*)"/i,
-      /<meta[^>]+content="([^"]*)"[^>]+property=["']article:published_time["']/i,
-      /<meta[^>]+itemprop=["']datePublished["'][^>]+content="([^"]*)"/i,
-      /"datePublished"\s*:\s*"([^"]+)"/i,
-      /"uploadDate"\s*:\s*"([^"]+)"/i,      // YouTube / video pages
-      /"publishDate"\s*:\s*"([^"]+)"/i,     // YouTube
-      /<meta[^>]+itemprop=["']uploadDate["'][^>]+content="([^"]*)"/i,
-      /<meta[^>]+name=["']date["'][^>]+content="([^"]*)"/i,
-      /<time[^>]+datetime=["']([^"']+)["']/i,
-    ])
-
-    let published_at: string | null = null
-    if (published) {
-      const d = new Date(published)
-      if (!isNaN(d.getTime())) published_at = d.toISOString()
-    }
-
-    return NextResponse.json({
-      title: title ? decodeEntities(title) : null,
-      published_at,
-      type,
-      siteName: host,
-    })
-  } catch {
-    // Network error / timeout — return graceful empty result so the user can fill manually
-    return NextResponse.json({ title: null, published_at: null, type, siteName: host })
+  // 1) Video hosts: oEmbed is reliable (no consent wall, tiny payload). Gives a
+  //    clean title for YouTube/Vimeo; Vimeo also returns upload_date.
+  if (type === 'video') {
+    const oe = await fetchOEmbed(parsed.toString(), host)
+    if (oe) { title = oe.title; published_at = oe.published_at }
   }
+
+  // 2) Fetch the page HTML for anything still missing (date for YouTube,
+  //    everything for normal articles). Best-effort — never fatal.
+  if (!title || !published_at) {
+    try {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 8000)
+      const res = await fetch(parsed.toString(), {
+        signal: controller.signal,
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; torchEDCwikiBot/1.0; +https://torch.edc.wiki)',
+          'Accept-Language': 'en-US,en;q=0.9',
+          // Bypass Google's consent interstitial where possible
+          'Cookie': 'CONSENT=YES+1; SOCS=CAI',
+        },
+      }).finally(() => clearTimeout(timer))
+
+      if (res.ok) {
+        // Read up to ~2MB — YouTube pushes og:title / uploadDate past 600KB.
+        const html = (await res.text()).slice(0, 2 * 1024 * 1024)
+
+        // Content captured up to the matching quote (not [^"'] — that truncates
+        // titles containing an apostrophe inside a double-quoted attribute).
+        if (!title) {
+          const t = pickMeta(html, [
+            /<meta[^>]+property=["']og:title["'][^>]+content="([^"]*)"/i,
+            /<meta[^>]+property=["']og:title["'][^>]+content='([^']*)'/i,
+            /<meta[^>]+content="([^"]*)"[^>]+property=["']og:title["']/i,
+            /<meta[^>]+name=["']twitter:title["'][^>]+content="([^"]*)"/i,
+            /<title[^>]*>([^<]+)<\/title>/i,
+          ])
+          if (t) title = decodeEntities(t)
+        }
+
+        if (!published_at) {
+          const p = pickMeta(html, [
+            /<meta[^>]+property=["']article:published_time["'][^>]+content="([^"]*)"/i,
+            /<meta[^>]+content="([^"]*)"[^>]+property=["']article:published_time["']/i,
+            /<meta[^>]+itemprop=["']datePublished["'][^>]+content="([^"]*)"/i,
+            /"datePublished"\s*:\s*"([^"]+)"/i,
+            /"uploadDate"\s*:\s*"([^"]+)"/i,
+            /"publishDate"\s*:\s*"([^"]+)"/i,
+            /<meta[^>]+itemprop=["']uploadDate["'][^>]+content="([^"]*)"/i,
+            /<meta[^>]+name=["']date["'][^>]+content="([^"]*)"/i,
+            /<time[^>]+datetime=["']([^"']+)["']/i,
+          ])
+          if (p) { const d = new Date(p); if (!isNaN(d.getTime())) published_at = d.toISOString() }
+        }
+      }
+    } catch {
+      // network error / timeout — fall through with whatever oEmbed gave us
+    }
+  }
+
+  return NextResponse.json({ title, published_at, type, siteName: host })
 }
