@@ -37,6 +37,14 @@
   --glass-edge: rgba(255, 255, 255, 0.75);
   --glass-shadow: 0 3px 12px rgba(24, 24, 30, 0.05);
   --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
+
+  /* ---- Motion tokens — keep it subtle & fast ----
+     One easing + three durations so every transition feels related.
+     Only ever animate transform / opacity / color / border. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;   /* hover, toggles, small UI */
+  --dur: 170ms;        /* menus, buttons */
+  --dur-slow: 240ms;   /* page fade, image fade-in */
 }
 
 body {
@@ -98,7 +106,7 @@ h1, h2, h3 {
     rgba(255, 255, 255, 0.62);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow), var(--glass-inset);
-  transition: border-color 0.15s;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 .glass-card::after {
   content: '';
@@ -124,7 +132,7 @@ h1, h2, h3 {
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-inset);
   color: var(--ink-2);
-  transition: all 0.12s;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 .glass-pill:hover { border-color: #fff; color: var(--ink); }
 .glass-pill.on {
@@ -152,7 +160,7 @@ h1, h2, h3 {
   backdrop-filter: blur(14px) saturate(170%);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 .glass-dark:hover {
   background: rgba(255, 255, 255, 0.16);
@@ -169,9 +177,18 @@ h1, h2, h3 {
   .glass-dark { background: rgba(255, 255, 255, 0.22); }
 }
 
+/* Respect users who ask for less motion — near-instant everything, and make
+   any JS-gated fade-in (images) land visible rather than stuck transparent. */
 @media (prefers-reduced-motion: reduce) {
-  .glass-card { transition: none; }
-  .glass-card:hover { transform: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .img-load { opacity: 1; }
 }
 
 /* iOS Safari auto-zooms into any input with font-size < 16px on focus, and often
@@ -186,7 +203,7 @@ h1, h2, h3 {
 
 /* Page fade-in on navigation — opacity only, no transform (transform breaks position:fixed) */
 .page-fade {
-  animation: page-fade-in 0.2s ease-out both;
+  animation: page-fade-in var(--dur-slow) var(--ease-out) both;
 }
 
 @keyframes page-fade-in {
@@ -197,6 +214,16 @@ h1, h2, h3 {
 @keyframes consentIn {
   from { opacity: 0; transform: translateY(0.5rem); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Image fade-in — softens the pop as product photos decode.
+   Element starts transparent and fades once JS adds `is-loaded` (onLoad). */
+.img-load {
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.img-load.is-loaded {
+  opacity: 1;
 }
 
 /* Minimal native select — no box, only a bottom hairline + custom chevron */
@@ -225,7 +252,7 @@ h1, h2, h3 {
   background: transparent;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.12s, border-color 0.12s;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
   position: relative;
 }
 .cb:checked {

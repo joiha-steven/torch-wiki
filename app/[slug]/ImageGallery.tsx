@@ -17,6 +17,7 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
   ]
 
   const [active, setActive] = useState(0)
+  const [heroLoaded, setHeroLoaded] = useState(false)
 
   if (allUrls.length === 0) {
     return (
@@ -43,7 +44,8 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
           height={520}
           sizes="(max-width: 767px) calc(100vw - 48px), calc(50vw - 80px)"
           priority
-          className="object-contain p-4 w-full h-full"
+          onLoad={() => setHeroLoaded(true)}
+          className={`object-contain p-4 w-full h-full img-load ${heroLoaded ? 'is-loaded' : ''}`}
         />
       </div>
 

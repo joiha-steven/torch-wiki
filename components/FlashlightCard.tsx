@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Bookmark } from 'lucide-react'
@@ -17,6 +18,7 @@ type Props = {
 
 export default function FlashlightCard({ flashlight, compareIds, onToggleCompare, priority = false }: Props) {
   const isSelected = compareIds.includes(flashlight.id)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const { wishlistIds, collectionIds, toggleWishlist, toggleCollection } = useAuth()
   const inWishlist = wishlistIds.has(flashlight.id)
   const inCollection = collectionIds.has(flashlight.id)
@@ -41,7 +43,8 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
               fill
               sizes="(max-width: 819px) calc(50vw - 24px), (max-width: 1100px) calc(33vw - 24px), calc(25vw - 24px)"
               priority={priority}
-              className="object-contain p-4"
+              onLoad={() => setImgLoaded(true)}
+              className={`object-contain p-4 img-load ${imgLoaded ? 'is-loaded' : ''}`}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
