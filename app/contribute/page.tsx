@@ -156,7 +156,7 @@ export default function ContributePage() {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl mx-auto">
 
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-slate-400" /></div>

@@ -132,7 +132,7 @@ export default async function UserProfilePage({ params }: Props) {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl mx-auto">
 
         {/* Profile header */}
         <div className="flex items-center gap-4 mb-8">

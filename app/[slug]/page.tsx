@@ -158,7 +158,6 @@ export default async function FlashlightPage({ params }: Props) {
       />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <div className="max-w-5xl">
 
         <div className="grid md:grid-cols-2 gap-14 items-start">
           <ImageGallery
@@ -210,19 +209,17 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         )}
 
-        {/* Specifications — flat table, hairline rows, mono values */}
+        {/* Specifications — two-column grid of hairline rows, fills the width */}
         <div className="mt-10 border-t border-[#e7e7e1]">
           <h2 className="text-[13px] font-semibold text-[#17171a] py-3.5">Specifications</h2>
-          <table className="w-full">
-            <tbody>
-              {specs.map(s => (
-                <tr key={s.label} className="border-t border-[#e7e7e1]">
-                  <td className="py-2 pr-6 text-[14px] text-[#6c6c66] w-[220px]">{s.label}</td>
-                  <td className="py-2 text-[13px] text-[#17171a] font-mono">{s.value as string}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="grid sm:grid-cols-2 gap-x-14">
+            {specs.map(s => (
+              <div key={s.label} className="flex items-baseline justify-between gap-6 py-2.5 border-t border-[#e7e7e1]">
+                <span className="text-[14px] text-[#6c6c66] shrink-0">{s.label}</span>
+                <span className="text-[13px] text-[#17171a] font-mono text-right">{s.value as string}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Reviews */}
@@ -290,7 +287,6 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
-        </div>
       </div>
     </div>
   )

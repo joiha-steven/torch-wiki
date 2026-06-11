@@ -414,7 +414,7 @@ export default function AccountPage() {
       <Header />
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
-        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 w-fit mb-6">
+        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 w-fit mx-auto mb-6">
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
@@ -423,7 +423,7 @@ export default function AccountPage() {
           ))}
         </div>
 
-        <div className="max-w-2xl bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7 space-y-6">
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7 space-y-6">
 
           {tab === 'profile' && (
             <>

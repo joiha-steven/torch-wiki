@@ -212,7 +212,7 @@ export default function UpdatesPage() {
         <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em] mb-1">Updates</h1>
         <p className="text-[13px] text-[#6c6c66] mb-8">What&apos;s new on torch.EDC.wiki</p>
 
-        <div className="relative max-w-3xl bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-8">
+        <div className="relative max-w-3xl mx-auto bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-8">
           <div className="absolute left-6 sm:left-8 top-8 bottom-8 w-px bg-[#e7e7e1]" />
 
           <div className="space-y-10 pl-8">
