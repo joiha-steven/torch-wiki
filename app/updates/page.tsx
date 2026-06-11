@@ -209,8 +209,10 @@ export default function UpdatesPage() {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em] mb-1">Updates</h1>
-        <p className="text-[13px] text-[#6c6c66] mb-8">What&apos;s new on torch.EDC.wiki</p>
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Updates</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">What&apos;s new on torch.EDC.wiki</p>
+        </div>
 
         <div className="relative max-w-3xl mx-auto bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-8">
           <div className="absolute left-6 sm:left-8 top-8 bottom-8 w-px bg-[#e7e7e1]" />

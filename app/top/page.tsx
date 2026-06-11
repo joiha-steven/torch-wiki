@@ -82,8 +82,10 @@ export default async function TopPage() {
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
-        <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Top lists</h1>
-        <p className="text-[13px] text-[#6c6c66] mt-1 mb-8">Curated flashlight rankings</p>
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Top lists</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">Curated flashlight rankings</p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
           {lists.map(list => (

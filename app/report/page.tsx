@@ -109,6 +109,11 @@ export default function ReportPage() {
       <Header />
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Report an issue</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">Spot a problem or have a suggestion? Let us know.</p>
+        </div>
+
         <div className="max-w-xl mx-auto bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
           {done ? (
             <div className="py-10 text-center space-y-3">
@@ -120,8 +125,6 @@ export default function ReportPage() {
             </div>
           ) : (
             <>
-              <h1 className="text-base font-bold text-slate-900 mb-5">Report an issue</h1>
-
               <form onSubmit={handleSubmit} className="space-y-4">
 
                 {/* Anonymous email */}

@@ -38,12 +38,14 @@ export default async function BrandsPage() {
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
-        <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Brands &amp; makers</h1>
-        <p className="mt-1 text-[13px] text-[#6c6c66]">
-          <b className="text-[#17171a] font-semibold">{brands.length}</b> brands · <b className="text-[#17171a] font-semibold">{rows?.length ?? 0}</b> flashlights
-        </p>
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Brands &amp; makers</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">
+            <b className="text-[#17171a] font-semibold">{brands.length}</b> brands · <b className="text-[#17171a] font-semibold">{rows?.length ?? 0}</b> flashlights
+          </p>
+        </div>
 
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {brands.map(({ name, count, info }) => (
             <Link
               key={name}
