@@ -225,7 +225,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `lib/types.ts` | TypeScript types for all DB tables |
 | `components/AuthModal.tsx` | Sign in / Sign up / Forgot / MFA challenge / Recovery code |
 | `components/UserMenu.tsx` | User icon in header — dropdown menu |
-| `components/Header.tsx` | Shared sticky header — logo, nav, UserMenu |
+| `components/Header.tsx` | Shared sticky header — logo, nav, UserMenu. **Note:** `BrowsePage.tsx` does NOT use this — it has its own inline header (with an integrated search box). Header style/nav changes must be made in BOTH places to stay in sync. |
 | `components/BrowsePage.tsx` | Main browse page — server-side filter/sort, pagination 32/page |
 | `components/FilterPanel.tsx` | Sidebar filters |
 | `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons |

@@ -170,8 +170,8 @@ h1, h2, h3 {
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(220px circle at var(--gx, 50%) var(--gy, -20%),
-    rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 60%);
+  background: radial-gradient(120px circle at var(--gx, 50%) var(--gy, -10%),
+    rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 55%);
   opacity: 0;
   transition: opacity var(--dur) var(--ease-out);
 }
