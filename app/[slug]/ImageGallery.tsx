@@ -20,7 +20,10 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
 
   if (allUrls.length === 0) {
     return (
-      <div className="glass rounded-[18px] flex items-center justify-center aspect-[3/2]">
+      <div
+        className="bg-white border border-[#e7e7e1] rounded-[18px] flex items-center justify-center aspect-[3/2]"
+        style={{ boxShadow: 'var(--glass-shadow)' }}
+      >
         <span className="text-[#9b9b94] text-sm">No image</span>
       </div>
     )
@@ -28,8 +31,11 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
 
   return (
     <div className="flex flex-col gap-3.5">
-      {/* Main image — glass hero */}
-      <div className="glass relative rounded-[18px] overflow-hidden flex items-center justify-center aspect-[3/2]">
+      {/* Main image — white hero so white-background product photos blend in */}
+      <div
+        className="relative bg-white border border-[#e7e7e1] rounded-[18px] overflow-hidden flex items-center justify-center aspect-[3/2]"
+        style={{ boxShadow: 'var(--glass-shadow)' }}
+      >
         <Image
           src={allUrls[active]}
           alt={alt}
@@ -48,8 +54,8 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
             <button
               key={url}
               onClick={() => setActive(i)}
-              className={`glass-2 w-[66px] h-[66px] grid place-items-center rounded-[12px] overflow-hidden transition-colors ${
-                active === i ? '!border-brand-500' : 'hover:!border-white'
+              className={`bg-white w-[66px] h-[66px] grid place-items-center rounded-[12px] overflow-hidden border transition-colors ${
+                active === i ? 'border-brand-500' : 'border-[#e7e7e1] hover:border-[#c8c8c0]'
               }`}
             >
               <Image

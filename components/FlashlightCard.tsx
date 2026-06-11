@@ -32,13 +32,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
 
       {/* Thumbnail — translucent glass fill, fixed ratio so cards stay even */}
       <Link href={`/${flashlight.slug}`} className="block">
-        <div
-          className="relative aspect-[4/3] rounded-[12px] overflow-hidden mb-3.5"
-          style={{
-            background: 'linear-gradient(160deg, rgba(255,255,255,0.42), rgba(255,255,255,0.06))',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
-          }}
-        >
+        <div className="relative aspect-[4/3] rounded-[12px] overflow-hidden mb-3.5 bg-white">
           {flashlight.image_url ? (
             <Image
               src={flashlight.image_url}
