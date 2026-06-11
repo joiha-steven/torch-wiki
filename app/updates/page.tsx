@@ -1,4 +1,18 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
+
+export const metadata: Metadata = {
+  title: 'Updates',
+  description: 'Changelog and latest changes on torch.EDC.wiki — new flashlights, features and improvements.',
+  alternates: { canonical: 'https://torch.edc.wiki/updates' },
+  openGraph: {
+    title: 'Updates — torch.EDC.wiki',
+    description: 'Changelog and latest changes on torch.EDC.wiki.',
+    url: 'https://torch.edc.wiki/updates',
+    siteName: 'torch.EDC.wiki',
+    type: 'website',
+  },
+}
 
 type UpdateEntry = {
   date: string

@@ -48,9 +48,10 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const brand = await resolveBrand(slug)
-  if (!brand) return { title: 'Brand — torch.EDC.wiki' }
+  if (!brand) return { title: 'Brand' }
 
-  const title = `${brand.name} flashlights — torch.EDC.wiki`
+  const title = `${brand.name} flashlights`
+  const ogTitle = `${brand.name} flashlights — torch.EDC.wiki`
   const description = brand.info?.about
     ? brand.info.about.replace(/[#*_>`]/g, '').slice(0, 155)
     : `All ${brand.name} flashlights on torch.EDC.wiki — ${brand.lights.length} models with full specs, organized by release year.`
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    openGraph: { title, description, url: `${BASE}/brand/${slug}`, siteName: 'torch.EDC.wiki', type: 'website' },
+    openGraph: { title: ogTitle, description, url: `${BASE}/brand/${slug}`, siteName: 'torch.EDC.wiki', type: 'website' },
     alternates: { canonical: `${BASE}/brand/${slug}` },
   }
 }
@@ -76,9 +77,39 @@ export default async function BrandPage({ params }: Props) {
     info?.made_in ? { icon: Factory, label: `Made in ${info.made_in}` } : null,
   ].filter(Boolean) as { icon: typeof Calendar; label: string }[]
 
+  // Structured data: Brand entity + breadcrumb trail
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Brand',
+        '@id': `${BASE}/brand/${slug}#brand`,
+        name,
+        url: `${BASE}/brand/${slug}`,
+        ...(info?.logo_url ? { logo: info.logo_url } : {}),
+        ...(info?.founded_year ? { foundingDate: String(info.founded_year) } : {}),
+        ...(info?.about ? { description: info.about.replace(/[#*_>`]/g, '').slice(0, 300) } : {}),
+        ...(info?.website ? { sameAs: [info.website] } : {}),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Flashlights', item: BASE },
+          { '@type': 'ListItem', position: 2, name: 'Brands', item: `${BASE}/brands` },
+          { '@type': 'ListItem', position: 3, name, item: `${BASE}/brand/${slug}` },
+        ],
+      },
+    ],
+  }
+
   return (
     <div className="min-h-screen">
       <Header />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 

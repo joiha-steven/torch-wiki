@@ -10,9 +10,16 @@ export const revalidate = false
 const BASE = 'https://torch.edc.wiki'
 
 export const metadata: Metadata = {
-  title: 'Brands & makers — torch.EDC.wiki',
+  title: 'Brands & makers',
   description: 'Every flashlight brand and custom maker in the torch.EDC.wiki database, with model counts and company info.',
   alternates: { canonical: `${BASE}/brands` },
+  openGraph: {
+    title: 'Brands & makers — torch.EDC.wiki',
+    description: 'Every flashlight brand and custom maker in the torch.EDC.wiki database, with model counts and company info.',
+    url: `${BASE}/brands`,
+    siteName: 'torch.EDC.wiki',
+    type: 'website',
+  },
 }
 
 export default async function BrandsPage() {

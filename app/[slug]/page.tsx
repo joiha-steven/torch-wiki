@@ -41,9 +41,10 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const f = await getFlashlight(slug)
-  if (!f) return { title: 'Flashlight — torch.EDC.wiki' }
+  if (!f) return { title: 'Flashlight' }
 
-  const title = `${f.brand} ${f.model} — torch.EDC.wiki`
+  const title = `${f.brand} ${f.model}`
+  const ogTitle = `${f.brand} ${f.model} — torch.EDC.wiki`
 
   // Build a short spec summary for description
   const parts: string[] = []
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       url: `${BASE}/${slug}`,
       siteName: 'torch.EDC.wiki',
@@ -69,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: ogTitle,
       description,
       images: f.image_url ? [f.image_url] : [],
     },
@@ -133,6 +134,7 @@ export default async function FlashlightPage({ params }: Props) {
     '@type': 'Product',
     name: `${flashlight.brand} ${flashlight.model}`,
     brand: { '@type': 'Brand', name: flashlight.brand },
+    category: flashlight.category ?? undefined,
     description: flashlight.description ?? undefined,
     image: flashlight.image_url ?? undefined,
     url: `${BASE}/${slug}`,
@@ -148,6 +150,17 @@ export default async function FlashlightPage({ params }: Props) {
     } : {}),
   }
 
+  // Breadcrumb trail: Home › {Brand} › {Model}
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Flashlights', item: BASE },
+      { '@type': 'ListItem', position: 2, name: flashlight.brand, item: `${BASE}/brand/${brandSlug(flashlight.brand)}` },
+      { '@type': 'ListItem', position: 3, name: flashlight.model, item: `${BASE}/${slug}` },
+    ],
+  }
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -155,6 +168,10 @@ export default async function FlashlightPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">

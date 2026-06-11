@@ -11,7 +11,11 @@ type Props = { params: Promise<{ username: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params
-  return { title: `${username} — torch.EDC.wiki` }
+  return {
+    title: `${username}`,
+    description: `Flashlight contributions and collection by ${username} on torch.EDC.wiki.`,
+    alternates: { canonical: `https://torch.edc.wiki/u/${username}` },
+  }
 }
 
 function makeSlug(brand: string, model: string) {
