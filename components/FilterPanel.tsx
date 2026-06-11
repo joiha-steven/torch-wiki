@@ -29,15 +29,15 @@ const CHARGING_OPTIONS = [
   { value: 'none',      label: 'None' },
 ]
 
-// Shared section title — uppercase, tracked, tertiary ink
-const sectionTitle = 'text-[11px] font-semibold uppercase tracking-[0.09em] text-[#9b9b94] mb-3'
+// Shared section title — sentence case, no caps
+const sectionTitle = 'text-[12px] font-semibold text-[#6c6c66] mb-2'
 
 // Shared label wrapper
 function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
-    <label className="flex items-center gap-2.5 cursor-pointer group py-[3px]">
+    <label className="flex items-center gap-2.5 cursor-pointer group leading-[1.4]">
       <input type="checkbox" checked={checked} onChange={onChange} className="cb" />
-      <span className={`text-[13.5px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
+      <span className={`text-[13px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
         {label}
       </span>
     </label>
@@ -46,9 +46,9 @@ function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: ()
 
 function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
-    <label className="flex items-center gap-2.5 cursor-pointer group py-[3px]">
+    <label className="flex items-center gap-2.5 cursor-pointer group leading-[1.4]">
       <input type="radio" checked={checked} onChange={onChange} className="rb" />
-      <span className={`text-[13.5px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
+      <span className={`text-[13px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
         {label}
       </span>
     </label>
@@ -112,7 +112,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
   const clearAll = () => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })
 
   return (
-    <aside className="w-[226px] shrink-0 space-y-[18px]">
+    <aside className="w-[226px] shrink-0 space-y-[18px] text-[13px]">
 
       {/* Rail head */}
       <div className="flex items-baseline justify-between pb-4">
@@ -140,7 +140,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {availableBrands.length > 0 && (
         <div>
           <p className={sectionTitle}>Brand</p>
-          <div className="space-y-1.5">
+          <div className="space-y-[3px]">
             {availableBrands.map(brand => (
               <CheckRow
                 key={brand}
@@ -206,7 +206,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Category */}
       <div>
         <p className={sectionTitle}>Category</p>
-        <div className="space-y-1.5">
+        <div className="space-y-[3px]">
           {CATEGORIES.map(cat => (
             <CheckRow key={cat} checked={filters.categories.includes(cat)}
               onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
@@ -219,7 +219,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {availableMadeIn.length > 0 && (
         <div>
           <p className={sectionTitle}>Made in</p>
-          <div className="space-y-1.5">
+          <div className="space-y-[3px]">
             {availableMadeIn.map(c => (
               <CheckRow key={c} checked={filters.madeIn.includes(c)}
                 onChange={() => onChange({ ...filters, madeIn: toggle(filters.madeIn, c) })}
@@ -232,7 +232,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Battery */}
       <div>
         <p className={sectionTitle}>Battery</p>
-        <div className="space-y-1.5">
+        <div className="space-y-[3px]">
           {BATTERY_TYPES.map(bt => (
             <CheckRow key={bt} checked={filters.batteryTypes.includes(bt)}
               onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
@@ -245,7 +245,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {availableEmitters.length > 0 && (
         <div>
           <p className={sectionTitle}>LED / Emitter</p>
-          <div className="space-y-1.5">
+          <div className="space-y-[3px]">
             {availableEmitters.map(e => (
               <CheckRow key={e} checked={filters.emitters.includes(e)}
                 onChange={() => onChange({ ...filters, emitters: toggle(filters.emitters, e) })}
@@ -258,7 +258,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Charging */}
       <div>
         <p className={sectionTitle}>Charging</p>
-        <div className="space-y-1.5">
+        <div className="space-y-[3px]">
           {CHARGING_OPTIONS.map(({ value, label }) => (
             <RadioRow key={label} checked={filters.chargingType === value}
               onChange={() => onChange({ ...filters, chargingType: value })}

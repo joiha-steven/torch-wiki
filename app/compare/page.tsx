@@ -94,7 +94,7 @@ export default function ComparePage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#e7e7e1]">
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-[#a8a89e] w-36 sticky left-0 bg-white">
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6c6c66] w-36 sticky left-0 bg-white">
                   Spec
                 </th>
                 {flashlights.map(f => (

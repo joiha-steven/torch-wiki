@@ -176,7 +176,7 @@ export default async function FlashlightPage({ params }: Props) {
                 <h1 className="text-[32px] font-bold text-[#17171a] tracking-[-0.025em] leading-[1.05]">{flashlight.model}</h1>
               </div>
               {flashlight.is_discontinued && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9b9b94] border border-[#e7e7e1] rounded px-2 py-0.5 shrink-0 mt-1">
+                <span className="text-[11px] font-medium text-[#9b9b94] border border-[#e7e7e1] rounded px-2 py-0.5 shrink-0 mt-1">
                   Discontinued
                 </span>
               )}
@@ -184,7 +184,7 @@ export default async function FlashlightPage({ params }: Props) {
 
             {/* Category */}
             {flashlight.category && (
-              <span className="inline-block mt-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-[#9b9b94]">
+              <span className="inline-block mt-3 text-[13px] font-medium text-[#9b9b94]">
                 {flashlight.category}
               </span>
             )}
@@ -213,7 +213,7 @@ export default async function FlashlightPage({ params }: Props) {
 
         {/* Specifications — flat table, hairline rows, mono values */}
         <div className="mt-12 border-t border-[#e7e7e1]">
-          <h2 className="text-[12px] font-semibold uppercase tracking-[0.09em] text-[#9b9b94] py-4">Specifications</h2>
+          <h2 className="text-[13px] font-semibold text-[#17171a] py-4">Specifications</h2>
           <table className="w-full">
             <tbody>
               {specs.map(s => (
@@ -229,7 +229,7 @@ export default async function FlashlightPage({ params }: Props) {
         {/* Reviews */}
         {flashlight.reviews && flashlight.reviews.length > 0 && (
           <div className="mt-8 border-t border-[#e7e7e1]">
-            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 py-3">Reviews</h2>
+            <h2 className="text-[13px] font-semibold text-[#17171a] py-4">Reviews</h2>
             <div className="space-y-0">
               {flashlight.reviews.map((r: { id: string; type: string | null; title: string; reviewer: string | null; summary: string | null; url: string }) => (
                 <a

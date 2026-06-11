@@ -357,7 +357,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Lumens & beam */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Output & Beam</p>
+        <p className="text-[13px] font-semibold text-slate-600 mb-3">Output & Beam</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field label="Max Lumens">
             <input className={input} type="number" value={data.max_lumens ?? ''} onChange={e => set('max_lumens', num(e.target.value))} placeholder="e.g. 1000" />
@@ -384,7 +384,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Battery */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Battery & Charging</p>
+        <p className="text-[13px] font-semibold text-slate-600 mb-3">Battery & Charging</p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Battery options</label>
@@ -424,7 +424,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Dimensions */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Size & Weight</p>
+        <p className="text-[13px] font-semibold text-slate-600 mb-3">Size & Weight</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field label="Length (mm)">
             <input className={input} type="number" value={data.length_mm ?? ''} onChange={e => set('length_mm', num(e.target.value))} />
@@ -497,7 +497,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Images */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Images</p>
+        <p className="text-[13px] font-semibold text-slate-600 mb-3">Images</p>
         {images.length > 0 && (
           <div className="flex flex-wrap gap-3 mb-3">
             {images.map((img) => (

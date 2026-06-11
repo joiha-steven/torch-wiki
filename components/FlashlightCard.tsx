@@ -53,7 +53,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
             </div>
           )}
           {flashlight.is_discontinued && (
-            <span className="absolute top-2 right-2 bg-[#17171a]/75 text-white text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider">
+            <span className="absolute top-2 right-2 bg-[#17171a]/75 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
               Disc.
             </span>
           )}
@@ -63,7 +63,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
       {/* Category label */}
       <div className="min-h-[16px] mb-1.5">
         {flashlight.category && (
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#9b9b94]">
+          <span className="text-[11px] font-medium text-[#9b9b94]">
             {flashlight.category}
           </span>
         )}

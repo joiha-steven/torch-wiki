@@ -13,7 +13,7 @@ export default function ManualSection({ slug, urls }: Props) {
 
   return (
     <div className="mt-8 border-t border-[#e7e7e1]">
-      <h2 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 py-3">User Manual</h2>
+      <h2 className="text-[13px] font-semibold text-[#17171a] py-4">User Manual</h2>
       {urls.map((url, i) => {
         const label = i === 0 ? 'manual.pdf' : `manual-${i}.pdf`
         const href = cdnUrl(url) ?? url
