@@ -88,9 +88,11 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Auto-generated `/sitemap.xml` — updates on deploy or when admin adds a flashlight
 - `/robots.txt` — search engines allowed, admin/api routes blocked
 
-**Analytics**
+**Analytics & privacy**
 - Google Analytics — toggle on/off and set Measurement ID from admin panel
 - Admin user excluded from tracking automatically
+- Cookie consent banner — GA loads (and the `_ga` cookie is set) only after the visitor clicks Accept; essential auth cookies and cookieless Vercel Analytics are unaffected
+- Privacy & Cookies page (`/privacy`) explaining what is and isn't collected
 
 ---
 
@@ -100,7 +102,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - [Supabase](https://supabase.com) — PostgreSQL database + Auth (email/password + TOTP 2FA)
 - [Vercel](https://vercel.com) — hosting, Blob CDN (images + PDFs), Analytics, Speed Insights
 - [Tailwind CSS v4](https://tailwindcss.com) — custom brand scale (`#eba00b`), warm off-white surface
-- [JetBrains Mono](https://www.jetbrains.com/lp/mono/) — numeric values via `next/font/google`
+- [Inter](https://rsms.me/inter/) — single self-hosted variable typeface (no third-party font requests)
 - [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) — captcha
 
 ---
@@ -159,6 +161,8 @@ node scripts/migrate-to-vercel-blob.mjs
 ```
 
 Script is safe to re-run — skips images already on Blob. Some brand CDNs require a `Referer` header (handled via `refererMap` in the script).
+
+**Bulk seeding a whole brand:** each brand gets a `scripts/seed-<brand>.mjs` that inserts rows and re-hosts images to Vercel Blob in the same run. Shopify-based stores (Nextorch, LED Lenser, Foursevens/Prometheus…) are pulled straight from `products.json`. See [`SCRAPING.md`](./SCRAPING.md) for the full rules.
 
 ---
 

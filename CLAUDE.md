@@ -4,10 +4,12 @@
 
 Flashlight database web app. Live at **https://torch.edc.wiki**.
 
+**Licensing (layered):** code → MIT (`LICENSE`); original content & data compilation → CC BY 4.0 (`LICENSE-CONTENT.md`, incl. sui generis database right); factual specs → not copyrightable; product images → property of their manufacturers, non-commercial reference use only, **never CC-licensed**, notice-and-takedown. Keep the "non-commercial reference project, not affiliated with any brand" framing (it's the fair-use shield for brand images). Footer (in `FilterPanel.tsx`) and README carry the dual CC BY 4.0 / MIT notice.
+
 ## Tech Stack
 
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
-- **Tailwind CSS v4** — custom `brand-*` color scale (`#FFBE00`) defined in `app/globals.css` via `@theme`
+- **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
 - **Vercel Blob** — image storage with global CDN
 - **Vercel** — hosting, Analytics, Speed Insights. Function region: `iad1` (US East, set in `vercel.json`)
@@ -142,7 +144,7 @@ $$;
 ## User Icon (Header)
 
 - Logged out → `User` icon, white
-- Logged in → `User` icon, brand yellow (`#FFBE00`)
+- Logged in → `User` icon, brand amber (`#eba00b`)
 - Dropdown shows nickname (if set) or email, plus: My Lists / Contribute / My Account / Sign out
 
 ## User Profiles (`/u/[username]`)
@@ -209,6 +211,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `scripts/seed-ledlenser.mjs` | Scrape LED Lenser Shopify API → insert |
 | `scripts/seed-acebeam-edc.mjs` · `seed-acebeam-tactical.mjs` · `seed-acebeam-more.mjs` | Acebeam EDC / tactical / headlamp+high-power+LEP+diving seeds |
 | `scripts/seed-prometheus.mjs` · `scripts/seed-foursevens.mjs` | Prometheus (6) / Foursevens (7) seeds — combined pattern: re-host product images from darksucks.com (Shopify `/products/<handle>.json`) onto Vercel Blob in the same run |
+| `scripts/seed-nextorch.mjs` (+ `scripts/nextorch-data.json`) | Nextorch (72) seed — scraped from Shopify `collections/<h>/products.json`, normalized into a committed `nextorch-data.json`, then images re-hosted to Blob in the same upsert. NEXDOT kept under the Nextorch brand (model prefixed). Scratch dump under `scripts/.nextorch-raw/` is gitignored. |
 | `scripts/normalize-emitters.mjs` | Normalize emitter names DB-wide (see emitter naming convention above) |
 
 **Seeding convention:** Always set `image_url` in the **same upsert** as the row data, then migrate the blob in the same script (see `seed-acebeam-tactical.mjs` / `seed-acebeam-more.mjs` for the combined pattern). Do NOT insert rows first and add images in a second pass — detail pages are SSG with `revalidate = false`, so a page rendered during the null-image window freezes with "No image" (the browse grid still shows it because it fetches client-side). After any direct DB seed/edit, force-clear cache: `curl -X POST https://torch.edc.wiki/api/revalidate -H 'Content-Type: application/json' -H "x-revalidate-secret: $REVALIDATE_SECRET" -d '{"force":true}'`. (The route now requires either this secret header or an admin/mod bearer token — see Security below. The admin "Force clear cache" button uses the session token automatically.)
@@ -261,7 +264,10 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/api/ga-settings/route.ts` | Returns GA `{ enabled, id }` from `settings` table (5 min cache) |
 | `app/sitemap.ts` | Auto-generated `/sitemap.xml` — all flashlight slugs + static pages (1hr revalidate) |
 | `app/robots.ts` | `/robots.txt` — allow all crawlers, block `/admin` and `/api/` |
-| `components/GoogleAnalytics.tsx` | Loads GA script client-side if enabled; skipped for admin users |
+| `components/GoogleAnalytics.tsx` | Loads GA script client-side if enabled; skipped for admin users **and until cookie consent === 'accepted'** (so `_ga` is never set without consent) |
+| `components/CookieConsent.tsx` | Small bottom-left consent banner (aligned to the `max-w-[1360px]` content edge), links to `/privacy`; writes the choice and gates GA |
+| `lib/use-consent.ts` | `useConsent()` (SSR-safe via `useSyncExternalStore`) + `getConsent`/`setConsent`; localStorage key `torch-cookie-consent`, syncs same-tab via custom event and cross-tab via storage event |
+| `app/privacy/page.tsx` | `/privacy` — Privacy & Cookies page (essential vs analytics cookies, cookieless Vercel Analytics, account data, images, notice-and-takedown) |
 | `app/[slug]/page.tsx` | Flashlight detail — `generateMetadata` (dynamic title/description/OG), JSON-LD Product schema |
 
 ## Caching Strategy
@@ -328,7 +334,7 @@ Card borders: `#e7e7e1` (warm light gray). Hover border: `#c8c8c0`. Use these in
 
 No box-shadows anywhere. Hover = border darkens only.
 
-**JetBrains Mono** loaded via `next/font/google` in `app/layout.tsx` as `--font-mono` CSS variable. Used via `font-mono` Tailwind class for all numeric values (lumens, price, dimensions, spec table values).
+**Inter** is the single site-wide typeface — a self-hosted variable font (`app/fonts/inter-variable.woff2`) loaded via `next/font/local` in `app/layout.tsx` as the `--font-inter` CSS variable (no Google Fonts / third-party request). The old SF stack + JetBrains Mono were dropped; `font-mono` is still used as a Tailwind class for numeric values (lumens, price, dimensions, spec table values), now resolving to Inter's tabular figures.
 
 **Custom checkbox/radio CSS** in `globals.css` — classes `.cb` (checkbox) and `.rb` (radio). Flat, amber accent on check. Use instead of `accent-brand-500`.
 
