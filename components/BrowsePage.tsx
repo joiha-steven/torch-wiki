@@ -317,8 +317,10 @@ export default function BrowsePage() {
         </div>
 
         <main className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-4 md:hidden">
-            <span className="text-sm text-slate-500">{totalCount} results</span>
+          <div className="flex items-center justify-between mb-5 md:hidden">
+            <span className="text-[13px] text-[#6c6c66]">
+              <b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
+            </span>
             <button
               onClick={() => setFilterOpen(true)}
               className="flex items-center gap-2 text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white"
@@ -338,7 +340,7 @@ export default function BrowsePage() {
             <div className="flex items-center justify-center h-64 text-[#9b9b94] text-sm">No flashlights found.</div>
           ) : (
             <>
-              <p className="text-[13px] text-[#6c6c66] mb-[22px]"><b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}</p>
+              <p className="hidden md:block text-[13px] text-[#6c6c66] mb-[22px]"><b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}</p>
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map((f, i) => (
                   <FlashlightCard
