@@ -26,7 +26,7 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 11, 2026',
-    title: 'Review links, brand pages & two new makers',
+    title: 'Reviews, brand pages, new makers & polish',
     items: [
       'Two new makers added — Prometheus Lights (Alpha, Beta, Delta) and Foursevens (Quark, Mini, Preon, Maelstrom), 13 lights in all',
       'Each flashlight can now list multiple review links — paste a URL and the title and post date are fetched automatically (works with YouTube, Vimeo and articles)',
@@ -34,8 +34,11 @@ const UPDATES: UpdateEntry[] = [
       'Per-brand pages now carry maker info and history, plus an "Added by / Updated by" credit like flashlight pages',
       'Renaming a flashlight now updates its page URL to match',
       'Added the 16650 battery type to the filters',
+      'Single self-hosted typeface (Inter) across the whole site — faster loads, no third-party font requests, and crisper text on standard and Retina screens',
+      'New flashlight-themed "page not found" (404) screen',
       'Cleaner, more consistent layout — centered page titles and tab bars throughout',
       'Better sharing & search — proper page titles, a social preview image, structured data, and an llms.txt for AI assistants',
+      'Admins can now send a real password-reset email to a user from the dashboard',
     ],
   },
   {
