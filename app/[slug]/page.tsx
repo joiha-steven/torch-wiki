@@ -185,7 +185,7 @@ export default async function FlashlightPage({ params }: Props) {
             {/* Category */}
             {flashlight.category && (
               <span className="inline-block mt-3 text-[13px] font-medium text-[#9b9b94]">
-                {flashlight.category}
+                {flashlight.category} flashlight
               </span>
             )}
 

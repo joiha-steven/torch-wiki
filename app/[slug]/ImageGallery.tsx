@@ -39,11 +39,11 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
         <Image
           src={allUrls[active]}
           alt={alt}
-          width={500}
-          height={380}
+          width={700}
+          height={520}
           sizes="(max-width: 767px) calc(100vw - 48px), calc(50vw - 80px)"
           priority
-          className="object-contain p-8 w-full h-full"
+          className="object-contain p-4 w-full h-full"
         />
       </div>
 
