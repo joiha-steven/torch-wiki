@@ -210,7 +210,7 @@ export default function UpdatesPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-2xl mx-auto px-4 py-10">
+      <div className="max-w-3xl mx-auto px-7 py-10">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-700 mb-10">
           <ChevronLeft size={14} /> Back to browse
         </Link>
