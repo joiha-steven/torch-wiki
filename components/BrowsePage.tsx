@@ -30,8 +30,7 @@ const DEFAULT_FILTERS: FilterState = {
 
 // madeInBrands: when the "Made in" filter is active, the precomputed list of brand
 // names whose made_in matches the selection (made_in lives on the brands table).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildQuery(filters: FilterState, from: number, to: number, madeInBrands: string[] | null = null): any {
+function buildQuery(filters: FilterState, from: number, to: number, madeInBrands: string[] | null = null) {
   let q = supabase.from('flashlights').select('*', { count: 'exact' })
 
   if (filters.brands.length > 0) q = q.in('brand', filters.brands)
@@ -131,8 +130,10 @@ export default function BrowsePage() {
 
   // Load compare IDs
   useEffect(() => {
-    const stored = localStorage.getItem('compareIds')
-    if (stored) setCompareIds(JSON.parse(stored))
+    try {
+      const stored = localStorage.getItem('compareIds')
+      if (stored) setCompareIds(JSON.parse(stored))
+    } catch {}
   }, [])
 
   // Fetch on filter change — debounce search by 300ms

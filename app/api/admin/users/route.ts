@@ -1,28 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { supabase as anonClient } from '@/lib/supabase'
 import { SITE_URL } from '@/lib/seo'
-
-function getAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
-// Anon client — used to actually send the recovery email (same path as the
-// public "forgot password" flow). The service-role admin client's generateLink
-// only mints a link without dispatching the email.
-function getAnon() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
 
 async function getCallerUser(request: Request) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '')
   if (!token) return null
-  const admin = getAdmin()
+  const admin = getSupabaseAdmin()
   const { data: { user } } = await admin.auth.getUser(token)
   return user
 }
@@ -30,7 +14,7 @@ async function getCallerUser(request: Request) {
 async function assertAdmin(request: Request) {
   const user = await getCallerUser(request)
   if (!user) return { user: null, ok: false }
-  const admin = getAdmin()
+  const admin = getSupabaseAdmin()
   const { data: profile } = await admin.from('profiles').select('is_admin').eq('id', user.id).single()
   const ok = profile?.is_admin === true || user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
   return { user, ok }
@@ -42,7 +26,7 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!ok)   return NextResponse.json({ error: 'Forbidden' },    { status: 403 })
 
-  const admin = getAdmin()
+  const admin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const q       = searchParams.get('q')?.toLowerCase() ?? ''
   const page    = parseInt(searchParams.get('page') ?? '1')
@@ -86,8 +70,10 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!ok)   return NextResponse.json({ error: 'Forbidden' },    { status: 403 })
 
-  const admin = getAdmin()
-  const { targetId, action } = await request.json()
+  const admin = getSupabaseAdmin()
+  const body = await request.json().catch(() => null)
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  const { targetId, action } = body
   if (!targetId || !action) return NextResponse.json({ error: 'Missing params' }, { status: 400 })
 
   const { data: { user: target } } = await admin.auth.admin.getUserById(targetId)
@@ -98,7 +84,7 @@ export async function POST(request: Request) {
   switch (action) {
     case 'reset_password': {
       if (!target?.email) return NextResponse.json({ error: 'User has no email.' }, { status: 400 })
-      const { error } = await getAnon().auth.resetPasswordForEmail(target.email, {
+      const { error } = await anonClient.auth.resetPasswordForEmail(target.email, {
         redirectTo: `${SITE_URL}/reset-password`,
       })
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -39,7 +39,8 @@ export default function ComparePage() {
     async function load() {
       const stored = localStorage.getItem('compareIds')
       if (!stored) { setLoading(false); return }
-      const ids = JSON.parse(stored) as string[]
+      let ids: string[]
+      try { ids = JSON.parse(stored) } catch { setLoading(false); return }
       if (ids.length === 0) { setLoading(false); return }
       const { data } = await supabase.from('flashlights').select('*').in('id', ids)
       setFlashlights(data ?? [])

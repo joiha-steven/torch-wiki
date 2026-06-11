@@ -71,7 +71,9 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const admin = getSupabaseAdmin()
-  const { id, action, reviewerNote, submissionData, targetId, submissionImages } = await request.json()
+  const body = await request.json().catch(() => null)
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  const { id, action, reviewerNote, submissionData, targetId, submissionImages } = body
 
   // Validate action — only allow known values
   if (!ALLOWED_ACTIONS.has(action)) {

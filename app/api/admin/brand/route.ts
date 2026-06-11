@@ -33,7 +33,9 @@ export async function PATCH(request: Request) {
   const user = await verifyAdmin(request)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { name, data } = (await request.json()) as { name?: string; data?: Record<string, unknown> }
+  const body = await request.json().catch(() => null) as { name?: string; data?: Record<string, unknown> } | null
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  const { name, data } = body
   if (!name?.trim()) return NextResponse.json({ error: 'Missing brand name' }, { status: 400 })
 
   const admin = getSupabaseAdmin()

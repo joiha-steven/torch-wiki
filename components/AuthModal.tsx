@@ -76,6 +76,7 @@ export default function AuthModal() {
         const until = Date.now() + LOCK_MS
         localStorage.setItem(LOCK_KEY, String(until))
         setLockSeconds(Math.ceil(LOCK_MS / 1000))
+        if (timerRef.current) clearInterval(timerRef.current)
         timerRef.current = setInterval(() => {
           const rem = Math.max(0, Math.ceil((until - Date.now()) / 1000))
           setLockSeconds(rem)

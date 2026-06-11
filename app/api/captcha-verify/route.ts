@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const { token } = await request.json()
+  const body = await request.json().catch(() => ({})) as { token?: string }
+  const { token } = body
   if (!token) return NextResponse.json({ success: false, error: 'Missing token' }, { status: 400 })
 
   const form = new FormData()

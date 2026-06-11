@@ -178,7 +178,8 @@ function TwoFactor({ email }: { email: string }) {
     const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password: disablePwd })
     if (signInErr) { setDisableErr('Incorrect password'); setLoading(false); return }
     if (factorId) await supabase.auth.mfa.unenroll({ factorId })
-    await supabase.from('recovery_codes').delete().neq('id', '00000000-0000-0000-0000-000000000000') // delete all
+    const { data: { user: authedUser } } = await supabase.auth.getUser()
+    if (authedUser) await supabase.from('recovery_codes').delete().eq('user_id', authedUser.id)
     setStatus('off'); setFactorId(null); setStep('idle'); setDisablePwd('')
     setLoading(false)
   }

@@ -260,16 +260,17 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       const uploadedImages: { url: string; sort_order: number; is_primary: boolean }[] = []
       const uploadedUrlById = new Map<string, string>() // img.id → vercel URL
 
-      for (const img of images) {
+      for (let imgIndex = 0; imgIndex < images.length; imgIndex++) {
+        const img = images[imgIndex]
         if (!img.file || img.isExisting) continue
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: true } : i))
         const ext = img.file.name.split('.').pop()
         const path = `submissions/${sub.id}/${img.id}.${ext}`
         const blob = await upload(path, img.file, { access: 'public', handleUploadUrl: '/api/upload' })
         uploadedUrlById.set(img.id, blob.url)
-        const imgRecord = { submission_id: sub.id, url: blob.url, sort_order: images.indexOf(img), is_primary: img.isPrimary }
+        const imgRecord = { submission_id: sub.id, url: blob.url, sort_order: imgIndex, is_primary: img.isPrimary }
         await supabase.from('submission_images').insert(imgRecord)
-        uploadedImages.push({ url: blob.url, sort_order: images.indexOf(img), is_primary: img.isPrimary })
+        uploadedImages.push({ url: blob.url, sort_order: imgIndex, is_primary: img.isPrimary })
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: false } : i))
       }
 

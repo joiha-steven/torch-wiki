@@ -40,9 +40,9 @@ export async function PATCH(request: Request) {
   const user = await verifyAdmin(request)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, action, reviewerNote } = (await request.json()) as {
-    id?: string; action?: 'approve' | 'reject'; reviewerNote?: string
-  }
+  const body = await request.json().catch(() => null) as { id?: string; action?: 'approve' | 'reject'; reviewerNote?: string } | null
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  const { id, action, reviewerNote } = body
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
 
   const admin = getSupabaseAdmin()

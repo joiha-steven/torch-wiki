@@ -115,7 +115,7 @@ export default async function FlashlightPage({ params }: Props) {
     { label: 'Beam Type', value: flashlight.beam_type },
     { label: 'LED / Emitter', value: flashlight.emitters?.length ? flashlight.emitters.join(' + ') : null },
     { label: 'Battery', value: formatBatteries(flashlight) },
-    { label: 'Charging', value: flashlight.charging_type === 'usb' ? 'USB' : flashlight.charging_type === 'magnetic' ? 'Magnetic' : 'None' },
+    { label: 'Charging', value: flashlight.charging_type === 'usb' ? 'USB' : flashlight.charging_type === 'magnetic' ? 'Magnetic' : flashlight.charging_type === 'none' ? 'None' : null },
     { label: 'Length', value: flashlight.length_mm ? `${flashlight.length_mm} mm` : null },
     { label: 'Head Diameter', value: flashlight.head_diameter_mm ? `${flashlight.head_diameter_mm} mm` : null },
     { label: 'Body Diameter', value: flashlight.body_diameter_mm ? `${flashlight.body_diameter_mm} mm` : null },
@@ -159,17 +159,20 @@ export default async function FlashlightPage({ params }: Props) {
     ],
   }
 
+  // Escape < to prevent </script> injection in JSON-LD blocks
+  const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, '\\u003c')
+
   return (
     <div className="min-h-screen">
       <Header />
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJson(jsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJson(breadcrumbLd) }}
       />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
