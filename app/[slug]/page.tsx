@@ -7,6 +7,7 @@ import { cdnUrl } from '@/lib/cdn'
 import { formatBatteries } from '@/lib/battery'
 import type { FlashlightImage } from '@/lib/types'
 import { ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
+import { brandSlug } from '@/lib/brand'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import ManualSection from '@/components/ManualSection'
@@ -172,7 +173,7 @@ export default async function FlashlightPage({ params }: Props) {
             {/* Brand + Model */}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[14px] text-[#6c6c66] mb-0.5">{flashlight.brand}</p>
+                <Link href={`/brand/${brandSlug(flashlight.brand)}`} className="text-[14px] text-[#6c6c66] mb-0.5 inline-block hover:text-brand-600 transition-colors">{flashlight.brand}</Link>
                 <h1 className="text-[32px] font-bold text-[#17171a] tracking-[-0.025em] leading-[1.05]">{flashlight.model}</h1>
               </div>
               {flashlight.is_discontinued && (

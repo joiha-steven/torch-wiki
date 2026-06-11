@@ -7,6 +7,11 @@ export type Brand = {
   name: string
   country: string | null   // where the brand is from, e.g. China, USA, Germany
   made_in: string | null   // where its products are manufactured
+  founded_year?: number | null   // year the company / maker was founded
+  headquarters?: string | null   // city / region of HQ
+  website?: string | null         // official site URL
+  about?: string | null           // company / maker bio — Markdown
+  logo_url?: string | null        // optional brand logo (Vercel Blob)
   created_at?: string
 }
 
