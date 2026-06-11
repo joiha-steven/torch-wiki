@@ -317,7 +317,7 @@ export default function BrowsePage() {
         </div>
 
         <main className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-5 md:hidden">
+          <div className="flex items-center justify-end gap-3 mb-5 md:hidden">
             <span className="text-[13px] text-[#6c6c66]">
               <b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
             </span>
