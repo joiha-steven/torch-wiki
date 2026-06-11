@@ -55,7 +55,7 @@ export default function ComparePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
       <div className="flex items-center justify-center pt-24 text-slate-400 text-sm">Loading…</div>
     </div>
@@ -63,7 +63,7 @@ export default function ComparePage() {
 
   if (flashlights.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen">
         <Header />
         <div className="flex items-center justify-center px-4 pt-24">
           <div className="bg-white border border-[#e7e7e1] rounded-xl w-full max-w-sm p-8 text-center space-y-4">
@@ -82,7 +82,7 @@ export default function ComparePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 py-6">

@@ -8,6 +8,7 @@ import UserMenu from './UserMenu'
 
 const NAV = [
   { href: '/',        label: 'Browse' },
+  { href: '/brands',  label: 'Brands' },
   { href: '/top',     label: 'Top' },
   { href: '/compare', label: 'Compare' },
   { href: '/updates', label: 'Updates' },

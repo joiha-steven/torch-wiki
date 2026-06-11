@@ -38,7 +38,7 @@ export default function AdminPage() {
   // Require 2FA enrolled
   if (!hasMfa) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="bg-white rounded-xl border border-slate-200 p-8 max-w-sm w-full text-center space-y-4">
           <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-2xl">🔐</div>
           <h1 className="font-bold text-slate-900">Two-factor authentication required</h1>

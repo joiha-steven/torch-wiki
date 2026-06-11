@@ -71,7 +71,7 @@ const UPDATES: UpdateEntry[] = [
     items: [
       '"Edit" button on flashlight pages for admin/mod — skips review queue and saves directly',
       'Regular users still submit edits for review via "Suggest an edit"',
-      'Edit form shows existing images — hover to remove or set as primary (⭐), add new images',
+      'Edit form shows existing images — hover to remove or set as primary, add new images',
       'Edit form shows existing PDFs — remove or upload new ones',
       'All image changes (removals, primary swap) applied correctly on approval for pending submissions',
       'Description field supports Markdown — bold, italic, lists, headings, links',

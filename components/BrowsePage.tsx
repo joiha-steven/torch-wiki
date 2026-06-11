@@ -208,6 +208,7 @@ export default function BrowsePage() {
           </Link>
           <nav className="hidden sm:flex gap-[26px] text-sm font-medium">
             <Link href="/" className="text-[#f3f3f0]">Browse</Link>
+            <Link href="/brands" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Brands</Link>
             <Link href="/top" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Top</Link>
             <Link href="/compare" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Compare</Link>
             <Link href="/updates" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Updates</Link>
@@ -256,6 +257,7 @@ export default function BrowsePage() {
             </div>
             {[
               { href: '/',        label: 'Browse' },
+              { href: '/brands',  label: 'Brands' },
               { href: '/top',     label: 'Top' },
               { href: '/compare', label: 'Compare' },
               { href: '/updates', label: 'Updates' },

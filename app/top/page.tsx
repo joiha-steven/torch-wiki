@@ -78,7 +78,7 @@ export default async function TopPage() {
   const lists = await fetchLists()
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
 
       <div className="max-w-5xl mx-auto px-4 py-10">
@@ -91,7 +91,7 @@ export default async function TopPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lists.map(list => (
-            <div key={list.title} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div key={list.title} className="bg-white rounded-xl border border-[#e7e7e1] overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-100">
                 <h2 className="font-semibold text-slate-900">{list.title}</h2>
                 <p className="text-xs text-slate-400 mt-0.5">{list.subtitle}</p>

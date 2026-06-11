@@ -106,7 +106,7 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
       <div className="max-w-xl mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">

@@ -390,14 +390,14 @@ export default function AccountPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
       <div className="flex justify-center pt-24"><Loader2 size={18} className="animate-spin text-slate-400" /></div>
     </div>
   )
 
   if (!user) return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
       <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
         <p className="text-slate-500 text-sm">Sign in to view your account.</p>
@@ -412,7 +412,7 @@ export default function AccountPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
       <div className="max-w-2xl mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">

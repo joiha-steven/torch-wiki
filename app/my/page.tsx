@@ -55,7 +55,7 @@ export default function MyListsPage() {
   }, 0)
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -79,7 +79,7 @@ export default function MyListsPage() {
           <>
             {/* Tabs + controls */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 flex-wrap">
+              <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 flex-wrap">
                 <button
                   onClick={() => setTab('wishlist')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -117,7 +117,7 @@ export default function MyListsPage() {
                       Total: <span className="font-semibold text-slate-800">${totalValue.toLocaleString()}</span>
                     </span>
                   )}
-                  <div className="flex bg-white border border-slate-200 rounded-lg p-0.5">
+                  <div className="flex bg-white border border-[#e7e7e1] rounded-lg p-0.5">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}
@@ -205,7 +205,7 @@ function WishlistCard({ item }: { item: WishlistItem }) {
   return (
     <Link
       href={`/${f.slug}`}
-      className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all overflow-hidden"
+      className="bg-white rounded-xl border border-[#e7e7e1] hover:border-[#c8c8c0] transition-colors overflow-hidden"
     >
       <div className="relative h-36 bg-white flex items-center justify-center">
         {f.image_url ? (
@@ -226,7 +226,7 @@ function WishlistCard({ item }: { item: WishlistItem }) {
 function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => void }) {
   const f = item.flashlights
   return (
-    <div className="group relative bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all overflow-hidden">
+    <div className="group relative bg-white rounded-xl border border-[#e7e7e1] hover:border-[#c8c8c0] transition-colors overflow-hidden">
       <Link href={`/${f.slug}`}>
         <div className="relative h-36 bg-white flex items-center justify-center">
           {f.image_url ? (
@@ -259,7 +259,7 @@ function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => 
       </Link>
       <button
         onClick={(e) => { e.preventDefault(); onEdit() }}
-        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white border border-slate-200 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white border border-[#e7e7e1] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
         title="Edit"
       >
         <Pencil size={12} className="text-slate-600" />
@@ -283,7 +283,7 @@ function MetaCell({ label, value, accent }: { label: string; value: string | nul
 function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => void }) {
   const f = item.flashlights
   return (
-    <div className="flex items-center gap-3 bg-white rounded-xl border border-slate-200 px-3 py-3 hover:border-slate-300 transition-colors">
+    <div className="flex items-center gap-3 bg-white rounded-xl border border-[#e7e7e1] px-3 py-3 hover:border-[#c8c8c0] transition-colors">
       <div className="relative w-16 h-12 shrink-0 bg-slate-50 rounded-lg overflow-hidden">
         {f.image_url ? (
           <Image src={f.image_url} alt={`${f.brand} ${f.model}`} fill className="object-contain p-1" />

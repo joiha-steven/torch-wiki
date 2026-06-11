@@ -499,7 +499,10 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
           <Upload size={14} />
           Add images
         </button>
-        <p className="text-xs text-slate-400 mt-1.5">Hover an image to remove it or set it as primary (⭐).</p>
+        <p className="text-xs text-slate-400 mt-1.5 inline-flex items-center gap-1">
+          Hover an image to remove it or set it as primary
+          (<Star size={11} className="text-brand-500 inline" />).
+        </p>
       </div>
 
       {!isAdmin && (
