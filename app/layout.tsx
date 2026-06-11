@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import Providers from '@/components/Providers'
 import PageFade from '@/components/PageFade'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import CookieConsent from '@/components/CookieConsent'
 import { SITE_URL, SITE_NAME, OG_IMAGE } from '@/lib/seo'
 import './globals.css'
 
@@ -118,6 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </PageFade>
         </Providers>
         <GoogleAnalytics />
+        <CookieConsent />
         <Analytics />
         <SpeedInsights />
       </body>
