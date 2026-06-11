@@ -1,8 +1,7 @@
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import Link from 'next/link'
-import { ChevronLeft, Globe, MapPin, Calendar, Factory } from 'lucide-react'
+import { Globe, MapPin, Calendar, Factory } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
 import type { Flashlight, Brand } from '@/lib/types'
@@ -82,9 +81,6 @@ export default async function BrandPage({ params }: Props) {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-7">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         {/* Brand hero */}
         <div className="max-w-[760px]">
@@ -110,7 +106,7 @@ export default async function BrandPage({ params }: Props) {
           )}
 
           {info?.about && (
-            <div className="mt-5">
+            <div className="mt-5 bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-7">
               <MarkdownContent className="text-[15px] leading-[1.7] text-[#6c6c66]">{info.about}</MarkdownContent>
             </div>
           )}

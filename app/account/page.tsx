@@ -3,8 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { ChevronLeft, Copy, Check, Eye, EyeOff, Shield, ShieldCheck, Loader2 } from 'lucide-react'
+import { Copy, Check, Eye, EyeOff, Shield, ShieldCheck, Loader2 } from 'lucide-react'
 import Header from '@/components/Header'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
@@ -401,7 +400,6 @@ export default function AccountPage() {
       <Header />
       <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
         <p className="text-slate-500 text-sm">Sign in to view your account.</p>
-        <Link href="/" className="text-sm text-brand-600 hover:underline">← Back to browse</Link>
       </div>
     </div>
   )
@@ -415,9 +413,6 @@ export default function AccountPage() {
     <div className="min-h-screen">
       <Header />
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit mb-6">
           {TABS.map(t => (

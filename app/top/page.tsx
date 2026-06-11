@@ -2,7 +2,6 @@ import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
 import Header from '@/components/Header'
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
 
 export const revalidate = 3600
 
@@ -82,9 +81,6 @@ export default async function TopPage() {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-7">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Top lists</h1>
         <p className="text-[13px] text-[#6c6c66] mt-1 mb-8">Curated flashlight rankings</p>

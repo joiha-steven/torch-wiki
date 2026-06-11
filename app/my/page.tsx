@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Bookmark, ChevronLeft, LayoutGrid, List, Pencil } from 'lucide-react'
+import { Heart, Bookmark, LayoutGrid, List, Pencil } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { CollectionItem, WishlistItem } from '@/lib/types'
@@ -59,9 +59,6 @@ export default function MyListsPage() {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-6">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         {loading ? (
           <div className="text-slate-400 text-sm">Loading…</div>

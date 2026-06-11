@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, Plus, ClipboardList, Pencil, Search, X, Loader2 } from 'lucide-react'
+import { Plus, ClipboardList, Pencil, Search, X, Loader2 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { FlashlightSubmission, Flashlight } from '@/lib/types'
@@ -156,9 +156,6 @@ export default function ContributePage() {
       <Header />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-slate-400" /></div>
@@ -209,7 +206,7 @@ export default function ContributePage() {
               submitted
                 ? <SuccessScreen onAnother={resetAdd} onView={() => setTab('submissions')} />
                 : (
-                  <div className="bg-white rounded-xl border border-slate-200 p-6">
+                  <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
                     <SubmitFlashlightForm
                       mode="new"
                       onSuccess={(slug) => slug ? router.push(`/${slug}`) : setSubmitted(true)}
@@ -225,7 +222,7 @@ export default function ContributePage() {
                 ? <SuccessScreen onAnother={resetEdit} onView={() => setTab('submissions')} />
                 : editTarget
                   ? (
-                    <div className="bg-white rounded-xl border border-slate-200 p-6">
+                    <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
                       <div className="flex items-start justify-between gap-3 mb-5 pb-5 border-b border-slate-100">
                         <div>
                           <p className="text-xs text-slate-400 mb-0.5">Editing</p>
@@ -246,7 +243,7 @@ export default function ContributePage() {
                     </div>
                   )
                   : (
-                    <div className="bg-white rounded-xl border border-slate-200 p-6">
+                    <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
                       <FlashlightPicker onPick={async f => {
                     const { data } = await supabase.from('flashlights').select('*, flashlight_images(*)').eq('id', f.id).single()
                     if (data) setEditTarget(data as Flashlight)

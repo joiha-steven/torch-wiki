@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
 import type { Brand } from '@/lib/types'
@@ -38,9 +37,6 @@ export default async function BrandsPage() {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-7">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Brands &amp; makers</h1>
         <p className="mt-1 text-[13px] text-[#6c6c66]">

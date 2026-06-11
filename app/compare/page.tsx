@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
 import { formatBatteries } from '@/lib/battery'
-import { Check, X, ChevronLeft } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import Header from '@/components/Header'
 
 const SPEC_ROWS = [
@@ -86,9 +86,6 @@ export default function ComparePage() {
       <Header />
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-6">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         <div className="bg-white border border-[#e7e7e1] rounded-xl overflow-x-auto">
           <table className="w-full text-sm">

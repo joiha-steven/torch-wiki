@@ -1,6 +1,4 @@
 import Header from '@/components/Header'
-import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
 
 type UpdateEntry = {
   date: string
@@ -211,17 +209,16 @@ export default function UpdatesPage() {
       <Header />
 
       <div className="max-w-3xl mx-auto px-7 py-10">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-700 mb-10">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
+        <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em] mb-1">Updates</h1>
+        <p className="text-[13px] text-[#6c6c66] mb-8">What&apos;s new on torch.EDC.wiki</p>
 
-        <div className="relative">
-          <div className="absolute left-0 top-2 bottom-2 w-px bg-slate-200" />
+        <div className="relative bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-8">
+          <div className="absolute left-6 sm:left-8 top-8 bottom-8 w-px bg-[#e7e7e1]" />
 
           <div className="space-y-10 pl-8">
             {UPDATES.map((u, i) => (
               <div key={i} className="relative">
-                <div className="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-gray-100" />
+                <div className="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-white" />
 
                 <div className="flex items-baseline gap-3 mb-1">
                   <h2 className="font-semibold text-slate-900">{u.title}</h2>

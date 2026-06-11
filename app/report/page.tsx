@@ -3,9 +3,8 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useRef } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, Upload, X, Loader2, Check } from 'lucide-react'
+import { Upload, X, Loader2, Check } from 'lucide-react'
 import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import Header from '@/components/Header'
@@ -109,19 +108,15 @@ export default function ReportPage() {
     <div className="min-h-screen">
       <Header />
       <div className="max-w-xl mx-auto px-4 py-8">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
           {done ? (
             <div className="py-10 text-center space-y-3">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <Check size={22} className="text-green-600" />
               </div>
               <p className="font-semibold text-slate-900">Report submitted</p>
-              <p className="text-sm text-slate-500">Thanks — we'll look into it.</p>
-              <Link href="/" className="inline-block mt-2 text-sm text-brand-600 hover:underline">← Back to browse</Link>
+              <p className="text-sm text-slate-500">Thanks — we&apos;ll look into it.</p>
             </div>
           ) : (
             <>

@@ -1,7 +1,5 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import Header from '@/components/Header'
@@ -134,9 +132,6 @@ export default async function UserProfilePage({ params }: Props) {
       <Header />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-700 mb-8">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         {/* Profile header */}
         <div className="flex items-center gap-4 mb-8">

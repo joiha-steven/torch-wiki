@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { cdnUrl } from '@/lib/cdn'
 import { formatBatteries } from '@/lib/battery'
 import type { FlashlightImage } from '@/lib/types'
-import { ExternalLink, Video, FileText, ChevronLeft } from 'lucide-react'
+import { ExternalLink, Video, FileText } from 'lucide-react'
 import { brandSlug } from '@/lib/brand'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
@@ -158,9 +158,6 @@ export default async function FlashlightPage({ params }: Props) {
       />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-7">
-          <ChevronLeft size={14} /> Back to browse
-        </Link>
 
         <div className="grid md:grid-cols-2 gap-14 items-start">
           <ImageGallery
@@ -205,9 +202,9 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Description — full width, above the spec table */}
+        {/* Description — boxed so text doesn't stretch full width */}
         {flashlight.description && (
-          <div className="mt-10 pt-6 border-t border-[#e7e7e1] max-w-[720px]">
+          <div className="mt-10 bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-7 max-w-[760px]">
             <MarkdownContent className="text-[15px] leading-[1.7] text-[#6c6c66]">{flashlight.description}</MarkdownContent>
           </div>
         )}
