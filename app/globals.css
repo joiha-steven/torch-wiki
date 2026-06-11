@@ -145,19 +145,40 @@ h1, h2, h3 {
 
 /* Floating dark-glass nav capsule */
 .floating-nav {
-  /* dark fill + a soft top sheen so the capsule reads as wet glass */
+  /* solid-ish dark base for depth, a top sheen, and a bright top rim */
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 44%),
-    rgba(8, 8, 10, 0.86);
-  /* a bit more blur + saturation for richer glass; bar stays ~86% opaque so it
-     stays legible and the sticky repaint cost stays low */
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 50%),
+    rgba(10, 10, 12, 0.93);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  /* layered shadow → the capsule floats with real presence (not flat) */
   box-shadow:
-    0 8px 26px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+    0 12px 34px rgba(0, 0, 0, 0.24),
+    0 2px 8px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+}
+
+/* Liquid-glass specular — a soft light blob that follows the cursor across a
+   glass surface (--gx/--gy are written in JS). No `position` here so it doesn't
+   override a host's sticky/relative; hosts are already positioned. */
+.lg-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(220px circle at var(--gx, 50%) var(--gy, -20%),
+    rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 60%);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+}
+.lg-surface:hover::before { opacity: 1; }
+/* touch devices have no real hover — keep the highlight off */
+@media (hover: none) {
+  .lg-surface:hover::before { opacity: 0; }
 }
 
 /* Dark-glass controls that sit inside the nav (search pill, icon button) */

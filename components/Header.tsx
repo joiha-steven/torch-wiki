@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
@@ -18,13 +18,27 @@ const NAV = [
 export default function Header() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const navRef = useRef<HTMLElement>(null)
+
+  // Liquid-glass: write the pointer position to CSS vars so a specular
+  // highlight can follow the cursor across the capsule. Set straight on the
+  // DOM node (no React re-render) so it stays smooth.
+  function trackPointer(e: React.PointerEvent<HTMLElement>) {
+    const el = navRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    el.style.setProperty('--gx', `${((e.clientX - r.left) / r.width) * 100}%`)
+    el.style.setProperty('--gy', `${((e.clientY - r.top) / r.height) * 100}%`)
+  }
 
   return (
     <header
-      className="floating-nav sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
-      style={{ width: 'min(1240px, calc(100% - 32px))' }}
+      ref={navRef}
+      onPointerMove={trackPointer}
+      className="floating-nav lg-surface sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
+      style={{ width: 'min(1224px, calc(100% - 56px))' }}
     >
-      <div className="flex items-center gap-8 px-[22px] h-14">
+      <div className="relative z-[1] flex items-center gap-8 px-[22px] h-14">
         <Link
           href="/"
           className="font-extrabold text-[17px] tracking-[-0.02em] shrink-0"
@@ -35,15 +49,17 @@ export default function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden sm:flex gap-[26px]">
+        <nav className="hidden sm:flex gap-0.5">
           {NAV.map(n => {
             const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
             return (
               <Link
                 key={n.href}
                 href={n.href}
-                className={`text-sm font-medium transition-colors ${
-                  active ? 'text-[#f3f3f0]' : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0]'
+                className={`text-sm font-medium px-3 py-1.5 rounded-full transition-colors ${
+                  active
+                    ? 'text-[#f3f3f0] bg-white/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]'
+                    : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0] hover:bg-white/[0.06]'
                 }`}
               >
                 {n.label}
@@ -67,7 +83,7 @@ export default function Header() {
 
       {/* Mobile dropdown */}
       {open && (
-        <nav className="sm:hidden border-t border-white/10 px-[22px] py-3 flex flex-col gap-0.5">
+        <nav className="relative z-[1] sm:hidden border-t border-white/10 px-[22px] py-3 flex flex-col gap-0.5">
           {NAV.map(n => {
             const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
             return (
