@@ -271,7 +271,7 @@ export default function BrowsePage() {
       </header>
 
       <div className="max-w-[1360px] mx-auto px-7 py-7 flex gap-10">
-        <div className="hidden md:block sticky top-[84px] self-start">
+        <div className="hidden md:block">
           <FilterPanel
             filters={filters}
             onChange={setFilters}
