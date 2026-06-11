@@ -277,7 +277,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         const revalidateBody = mode === 'edit' && json.slug
           ? { slug: json.slug }
           : { all: true }
-        await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(revalidateBody) })
+        await fetch('/api/revalidate', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(revalidateBody) })
         localStorage.removeItem('meta_cache')
         // Hard navigate — bypasses Next.js client-side router cache to guarantee fresh page
         if (json.slug) {

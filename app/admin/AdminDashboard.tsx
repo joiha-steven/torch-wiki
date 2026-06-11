@@ -98,10 +98,10 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
         // Server returns slug — no extra DB round-trip needed
         const { slug } = await res.json() as { ok: boolean; slug: string | null }
         if (sub.type === 'new') {
-          await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ all: true }) })
+          await fetch('/api/revalidate', { method: 'POST', headers: await authHeader(), body: JSON.stringify({ all: true }) })
           localStorage.removeItem('meta_cache')
         } else if (slug) {
-          await fetch('/api/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug }) })
+          await fetch('/api/revalidate', { method: 'POST', headers: await authHeader(), body: JSON.stringify({ slug }) })
           localStorage.removeItem('meta_cache')
         }
       }
@@ -851,7 +851,7 @@ export default function AdminDashboard() {
   async function forceClearCache() {
     setClearing(true); setClearMsg('')
     const res = await fetch('/api/revalidate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: await authHeader(),
       body: JSON.stringify({ force: true }),
     })
     const data = await res.json()
