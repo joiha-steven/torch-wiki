@@ -166,6 +166,20 @@ Script is safe to re-run — skips images already on Blob. Some brand CDNs requi
 
 ---
 
+## How this was built
+
+This site was created by **Steven Tran (Trần Mạnh Hùng)** — a flashlight hobbyist, not a software developer. The application is built almost entirely with [Claude Code](https://claude.com/claude-code), Anthropic's agentic coding tool: the author directs the work in plain language and Claude writes the code. The author doesn't hand-write the code and doesn't formally review it.
+
+Because of that, the sensitive parts are deliberately handled by trusted, managed services rather than custom code:
+
+- **Accounts, passwords, and two-factor authentication are managed by [Supabase Auth](https://supabase.com/auth).** Passwords are hashed and stored inside Supabase's managed auth system (never in this app's own tables or code), and TOTP 2FA is handled by Supabase — so credential security does not depend on hand-written code.
+- **Database access is guarded by Supabase Row-Level Security**, enforced at the database layer, plus Cloudflare Turnstile captcha and login rate-limiting.
+- The site is **non-commercial** and stores minimal personal data — your email, an optional public nickname, and your own wishlist/collection. See [Privacy & Cookies](https://torch.edc.wiki/privacy).
+
+If you spot a security or data issue, please [open an issue on GitHub](https://github.com/joiha-steven/torch-wiki/issues) — it will be taken seriously.
+
+---
+
 ## License & content
 
 This is a **non-commercial reference project** with no affiliation to any flashlight brand. Different layers of the project carry different legal status — they are **not** under a single blanket license. Full details in [`LICENSE`](./LICENSE) (code) and [`LICENSE-CONTENT.md`](./LICENSE-CONTENT.md) (everything else).
