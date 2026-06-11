@@ -197,38 +197,41 @@ export default function BrowsePage() {
   }, [items.length]) // re-attach when list grows so sentinel stays valid
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-black sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-6">
-          <Link href="/" className="font-bold text-base shrink-0" onClick={() => setNavOpen(false)}>
-            <span style={{ color: '#eba00b' }}>torch.</span><span className="text-white">EDC.wiki</span>
+    <div className="min-h-screen">
+      <header
+        className="floating-nav sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
+        style={{ width: 'min(1320px, calc(100% - 32px))' }}
+      >
+        <div className="flex items-center gap-8 px-[22px] h-14">
+          <Link href="/" className="font-extrabold text-[17px] tracking-[-0.02em] shrink-0" onClick={() => setNavOpen(false)}>
+            <span style={{ color: '#eba00b' }}>torch</span><span className="text-[#f3f3f0]">.EDC.wiki</span>
           </Link>
-          <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
-            <Link href="/" className="text-white">Browse</Link>
-            <Link href="/top" className="hover:text-white">Top</Link>
-            <Link href="/compare" className="hover:text-white">Compare</Link>
-            <Link href="/updates" className="hover:text-white">Updates</Link>
-            <Link href="/report" className="hover:text-white">Report</Link>
+          <nav className="hidden sm:flex gap-[26px] text-sm font-medium">
+            <Link href="/" className="text-[#f3f3f0]">Browse</Link>
+            <Link href="/top" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Top</Link>
+            <Link href="/compare" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Compare</Link>
+            <Link href="/updates" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Updates</Link>
+            <Link href="/report" className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] transition-colors">Report</Link>
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-zinc-700 border border-zinc-500 rounded-md px-3 py-1">
-              <Search size={13} className="text-gray-300 shrink-0" />
+            <div className="glass-dark hidden sm:flex items-center gap-2 rounded-full px-3.5 h-[34px] w-60">
+              <Search size={15} className="text-[#f3f3f0]/65 shrink-0" />
               <input
                 ref={searchRef}
                 type="text"
-                placeholder="Search..."
+                placeholder="Search…"
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="bg-transparent text-white text-sm w-24 sm:w-48 focus:outline-none placeholder-gray-400"
+                className="bg-transparent text-[#f3f3f0] text-[13px] w-full focus:outline-none placeholder-[#f3f3f0]/50"
               />
               {filters.search && (
                 <button onClick={() => setFilters({ ...filters, search: '' })}>
-                  <X size={13} className="text-gray-400 hover:text-white" />
+                  <X size={14} className="text-[#f3f3f0]/60 hover:text-[#f3f3f0]" />
                 </button>
               )}
             </div>
             <button
-              className="sm:hidden flex items-center justify-center text-gray-400 hover:text-white"
+              className="sm:hidden flex items-center justify-center text-[#f3f3f0]/70 hover:text-[#f3f3f0]"
               onClick={() => setNavOpen(o => !o)}
               aria-label="Menu"
             >
@@ -238,9 +241,19 @@ export default function BrowsePage() {
           </div>
         </div>
 
-        {/* Mobile nav dropdown */}
+        {/* Mobile nav dropdown — includes search on small screens */}
         {navOpen && (
-          <nav className="sm:hidden bg-zinc-950 border-t border-zinc-800 px-4 py-3 flex flex-col gap-0.5">
+          <nav className="sm:hidden border-t border-white/10 px-[22px] py-3 flex flex-col gap-0.5">
+            <div className="glass-dark flex items-center gap-2 rounded-full px-3.5 h-[34px] mb-2">
+              <Search size={15} className="text-[#f3f3f0]/65 shrink-0" />
+              <input
+                type="text"
+                placeholder="Search…"
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className="bg-transparent text-[#f3f3f0] text-[13px] w-full focus:outline-none placeholder-[#f3f3f0]/50"
+              />
+            </div>
             {[
               { href: '/',        label: 'Browse' },
               { href: '/top',     label: 'Top' },
@@ -249,7 +262,7 @@ export default function BrowsePage() {
               { href: '/report',  label: 'Report' },
             ].map(n => (
               <Link key={n.href} href={n.href} onClick={() => setNavOpen(false)}
-                className="text-sm text-gray-400 hover:text-white py-2.5 border-b border-zinc-800 last:border-0">
+                className="text-sm text-[#f3f3f0]/60 hover:text-[#f3f3f0] py-2.5 border-b border-white/10 last:border-0">
                 {n.label}
               </Link>
             ))}
@@ -257,8 +270,8 @@ export default function BrowsePage() {
         )}
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-5 flex gap-6">
-        <div className="hidden md:block">
+      <div className="max-w-[1360px] mx-auto px-7 py-7 flex gap-10">
+        <div className="hidden md:block sticky top-[84px] self-start">
           <FilterPanel
             filters={filters}
             onChange={setFilters}
@@ -282,17 +295,17 @@ export default function BrowsePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <FlashlightCardSkeleton key={i} />
               ))}
             </div>
           ) : items.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-slate-400 text-sm">No flashlights found.</div>
+            <div className="flex items-center justify-center h-64 text-[#9b9b94] text-sm">No flashlights found.</div>
           ) : (
             <>
-              <p className="text-sm text-slate-400 mb-3">{totalCount} result{totalCount !== 1 ? 's' : ''}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <p className="text-[13px] text-[#6c6c66] mb-[22px]"><b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map((f, i) => (
                   <FlashlightCard
                     key={f.id}
@@ -341,15 +354,18 @@ export default function BrowsePage() {
       )}
 
       {compareIds.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-zinc-800 z-40">
-          <div className="w-full max-w-7xl mx-auto px-4 h-11 flex items-center justify-between">
-            <span className="text-gray-400 text-sm">{compareIds.length} selected</span>
+        <div
+          className="floating-nav fixed bottom-4 left-1/2 -translate-x-1/2 z-40 rounded-[22px] text-[#f3f3f0]"
+          style={{ width: 'min(1320px, calc(100% - 32px))' }}
+        >
+          <div className="flex items-center justify-between px-[22px] h-14">
+            <span className="text-[#f3f3f0]/70 text-sm">{compareIds.length} selected</span>
             <div className="flex items-center gap-4">
-              <button onClick={() => { setCompareIds([]); localStorage.removeItem('compareIds') }} className="text-gray-500 hover:text-white text-xs">Clear</button>
+              <button onClick={() => { setCompareIds([]); localStorage.removeItem('compareIds') }} className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] text-xs">Clear</button>
               <button
                 onClick={() => { localStorage.setItem('compareIds', JSON.stringify(compareIds)); router.push('/compare') }}
                 disabled={compareIds.length < 2}
-                className="bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-black text-xs px-3.5 py-1.5 rounded font-medium"
+                className="bg-brand-500 hover:brightness-95 disabled:opacity-40 text-[#1d1604] text-xs px-4 py-2 rounded-full font-semibold transition-[filter]"
               >
                 Compare ({compareIds.length})
               </button>

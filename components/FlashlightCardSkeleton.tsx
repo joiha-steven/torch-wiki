@@ -1,31 +1,27 @@
 export default function FlashlightCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      {/* Image area */}
-      <div className="h-44 bg-slate-100 skeleton-shimmer" />
+    <div className="glass-card rounded-[18px] p-3.5 flex flex-col">
+      {/* Thumbnail */}
+      <div className="aspect-[4/3] rounded-[12px] bg-white/50 skeleton-shimmer mb-3.5" />
 
-      <div className="p-4 space-y-3">
-        {/* Brand + model */}
-        <div className="space-y-1.5">
-          <div className="h-3 w-16 rounded bg-slate-100 skeleton-shimmer" />
-          <div className="h-4 w-32 rounded bg-slate-100 skeleton-shimmer" />
-        </div>
+      {/* Category */}
+      <div className="h-2.5 w-12 rounded bg-white/50 skeleton-shimmer mb-2" />
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="h-3.5 rounded bg-slate-100 skeleton-shimmer" />
-          <div className="h-3.5 rounded bg-slate-100 skeleton-shimmer" />
-          <div className="h-3.5 rounded bg-slate-100 skeleton-shimmer" />
-          <div className="h-3.5 rounded bg-slate-100 skeleton-shimmer" />
-        </div>
+      {/* Brand + model */}
+      <div className="flex-1 space-y-1.5">
+        <div className="h-2.5 w-16 rounded bg-white/50 skeleton-shimmer" />
+        <div className="h-3.5 w-28 rounded bg-white/50 skeleton-shimmer" />
+      </div>
 
-        {/* Bottom row */}
-        <div className="flex items-center justify-between pt-0.5">
-          <div className="h-3.5 w-16 rounded bg-slate-100 skeleton-shimmer" />
-          <div className="flex gap-1">
-            <div className="h-6 w-6 rounded bg-slate-100 skeleton-shimmer" />
-            <div className="h-6 w-6 rounded bg-slate-100 skeleton-shimmer" />
-          </div>
+      {/* Spec line */}
+      <div className="h-3 w-32 rounded bg-white/50 skeleton-shimmer mt-3" />
+
+      {/* Foot */}
+      <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#e7e7e1]">
+        <div className="h-3.5 w-14 rounded bg-white/50 skeleton-shimmer" />
+        <div className="flex gap-1">
+          <div className="h-6 w-6 rounded bg-white/50 skeleton-shimmer" />
+          <div className="h-6 w-6 rounded bg-white/50 skeleton-shimmer" />
         </div>
       </div>
     </div>

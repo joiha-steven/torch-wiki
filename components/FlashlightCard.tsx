@@ -20,114 +20,121 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
   const inWishlist = wishlistIds.has(flashlight.id)
   const inCollection = collectionIds.has(flashlight.id)
 
-  // Compact spec line — monospace numbers, dots between values
+  // Monochrome spec line — mono numbers, hairline dots between values
   const specParts = [
-    flashlight.max_lumens    ? `${flashlight.max_lumens.toLocaleString()} lm` : null,
-    flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m`            : null,
+    flashlight.max_lumens      ? `${flashlight.max_lumens.toLocaleString()} lm` : null,
+    flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m`              : null,
     formatBatteries(flashlight, false),
-  ].filter(Boolean)
-  const specLine = specParts.join(' · ')
+  ].filter(Boolean) as string[]
 
   return (
-    <div className={`bg-white rounded-lg border transition-colors flex flex-col ${
-      isSelected
-        ? 'border-brand-500'
-        : 'border-[#e7e7e1] hover:border-[#c8c8c0]'
-    }`}>
+    <div className={`glass-card rounded-[18px] p-3.5 flex flex-col ${isSelected ? 'is-selected' : ''}`}>
 
-      {/* Image */}
+      {/* Thumbnail — translucent glass fill, fixed ratio so cards stay even */}
       <Link href={`/${flashlight.slug}`} className="block">
-        <div className="relative h-40 bg-white rounded-t-lg overflow-hidden">
+        <div
+          className="relative aspect-[4/3] rounded-[12px] overflow-hidden mb-3.5"
+          style={{
+            background: 'linear-gradient(160deg, rgba(255,255,255,0.42), rgba(255,255,255,0.06))',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
+          }}
+        >
           {flashlight.image_url ? (
             <Image
               src={flashlight.image_url}
               alt={`${flashlight.brand} ${flashlight.model}`}
               fill
-              sizes="(max-width: 767px) calc(50vw - 24px), (max-width: 1023px) calc(33vw - 24px), calc(25vw - 24px)"
+              sizes="(max-width: 819px) calc(50vw - 24px), (max-width: 1100px) calc(33vw - 24px), calc(25vw - 24px)"
               priority={priority}
               className="object-contain p-4"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <svg width="52" height="32" viewBox="0 0 52 32" fill="none" aria-hidden>
-                <rect x="14" y="10" width="24" height="12" rx="3" fill="#d4d4cc"/>
-                <rect x="6"  y="13" width="10" height="6"  rx="2" fill="#d4d4cc"/>
-                <circle cx="44" cy="16" r="5" fill="#d4d4cc" opacity="0.6"/>
-                <circle cx="44" cy="16" r="2.5" fill="#d4d4cc"/>
+                <rect x="14" y="10" width="24" height="12" rx="3" fill="#c7c7bf" />
+                <rect x="6"  y="13" width="10" height="6"  rx="2" fill="#c7c7bf" />
+                <circle cx="44" cy="16" r="5" fill="#c7c7bf" opacity="0.6" />
+                <circle cx="44" cy="16" r="2.5" fill="#c7c7bf" />
               </svg>
             </div>
           )}
           {flashlight.is_discontinued && (
-            <span className="absolute top-2 right-2 bg-slate-800/80 text-white text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider">
+            <span className="absolute top-2 right-2 bg-[#17171a]/75 text-white text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider">
               Disc.
             </span>
           )}
         </div>
       </Link>
 
-      {/* Body — flex-1 so all cards fill same height */}
-      <div className="p-3.5 flex flex-col flex-1">
-        {/* Category badge */}
-        <div className="mb-2 min-h-[20px]">
-          {flashlight.category && (
-            <span className="inline-block bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded font-medium">
-              {flashlight.category}
-            </span>
-          )}
-        </div>
-
-        {/* Brand + Model — div carries flex-1, Link only wraps the text */}
-        <div className="flex-1">
-          <Link href={`/${flashlight.slug}`} className="block">
-            <p className="text-xs text-slate-400 leading-none mb-0.5">{flashlight.brand}</p>
-            <h3 className="font-semibold text-slate-900 text-sm leading-snug">{flashlight.model}</h3>
-          </Link>
-        </div>
-
-        {/* Spec line — fixed height so missing-spec cards don't shrink */}
-        <p className="mt-2.5 text-xs text-slate-400 font-mono h-4 truncate">
-          {specLine || <span className="text-slate-300 not-italic">—</span>}
-        </p>
-
-        {/* Price + actions */}
-        <div className="mt-3 flex items-center justify-between">
-          <span className="text-sm font-bold text-slate-900 font-mono">
-            {flashlight.price_usd ? `$${flashlight.price_usd.toLocaleString()}` : ''}
+      {/* Category label */}
+      <div className="min-h-[16px] mb-1.5">
+        {flashlight.category && (
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#9b9b94]">
+            {flashlight.category}
           </span>
+        )}
+      </div>
 
-          <div className="flex items-center gap-0.5">
-            <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-400 select-none mr-1.5">
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => onToggleCompare(flashlight.id)}
-                className="accent-brand-500 w-3 h-3"
-              />
-              Compare
-            </label>
-            <button
-              onClick={(e) => { e.preventDefault(); toggleWishlist(flashlight.id) }}
-              title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-              className="p-1 rounded transition-colors hover:bg-gray-100"
-            >
-              <Heart
-                size={13}
-                className={inWishlist ? 'text-rose-500' : 'text-slate-300 hover:text-rose-400'}
-                fill={inWishlist ? 'currentColor' : 'none'}
-              />
-            </button>
-            <button
-              onClick={(e) => { e.preventDefault(); toggleCollection(flashlight.id) }}
-              title={inCollection ? 'Remove from collection' : 'Add to collection'}
-              className="p-1 rounded transition-colors hover:bg-gray-100"
-            >
-              <Bookmark
-                size={13}
-                className={inCollection ? 'text-brand-500' : 'text-slate-300 hover:text-brand-400'}
-                fill={inCollection ? 'currentColor' : 'none'}
-              />
-            </button>
-          </div>
+      {/* Brand + Model — flex-1 keeps every card the same height */}
+      <div className="flex-1">
+        <Link href={`/${flashlight.slug}`} className="block">
+          <p className="text-[12.5px] text-[#6c6c66] leading-none mb-0.5">{flashlight.brand}</p>
+          <h3 className="text-[15px] font-semibold text-[#17171a] leading-snug tracking-[-0.01em]">{flashlight.model}</h3>
+        </Link>
+      </div>
+
+      {/* Monochrome spec line — fixed height so missing-spec cards don't shrink */}
+      <p className="mt-2.5 font-mono text-[11.5px] text-[#6c6c66] tracking-[-0.01em] min-h-4 truncate">
+        {specParts.length ? (
+          specParts.map((part, i) => (
+            <span key={i}>
+              {i > 0 && <span className="text-[#d3d3cb] mx-[5px]">·</span>}
+              {part}
+            </span>
+          ))
+        ) : (
+          <span className="text-[#9b9b94]">No specs yet</span>
+        )}
+      </p>
+
+      {/* Foot — price + actions */}
+      <div className="mt-3 pt-3 border-t border-[#e7e7e1] flex items-center justify-between">
+        <span className="font-mono text-[14px] font-semibold text-[#17171a]">
+          {flashlight.price_usd ? `$${flashlight.price_usd.toLocaleString()}` : ''}
+        </span>
+
+        <div className="flex items-center gap-0.5">
+          <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-[#9b9b94] select-none mr-1.5 hover:text-[#6c6c66]">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleCompare(flashlight.id)}
+              className="cb !w-[13px] !h-[13px]"
+            />
+            Compare
+          </label>
+          <button
+            onClick={(e) => { e.preventDefault(); toggleWishlist(flashlight.id) }}
+            title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
+          >
+            <Heart
+              size={16}
+              className={inWishlist ? 'text-brand-500' : ''}
+              fill={inWishlist ? 'currentColor' : 'none'}
+            />
+          </button>
+          <button
+            onClick={(e) => { e.preventDefault(); toggleCollection(flashlight.id) }}
+            title={inCollection ? 'Remove from collection' : 'Add to collection'}
+            className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
+          >
+            <Bookmark
+              size={16}
+              className={inCollection ? 'text-brand-500' : ''}
+              fill={inCollection ? 'currentColor' : 'none'}
+            />
+          </button>
         </div>
       </div>
     </div>

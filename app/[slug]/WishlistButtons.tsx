@@ -11,28 +11,24 @@ export default function WishlistButtons({ flashlightId }: Props) {
   const inCollection = collectionIds.has(flashlightId)
 
   return (
-    <div className="flex gap-2 mt-3">
-      <button
-        onClick={() => toggleWishlist(flashlightId)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-          inWishlist
-            ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
-            : 'border-slate-200 text-slate-600 hover:border-red-200 hover:text-red-500'
-        }`}
-      >
-        <Heart size={15} fill={inWishlist ? 'currentColor' : 'none'} />
-        {inWishlist ? 'In Wishlist' : 'Add to Wishlist'}
-      </button>
+    <div className="flex gap-2.5 mt-6">
+      {/* Primary — Add to collection (amber, subtle gloss + glow) */}
       <button
         onClick={() => toggleCollection(flashlightId)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-          inCollection
-            ? 'bg-brand-50 border-brand-300 text-brand-700 hover:bg-brand-100'
-            : 'border-slate-200 text-slate-600 hover:border-brand-300 hover:text-brand-600'
-        }`}
+        className="flex items-center gap-2 h-11 px-5 rounded-full text-sm font-semibold text-[#1d1604] bg-brand-500 hover:brightness-[0.97] transition-[filter]"
+        style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45), 0 6px 18px rgba(235,160,11,0.28)' }}
       >
-        <Bookmark size={15} fill={inCollection ? 'currentColor' : 'none'} />
+        <Bookmark size={16} fill={inCollection ? 'currentColor' : 'none'} />
         {inCollection ? 'In Collection' : 'Add to Collection'}
+      </button>
+
+      {/* Secondary — Wishlist (glass ghost) */}
+      <button
+        onClick={() => toggleWishlist(flashlightId)}
+        className="glass flex items-center gap-2 h-11 px-5 rounded-full text-sm font-semibold text-[#17171a] hover:border-white transition-colors"
+      >
+        <Heart size={16} className={inWishlist ? 'text-brand-500' : ''} fill={inWishlist ? 'currentColor' : 'none'} />
+        {inWishlist ? 'In Wishlist' : 'Wishlist'}
       </button>
     </div>
   )

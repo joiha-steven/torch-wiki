@@ -20,14 +20,150 @@
 }
 
 :root {
+  --bg: #f6f6f3;
   --border: #e7e7e1;
+  --border-strong: #d3d3cb;
   --border-hover: #c8c8c0;
+  --ink: #17171a;
+  --ink-2: #6c6c66;
+  --ink-3: #9b9b94;
+  --accent: #eba00b;
+  --accent-ink: #1d1604;
+
+  /* ---- Liquid Glass tokens (shipped defaults) ---- */
+  --glass: rgba(255, 255, 255, 0.42);
+  --glass-2: rgba(255, 255, 255, 0.56);
+  --glass-blur: 24px;
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-shadow: 0 10px 34px rgba(24, 24, 30, 0.1);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
+  --radius: 18px;
+  --radius-sm: 12px;
 }
 
 body {
-  background: #f6f6f3;
-  color: #1a1a1a;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* subtle white → bg vertical wash so glass surfaces (and the dark nav)
+     actually read as glass rather than flat fills */
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1100px 800px at 50% -10%, rgba(255, 255, 255, 0.7), transparent 60%),
+    linear-gradient(180deg, #fbfbf9 0%, var(--bg) 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============ Liquid Glass surfaces ============ */
+
+/* Plain frosted surface — detail hero, ghost buttons */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+}
+
+/* Card — frosted surface with diagonal specular sheen */
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 60%),
+    var(--glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(133deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 26%, rgba(255, 255, 255, 0) 50%);
+  opacity: 0.7;
+}
+.glass-card > * { position: relative; z-index: 1; }
+.glass-card:hover {
+  border-color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 18px 44px rgba(24, 24, 30, 0.16), var(--glass-inset);
+}
+.glass-card.is-selected {
+  border-color: var(--accent);
+}
+
+/* Denser glass — thumbnails, small tiles */
+.glass-2 {
+  background: var(--glass-2);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-inset);
+}
+
+/* Segmented filter pill */
+.glass-pill {
+  font-family: var(--font-mono);
+  background: var(--glass-2);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-inset);
+  color: var(--ink-2);
+  transition: all 0.12s;
+}
+.glass-pill:hover { border-color: #fff; color: var(--ink); }
+.glass-pill.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+/* Floating dark-glass nav capsule */
+.floating-nav {
+  background: rgba(12, 12, 14, 0.74);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Dark-glass controls that sit inside the nav (search pill, icon button) */
+.glass-dark {
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  backdrop-filter: blur(14px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: background 0.15s, border-color 0.15s;
+}
+.glass-dark:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+/* Graceful fallback where backdrop-filter is unsupported — raise fills toward
+   opaque so text stays legible */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-card { background: rgba(255, 255, 255, 0.9); }
+  .glass-2,
+  .glass-pill { background: rgba(255, 255, 255, 0.92); }
+  .floating-nav { background: rgba(14, 14, 16, 0.92); }
+  .glass-dark { background: rgba(255, 255, 255, 0.22); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card { transition: none; }
+  .glass-card:hover { transform: none; }
 }
 
 /* iOS Safari auto-zooms into any input with font-size < 16px on focus, and often
@@ -50,28 +186,44 @@ body {
   to   { opacity: 1; }
 }
 
-/* Custom checkbox / radio — flat, amber accent */
+/* Minimal native select — no box, only a bottom hairline + custom chevron */
+.mini-select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-strong);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%239b9b94' stroke-width='2'><path d='M2 4l4 4 4-4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  padding-right: 16px;
+}
+.mini-select:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+/* Custom checkbox / radio — flat */
 .cb {
   appearance: none;
   width: 15px;
   height: 15px;
-  border-radius: 3px;
-  border: 1.5px solid #d4d4cc;
-  background: #fff;
+  border-radius: 4px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.1s, border-color 0.1s;
+  transition: background 0.12s, border-color 0.12s;
   position: relative;
 }
 .cb:checked {
-  background: #eba00b;
-  border-color: #eba00b;
+  background: var(--ink);
+  border-color: var(--ink);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 7L5.5 10L11.5 4' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-size: 11px 11px;
   background-repeat: no-repeat;
   background-position: center;
 }
-.cb:hover:not(:checked) { border-color: #eba00b; }
+.cb:hover:not(:checked) { border-color: var(--ink); }
 
 .rb {
   appearance: none;

@@ -148,7 +148,7 @@ export default async function FlashlightPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Header />
 
       <script
@@ -157,11 +157,11 @@ export default async function FlashlightPage({ params }: Props) {
       />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6c6c66] hover:text-[#17171a] mb-7">
           <ChevronLeft size={14} /> Back to browse
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className="grid md:grid-cols-2 gap-14 items-start">
           <ImageGallery
             primaryUrl={flashlight.image_url}
             extraImages={(flashlight.flashlight_images ?? [] as FlashlightImage[]).sort((a: FlashlightImage, b: FlashlightImage) => a.sort_order - b.sort_order)}
@@ -169,31 +169,38 @@ export default async function FlashlightPage({ params }: Props) {
           />
 
           <div>
-            {/* Category */}
-            {flashlight.category && (
-              <div className="mb-2">
-                <span className="inline-block bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded font-medium">
-                  {flashlight.category}
-                </span>
-              </div>
-            )}
-
             {/* Brand + Model */}
-            <div className="flex items-start justify-between gap-3 mb-1">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-slate-400 text-sm">{flashlight.brand}</p>
-                <h1 className="text-2xl font-bold text-slate-900 leading-tight">{flashlight.model}</h1>
+                <p className="text-[14px] text-[#6c6c66] mb-0.5">{flashlight.brand}</p>
+                <h1 className="text-[32px] font-bold text-[#17171a] tracking-[-0.025em] leading-[1.05]">{flashlight.model}</h1>
               </div>
               {flashlight.is_discontinued && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 border border-[#e7e7e1] rounded px-2 py-0.5 shrink-0 mt-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9b9b94] border border-[#e7e7e1] rounded px-2 py-0.5 shrink-0 mt-1">
                   Discontinued
                 </span>
               )}
             </div>
 
+            {/* Category */}
+            {flashlight.category && (
+              <span className="inline-block mt-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-[#9b9b94]">
+                {flashlight.category}
+              </span>
+            )}
+
+            {/* Description — sits under the category, above the price */}
+            {flashlight.description && (
+              <div className="my-5 max-w-[540px] text-[15px] leading-[1.7] text-[#6c6c66]">
+                <MarkdownContent>{flashlight.description}</MarkdownContent>
+              </div>
+            )}
+
             {/* Price */}
             {flashlight.price_usd && (
-              <div className="mt-4 text-xl font-mono font-bold text-slate-900">${flashlight.price_usd.toLocaleString()}</div>
+              <div className={`font-mono text-[28px] font-semibold text-[#17171a] ${flashlight.description ? '' : 'mt-5'}`}>
+                ${flashlight.price_usd.toLocaleString()}
+              </div>
             )}
 
             <WishlistButtons flashlightId={flashlight.id} />
@@ -204,22 +211,15 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Description */}
-        {flashlight.description && (
-          <div className="mt-8 pt-6 border-t border-[#e7e7e1] text-sm text-slate-600 leading-relaxed">
-            <MarkdownContent>{flashlight.description}</MarkdownContent>
-          </div>
-        )}
-
-        {/* Specifications — flat table, no zebra, no outer card */}
-        <div className="mt-8 border-t border-[#e7e7e1]">
-          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 py-3">Specifications</h2>
+        {/* Specifications — flat table, hairline rows, mono values */}
+        <div className="mt-12 border-t border-[#e7e7e1]">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.09em] text-[#9b9b94] py-4">Specifications</h2>
           <table className="w-full">
             <tbody>
               {specs.map(s => (
                 <tr key={s.label} className="border-t border-[#e7e7e1]">
-                  <td className="py-2.5 pr-6 text-xs text-slate-400 w-44">{s.label}</td>
-                  <td className="py-2.5 text-sm text-slate-900 font-mono">{s.value as string}</td>
+                  <td className="py-[13px] pr-6 text-[14px] text-[#6c6c66] w-[220px]">{s.label}</td>
+                  <td className="py-[13px] text-[13px] text-[#17171a] font-mono">{s.value as string}</td>
                 </tr>
               ))}
             </tbody>

@@ -20,20 +20,28 @@ export default function UserMenu() {
 
   if (!user) {
     return (
-      <button onClick={openAuthModal} className="flex items-center justify-center hover:opacity-70 transition-opacity">
-        <User size={20} strokeWidth={1.75} className="text-white" />
+      <button
+        onClick={openAuthModal}
+        aria-label="Sign in"
+        className="glass-dark w-[34px] h-[34px] grid place-items-center rounded-full"
+      >
+        <User size={19} strokeWidth={1.8} style={{ color: '#eba00b' }} />
       </button>
     )
   }
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen((o) => !o)} className="flex items-center justify-center hover:opacity-70 transition-opacity">
-        <User size={20} strokeWidth={1.75} style={{ color: '#eba00b' }} />
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Account menu"
+        className="glass-dark w-[34px] h-[34px] grid place-items-center rounded-full"
+      >
+        <User size={19} strokeWidth={1.8} style={{ color: '#eba00b' }} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-9 bg-white rounded-xl shadow-lg border border-slate-100 py-1 w-48 z-50 text-sm">
+        <div className="absolute right-0 top-11 bg-white rounded-xl shadow-lg border border-slate-100 py-1 w-48 z-50 text-sm">
           {nickname ? (
             <Link
               href={`/u/${nickname}`}

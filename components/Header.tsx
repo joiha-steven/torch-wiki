@@ -19,21 +19,31 @@ export default function Header() {
   const pathname = usePathname()
 
   return (
-    <header className="bg-black sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-6">
-        <Link href="/" className="font-bold text-base shrink-0" onClick={() => setOpen(false)}>
-          <span style={{ color: '#eba00b' }}>torch.</span><span className="text-white">EDC.wiki</span>
+    <header
+      className="floating-nav sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
+      style={{ width: 'min(1320px, calc(100% - 32px))' }}
+    >
+      <div className="flex items-center gap-8 px-[22px] h-14">
+        <Link
+          href="/"
+          className="font-extrabold text-[17px] tracking-[-0.02em] shrink-0"
+          onClick={() => setOpen(false)}
+        >
+          <span style={{ color: '#eba00b' }}>torch</span>
+          <span className="text-[#f3f3f0]">.EDC.wiki</span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden sm:flex gap-4 text-sm text-gray-500">
+        <nav className="hidden sm:flex gap-[26px]">
           {NAV.map(n => {
             const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
             return (
               <Link
                 key={n.href}
                 href={n.href}
-                className={active ? 'text-white' : 'hover:text-white'}
+                className={`text-sm font-medium transition-colors ${
+                  active ? 'text-[#f3f3f0]' : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0]'
+                }`}
               >
                 {n.label}
               </Link>
@@ -44,7 +54,7 @@ export default function Header() {
         <div className="ml-auto flex items-center gap-3">
           {/* Mobile hamburger */}
           <button
-            className="sm:hidden flex items-center justify-center text-gray-400 hover:text-white"
+            className="sm:hidden flex items-center justify-center text-[#f3f3f0]/70 hover:text-[#f3f3f0]"
             onClick={() => setOpen(o => !o)}
             aria-label="Menu"
           >
@@ -56,7 +66,7 @@ export default function Header() {
 
       {/* Mobile dropdown */}
       {open && (
-        <nav className="sm:hidden bg-zinc-950 border-t border-zinc-800 px-4 py-3 flex flex-col gap-0.5">
+        <nav className="sm:hidden border-t border-white/10 px-[22px] py-3 flex flex-col gap-0.5">
           {NAV.map(n => {
             const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
             return (
@@ -64,7 +74,9 @@ export default function Header() {
                 key={n.href}
                 href={n.href}
                 onClick={() => setOpen(false)}
-                className={`text-sm py-2.5 border-b border-zinc-800 last:border-0 ${active ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+                className={`text-sm py-2.5 border-b border-white/10 last:border-0 ${
+                  active ? 'text-[#f3f3f0]' : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0]'
+                }`}
               >
                 {n.label}
               </Link>

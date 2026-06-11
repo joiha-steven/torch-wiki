@@ -29,15 +29,15 @@ const CHARGING_OPTIONS = [
   { value: 'none',      label: 'None' },
 ]
 
-// Shared section title style — normal case, not uppercase
-const sectionTitle = 'text-xs font-semibold text-slate-500 mb-2'
+// Shared section title — uppercase, tracked, tertiary ink
+const sectionTitle = 'text-[11px] font-semibold uppercase tracking-[0.09em] text-[#9b9b94] mb-3'
 
 // Shared label wrapper
 function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer group">
+    <label className="flex items-center gap-2.5 cursor-pointer group py-[3px]">
       <input type="checkbox" checked={checked} onChange={onChange} className="cb" />
-      <span className={`text-[13px] transition-colors ${checked ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-700'}`}>
+      <span className={`text-[13.5px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
         {label}
       </span>
     </label>
@@ -46,15 +46,16 @@ function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: ()
 
 function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer group">
+    <label className="flex items-center gap-2.5 cursor-pointer group py-[3px]">
       <input type="radio" checked={checked} onChange={onChange} className="rb" />
-      <span className={`text-[13px] transition-colors ${checked ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-700'}`}>
+      <span className={`text-[13.5px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
         {label}
       </span>
     </label>
   )
 }
 
+// Single-select glass pill group
 function StepButtons({ steps, value, maxSentinel, onChange, format }: {
   steps: number[]
   value: number
@@ -64,27 +65,19 @@ function StepButtons({ steps, value, maxSentinel, onChange, format }: {
 }) {
   const fmt = format ?? ((n: number) => n >= 1000 ? `${n / 1000}K` : String(n))
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1.5">
       {steps.map(s => (
         <button
           key={s}
           onClick={() => onChange(s === value ? maxSentinel : s)}
-          className={`px-2 py-0.5 rounded text-xs border transition-colors ${
-            value === s
-              ? 'bg-brand-500 border-brand-500 text-white font-medium'
-              : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 hover:text-slate-700 bg-white'
-          }`}
+          className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${value === s ? 'on' : ''}`}
         >
           {fmt(s)}
         </button>
       ))}
       <button
         onClick={() => onChange(maxSentinel)}
-        className={`px-2 py-0.5 rounded text-xs border transition-colors ${
-          value === maxSentinel
-            ? 'bg-brand-500 border-brand-500 text-white font-medium'
-            : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 hover:text-slate-700 bg-white'
-        }`}
+        className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${value === maxSentinel ? 'on' : ''}`}
       >
         Any
       </button>
@@ -116,16 +109,26 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
     filters.maxPrice < 99999 ||
     filters.chargingType !== null
 
-  return (
-    <aside className="w-52 shrink-0 space-y-5">
+  const clearAll = () => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })
 
-      {/* Sort */}
+  return (
+    <aside className="w-[226px] shrink-0 space-y-[18px]">
+
+      {/* Rail head */}
+      <div className="flex items-baseline justify-between pb-4">
+        <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-[#17171a]">Filters</h2>
+        {hasActiveFilters && (
+          <button onClick={clearAll} className="text-[12px] text-[#9b9b94] hover:text-brand-500 transition-colors">Clear all</button>
+        )}
+      </div>
+
+      {/* Sort — minimal underline select */}
       <div>
         <p className={sectionTitle}>Sort by</p>
         <select
           value={filters.sortBy}
           onChange={e => onChange({ ...filters, sortBy: e.target.value })}
-          className="w-full text-[13px] border border-[#e0e0d8] rounded-md px-2.5 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-1 focus:ring-brand-400 appearance-none"
+          className="mini-select w-full text-[13.5px] text-[#17171a] py-1.5 cursor-pointer"
         >
           {SORT_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -173,34 +176,30 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
             </span>
           )}
         </p>
-        <div className="space-y-1.5">
-          <div className="flex flex-wrap gap-1">
-            {[50, 150, 500].map(v => {
-              const label = v === 50 ? '<$50' : v === 150 ? '$50–150' : '$150–500'
-              const active = filters.maxPrice === v
-              return (
-                <button key={v} onClick={() => onChange({ ...filters, maxPrice: active ? 99999 : v, minPrice: 0 })}
-                  className={`px-2 py-0.5 rounded text-xs border transition-colors ${active ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
-                  {label}
-                </button>
-              )
-            })}
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {[500, 1000, 2000].map(v => {
-              const active = filters.minPrice === v
-              return (
-                <button key={v} onClick={() => onChange({ ...filters, minPrice: active ? 0 : v, maxPrice: 99999 })}
-                  className={`px-2 py-0.5 rounded text-xs border transition-colors ${active ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
-                  ${v >= 1000 ? `${v / 1000}K` : v}+
-                </button>
-              )
-            })}
-            <button onClick={() => onChange({ ...filters, minPrice: 0, maxPrice: 99999 })}
-              className={`px-2 py-0.5 rounded text-xs border transition-colors ${filters.minPrice === 0 && filters.maxPrice === 99999 ? 'bg-brand-500 border-brand-500 text-white font-medium' : 'border-[#e0e0d8] text-slate-500 hover:border-brand-400 bg-white'}`}>
-              Any
-            </button>
-          </div>
+        <div className="flex flex-wrap gap-1.5">
+          {[50, 150, 500].map(v => {
+            const label = v === 50 ? '<$50' : v === 150 ? '$50–150' : '$150–500'
+            const active = filters.maxPrice === v
+            return (
+              <button key={v} onClick={() => onChange({ ...filters, maxPrice: active ? 99999 : v, minPrice: 0 })}
+                className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${active ? 'on' : ''}`}>
+                {label}
+              </button>
+            )
+          })}
+          {[500, 1000, 2000].map(v => {
+            const active = filters.minPrice === v
+            return (
+              <button key={v} onClick={() => onChange({ ...filters, minPrice: active ? 0 : v, maxPrice: 99999 })}
+                className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${active ? 'on' : ''}`}>
+                ${v >= 1000 ? `${v / 1000}K` : v}+
+              </button>
+            )
+          })}
+          <button onClick={() => onChange({ ...filters, minPrice: 0, maxPrice: 99999 })}
+            className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${filters.minPrice === 0 && filters.maxPrice === 99999 ? 'on' : ''}`}>
+            Any
+          </button>
         </div>
       </div>
 
@@ -268,17 +267,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         </div>
       </div>
 
-      {/* Clear */}
-      {hasActiveFilters && (
-        <button
-          onClick={() => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })}
-          className="w-full text-xs text-slate-400 hover:text-red-500 py-1 transition-colors"
-        >
-          Clear all filters
-        </button>
-      )}
-
-      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-3 border-t border-[#e7e7e1]">
+      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-[#e7e7e1]">
         All specs and images belong to their respective brands. Non-commercial.{' '}
         <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>.
         {siteStats && (
