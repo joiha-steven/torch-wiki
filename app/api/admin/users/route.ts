@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { SITE_URL } from '@/lib/seo'
 
 function getAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+// Anon client — used to actually send the recovery email (same path as the
+// public "forgot password" flow). The service-role admin client's generateLink
+// only mints a link without dispatching the email.
+function getAnon() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }
 
@@ -86,7 +97,10 @@ export async function POST(request: Request) {
 
   switch (action) {
     case 'reset_password': {
-      const { error } = await admin.auth.admin.generateLink({ type: 'recovery', email: target!.email! })
+      if (!target?.email) return NextResponse.json({ error: 'User has no email.' }, { status: 400 })
+      const { error } = await getAnon().auth.resetPasswordForEmail(target.email, {
+        redirectTo: `${SITE_URL}/reset-password`,
+      })
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       return NextResponse.json({ ok: true, message: 'Password reset email sent.' })
     }
