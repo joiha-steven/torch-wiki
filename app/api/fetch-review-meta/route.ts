@@ -67,23 +67,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Fetch failed (${res.status})`, type, siteName: host }, { status: 200 })
     }
 
-    // Read at most ~512KB of HTML — meta tags live in <head>
+    // Read up to ~2MB — most sites keep meta in <head>, but YouTube pushes its
+    // og:title / uploadDate past 600KB, so a small cap would miss them.
     const raw = await res.text()
-    const html = raw.slice(0, 512 * 1024)
+    const html = raw.slice(0, 2 * 1024 * 1024)
 
+    // Content is captured up to the matching quote (not [^"'] — that truncates
+    // any title containing an apostrophe inside a double-quoted attribute).
     const title = pickMeta(html, [
-      /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
-      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i,
-      /<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+property=["']og:title["'][^>]+content="([^"]*)"/i,
+      /<meta[^>]+property=["']og:title["'][^>]+content='([^']*)'/i,
+      /<meta[^>]+content="([^"]*)"[^>]+property=["']og:title["']/i,
+      /<meta[^>]+name=["']twitter:title["'][^>]+content="([^"]*)"/i,
       /<title[^>]*>([^<]+)<\/title>/i,
     ])
 
     const published = pickMeta(html, [
-      /<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i,
-      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:published_time["']/i,
-      /<meta[^>]+itemprop=["']datePublished["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+property=["']article:published_time["'][^>]+content="([^"]*)"/i,
+      /<meta[^>]+content="([^"]*)"[^>]+property=["']article:published_time["']/i,
+      /<meta[^>]+itemprop=["']datePublished["'][^>]+content="([^"]*)"/i,
       /"datePublished"\s*:\s*"([^"]+)"/i,
-      /<meta[^>]+name=["']date["'][^>]+content=["']([^"']+)["']/i,
+      /"uploadDate"\s*:\s*"([^"]+)"/i,      // YouTube / video pages
+      /"publishDate"\s*:\s*"([^"]+)"/i,     // YouTube
+      /<meta[^>]+itemprop=["']uploadDate["'][^>]+content="([^"]*)"/i,
+      /<meta[^>]+name=["']date["'][^>]+content="([^"]*)"/i,
       /<time[^>]+datetime=["']([^"']+)["']/i,
     ])
 
