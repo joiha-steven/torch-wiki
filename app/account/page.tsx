@@ -414,6 +414,11 @@ export default function AccountPage() {
       <Header />
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">My Account</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">Manage your profile and security settings.</p>
+        </div>
+
         <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto mb-8">
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}

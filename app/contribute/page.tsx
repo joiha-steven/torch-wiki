@@ -158,6 +158,11 @@ export default function ContributePage() {
       <div className="max-w-[1360px] mx-auto px-7 py-8">
         <div className="max-w-3xl mx-auto">
 
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Contribute</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">Add a new flashlight or improve an existing one.</p>
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-slate-400" /></div>
         ) : !user ? (

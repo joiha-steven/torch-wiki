@@ -60,6 +60,11 @@ export default function MyListsPage() {
 
       <div className="max-w-[1360px] mx-auto px-7 py-8">
 
+        <div className="text-center mb-10">
+          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">My Lists</h1>
+          <p className="mt-2 text-[13px] text-[#6c6c66]">Your wishlist and collection.</p>
+        </div>
+
         {loading ? (
           <div className="text-slate-400 text-sm">Loading…</div>
         ) : !user ? (
