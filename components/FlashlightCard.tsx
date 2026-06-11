@@ -103,8 +103,8 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
           {flashlight.price_usd ? `$${flashlight.price_usd.toLocaleString()}` : ''}
         </span>
 
-        <div className="flex items-center gap-0.5">
-          <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-[#9b9b94] select-none mr-1.5 hover:text-[#6c6c66]">
+        <div className="flex items-center gap-1 pl-2">
+          <label className="flex items-center gap-1 cursor-pointer text-[11px] text-[#9b9b94] select-none hover:text-[#6c6c66]">
             <input
               type="checkbox"
               checked={isSelected}

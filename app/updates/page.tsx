@@ -25,6 +25,17 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 12, 2026',
+    title: 'NEXTORCH catalog, licensing & privacy',
+    items: [
+      'NEXTORCH added — 72 flashlights across tactical, duty, EDC, weapon lights, headlamps, penlights and search lights, with full specs and product galleries',
+      'Clear, layered licensing: the site code is MIT and our original content & data compilation is CC BY 4.0, while product specs stay factual data and product images remain the property of their respective manufacturers (non-commercial reference use, with notice-and-takedown)',
+      'New cookie consent banner — Google Analytics now loads only after you accept, and a new Privacy & Cookies page explains exactly what is and isn’t collected',
+      'Footer now states the project’s licensing and non-commercial, brand-independent status',
+      'Mobile polish — tidied the spacing between price and the Compare / wishlist / collection controls on flashlight cards',
+    ],
+  },
+  {
     date: 'June 11, 2026',
     title: 'Reviews, brand pages, new makers & polish',
     items: [
