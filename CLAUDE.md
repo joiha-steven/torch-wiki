@@ -208,6 +208,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `scripts/migrate-to-vercel-blob.mjs` | Download images from any URL → upload to Vercel Blob → update DB |
 | `scripts/seed-ledlenser.mjs` | Scrape LED Lenser Shopify API → insert |
 | `scripts/seed-acebeam-edc.mjs` · `seed-acebeam-tactical.mjs` · `seed-acebeam-more.mjs` | Acebeam EDC / tactical / headlamp+high-power+LEP+diving seeds |
+| `scripts/seed-prometheus.mjs` · `scripts/seed-foursevens.mjs` | Prometheus (6) / Foursevens (7) seeds — combined pattern: re-host product images from darksucks.com (Shopify `/products/<handle>.json`) onto Vercel Blob in the same run |
 | `scripts/normalize-emitters.mjs` | Normalize emitter names DB-wide (see emitter naming convention above) |
 
 **Seeding convention:** Always set `image_url` in the **same upsert** as the row data, then migrate the blob in the same script (see `seed-acebeam-tactical.mjs` / `seed-acebeam-more.mjs` for the combined pattern). Do NOT insert rows first and add images in a second pass — detail pages are SSG with `revalidate = false`, so a page rendered during the null-image window freezes with "No image" (the browse grid still shows it because it fetches client-side). After any direct DB seed/edit, force-clear cache: `curl -X POST https://torch.edc.wiki/api/revalidate -H 'Content-Type: application/json' -H "x-revalidate-secret: $REVALIDATE_SECRET" -d '{"force":true}'`. (The route now requires either this secret header or an admin/mod bearer token — see Security below. The admin "Force clear cache" button uses the session token automatically.)
@@ -234,12 +235,16 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/u/[username]/page.tsx` | Public user profile — shows approved contributions (added + edits), uses service role to bypass RLS |
 | `app/top/page.tsx` | Top Lists page — recently added, newest, most expensive, best value |
 | `app/api/ping/route.ts` | Health check endpoint — called daily by Vercel Cron to keep Supabase alive |
-| `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS) + PATCH (approve/reject, move PDFs, apply image directives, validate action) |
+| `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS) + PATCH (approve/reject, move PDFs, apply image directives, replace `_reviews`, **regenerate slug from edited brand+model** with collision guard + revalidate old URL, validate action) |
 | `app/api/admin/flashlight/route.ts` | PATCH — direct flashlight update (used by admin auto-approve path) |
 | `app/api/admin/upload-image/route.ts` | Admin image upload handler — auth via clientPayload bearer token |
 | `app/api/upload-pdf/route.ts` | Client upload handler for PDFs in contribute form — auth via clientPayload bearer token |
 | `app/api/upload-manual/route.ts` | Direct admin PDF upload — stores to `flashlights/{slug}/manual.pdf` |
 | `lib/cdn.ts` | `cdnUrl()` — rewrites Vercel Blob PDF URLs to Cloudflare CDN proxy domain |
+| `lib/seo.ts` | `SITE_URL`, `SITE_NAME`, `OG_IMAGE` — single source of truth for canonical origin + default share image (`public/og-default.jpg`, 1200×630) |
+| `app/api/fetch-review-meta/route.ts` | POST `{url}` (auth-gated, SSRF-guarded) → og/JSON-LD title + published date; uses YouTube/Vimeo **oEmbed** first (reliable title), HTML fallback for the date |
+| `app/llms.txt/route.ts` | `/llms.txt` (llmstxt.org) — site overview + brand list for AI crawlers, hourly revalidate |
+| `app/robots.ts` | robots.txt — explicit allow for AI bots (GPTBot, ClaudeBot…), disallow `/admin /api/ /my /account /reset-password /change-password` |
 | `components/FlashlightCardSkeleton.tsx` | Shimmer skeleton card shown while browse page loads |
 | `components/PageFade.tsx` | Wraps page content with fade-in animation on navigation |
 | `scripts/seed-ledlenser.mjs` | Scrapes ledlenserusa.com Shopify API → inserts flashlights/headlamps/area lights |
@@ -300,7 +305,7 @@ Sections in order:
 
 **Categories:** EDC, Tactical, Weapon Light, Thrower, Flood, Headlamp, Search & Rescue, Diving, Work, Custom
 
-**Battery types:** CR123A, D-cell, AA, AAA, 10440, 14500, 16340, 18350, 18650, 21700, 26650, Built-in
+**Battery types:** CR123A, D-cell, AA, AAA, 10440, 14500, 16340, 16650, 18350, 18650, 21700, 26650, Built-in
 
 (Note: `16340` = RCR123 rechargeable Li-ion — use for lights with USB-C charging in a CR123-size cell, e.g. Acebeam W20/E10/G10. Reserve `CR123A` for lights that take non-rechargeable primaries, e.g. SureFire/Malkoff. Both `CATEGORIES` and `BATTERY_TYPES` are hardcoded in `components/FilterPanel.tsx` — adding a value there is a code change that needs a deploy to show on prod.)
 

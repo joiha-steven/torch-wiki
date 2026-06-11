@@ -27,8 +27,14 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
 - Multiple battery options per light (e.g. 2× 18350 or 1× 18650), with per-type cell counts
 - Brand origin and country of manufacture ("Made in")
-- Image gallery, Markdown description, linked reviews (articles & videos), user manual PDFs
+- Image gallery, Markdown description, user manual PDFs
+- Linked reviews (articles & videos) — add by pasting a URL; the title and post date are fetched automatically (YouTube, Vimeo, blogs)
 - Attribution timeline — links to contributor profile
+
+**Brand pages** (`/brand/[name]`)
+- Per-maker page with company info and history, flashlights grouped by release year
+- "Added by / Updated by" credit, like flashlight pages
+- Editable by admins/mods directly; users can suggest edits
 
 **User profiles** (`/u/[username]`)
 - Public profile with Contribute and Collection tabs

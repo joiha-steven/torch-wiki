@@ -26,6 +26,20 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 11, 2026',
+    title: 'Review links, brand pages & two new makers',
+    items: [
+      'Two new makers added — Prometheus Lights (Alpha, Beta, Delta) and Foursevens (Quark, Mini, Preon, Maelstrom), 13 lights in all',
+      'Each flashlight can now list multiple review links — paste a URL and the title and post date are fetched automatically (works with YouTube, Vimeo and articles)',
+      'Reviews now show below the user manual on each page, newest first',
+      'Per-brand pages now carry maker info and history, plus an "Added by / Updated by" credit like flashlight pages',
+      'Renaming a flashlight now updates its page URL to match',
+      'Added the 16650 battery type to the filters',
+      'Cleaner, more consistent layout — centered page titles and tab bars throughout',
+      'Better sharing & search — proper page titles, a social preview image, structured data, and an llms.txt for AI assistants',
+    ],
+  },
+  {
+    date: 'June 11, 2026',
     title: 'Liquid Glass redesign',
     items: [
       'New "Liquid Glass" look — frosted translucent cards and a floating glass navigation bar, inspired by iOS',
