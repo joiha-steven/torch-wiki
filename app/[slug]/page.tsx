@@ -7,6 +7,7 @@ import { formatBatteries } from '@/lib/battery'
 import type { FlashlightImage } from '@/lib/types'
 import { ExternalLink, Video, FileText } from 'lucide-react'
 import { brandSlug } from '@/lib/brand'
+import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import ManualSection from '@/components/ManualSection'
@@ -17,8 +18,6 @@ import Header from '@/components/Header'
 // Pre-render all flashlight pages at build time
 // Cache forever — cleared on-demand when admin approves a submission
 export const revalidate = false
-
-const BASE = 'https://torch.edc.wiki'
 
 // Deduplicate DB query between generateMetadata and page component
 const getFlashlight = cache(async (slug: string) => {
@@ -64,14 +63,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `${BASE}/${slug}`,
       siteName: 'torch.EDC.wiki',
-      images: f.image_url ? [{ url: f.image_url, alt: `${f.brand} ${f.model}` }] : ['/og-default.jpg'],
+      images: f.image_url ? [{ url: f.image_url, alt: `${f.brand} ${f.model}` }] : [OG_IMAGE],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: ogTitle,
       description,
-      images: f.image_url ? [f.image_url] : ['/og-default.jpg'],
+      images: f.image_url ? [f.image_url] : [OG_IMAGE],
     },
     alternates: { canonical: `${BASE}/${slug}` },
   }

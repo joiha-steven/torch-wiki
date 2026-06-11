@@ -1,10 +1,9 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
+import { SITE_URL as BASE } from '@/lib/seo'
 
 export const revalidate = 3600
-
-const BASE = 'https://torch.edc.wiki'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data } = await supabase

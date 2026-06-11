@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
+import { SITE_URL, OG_IMAGE } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: 'Report an issue',
   description: 'Report incorrect data, a missing flashlight, a broken image or a site bug on torch.EDC.wiki.',
-  alternates: { canonical: 'https://torch.edc.wiki/report' },
+  alternates: { canonical: `${SITE_URL}/report` },
   openGraph: {
     title: 'Report an issue — torch.EDC.wiki',
     description: 'Report incorrect data, a missing flashlight or a site bug on torch.EDC.wiki.',
-    url: 'https://torch.edc.wiki/report',
+    url: `${SITE_URL}/report`,
     siteName: 'torch.EDC.wiki',
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: [OG_IMAGE],
   },
 }
 

@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next'
-
-const BASE = 'https://torch.edc.wiki'
+import { SITE_URL as BASE } from '@/lib/seo'
 
 // Private / non-content routes kept out of all crawlers
 const DISALLOW = ['/admin', '/api/', '/my', '/account', '/reset-password', '/change-password']

@@ -2,12 +2,11 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
+import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
 import type { Brand } from '@/lib/types'
 import Header from '@/components/Header'
 
 export const revalidate = false
-
-const BASE = 'https://torch.edc.wiki'
 
 export const metadata: Metadata = {
   title: 'Brands & makers',
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
     url: `${BASE}/brands`,
     siteName: 'torch.EDC.wiki',
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: [OG_IMAGE],
   },
 }
 

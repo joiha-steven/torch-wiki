@@ -1,17 +1,18 @@
 import type { Metadata } from 'next'
+import { SITE_URL, OG_IMAGE } from '@/lib/seo'
 import Header from '@/components/Header'
 
 export const metadata: Metadata = {
   title: 'Updates',
   description: 'Changelog and latest changes on torch.EDC.wiki — new flashlights, features and improvements.',
-  alternates: { canonical: 'https://torch.edc.wiki/updates' },
+  alternates: { canonical: `${SITE_URL}/updates` },
   openGraph: {
     title: 'Updates — torch.EDC.wiki',
     description: 'Changelog and latest changes on torch.EDC.wiki.',
-    url: 'https://torch.edc.wiki/updates',
+    url: `${SITE_URL}/updates`,
     siteName: 'torch.EDC.wiki',
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: [OG_IMAGE],
   },
 }
 

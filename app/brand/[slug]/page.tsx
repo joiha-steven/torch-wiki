@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { Globe, MapPin, Calendar, Factory } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
+import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
 import type { Flashlight, Brand } from '@/lib/types'
 import Header from '@/components/Header'
 import MarkdownContent from '@/components/MarkdownContent'
@@ -12,8 +13,6 @@ import BrandFlashlights from './BrandFlashlights'
 
 // Pre-render brand pages at build; cleared on-demand like flashlight pages.
 export const revalidate = false
-
-const BASE = 'https://torch.edc.wiki'
 
 const getDistinctBrands = cache(async (): Promise<string[]> => {
   const { data } = await supabase.rpc('get_distinct_brands')
@@ -59,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    openGraph: { title: ogTitle, description, url: `${BASE}/brand/${slug}`, siteName: 'torch.EDC.wiki', type: 'website', images: ['/og-default.jpg'] },
+    openGraph: { title: ogTitle, description, url: `${BASE}/brand/${slug}`, siteName: 'torch.EDC.wiki', type: 'website', images: [OG_IMAGE] },
     alternates: { canonical: `${BASE}/brand/${slug}` },
   }
 }

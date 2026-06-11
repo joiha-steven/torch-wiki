@@ -1,10 +1,9 @@
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
+import { SITE_URL as BASE } from '@/lib/seo'
 
 // Regenerate hourly — content is reference data, not real-time
 export const revalidate = 3600
-
-const BASE = 'https://torch.edc.wiki'
 
 export async function GET() {
   const [{ count }, { data: brandRows }] = await Promise.all([

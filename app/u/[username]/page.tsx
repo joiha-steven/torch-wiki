@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { SITE_URL } from '@/lib/seo'
 import Header from '@/components/Header'
 import ProfileTabs, { ProfileItem } from './ProfileTabs'
 
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${username}`,
     description: `Flashlight contributions and collection by ${username} on torch.EDC.wiki.`,
-    alternates: { canonical: `https://torch.edc.wiki/u/${username}` },
+    alternates: { canonical: `${SITE_URL}/u/${username}` },
   }
 }
 
