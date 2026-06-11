@@ -66,6 +66,10 @@ async function upload(buf, ct, blobPath) {
     access: 'public',
     token: BLOB_TOKEN,
     contentType: ct,
+    // a blob may already exist at this path from an earlier (partial) run or
+    // seed — overwrite it so re-running the migration is idempotent instead of
+    // erroring with "This blob already exists"
+    allowOverwrite: true,
   })
   return url
 }
