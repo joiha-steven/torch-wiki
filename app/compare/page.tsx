@@ -86,7 +86,7 @@ export default function ComparePage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1360px] mx-auto px-7 py-8">
+      <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="bg-white border border-[#e7e7e1] rounded-xl overflow-x-auto">
           <table className="w-full text-sm">

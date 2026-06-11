@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Bookmark } from 'lucide-react'
+import { Heart, Bookmark, GitCompare } from 'lucide-react'
 import { Flashlight } from '@/lib/types'
 import { formatBatteries } from '@/lib/battery'
 import { brandSlug } from '@/lib/brand'
@@ -107,15 +107,14 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
         </span>
 
         <div className="flex items-center gap-1 pl-2">
-          <label className="flex items-center gap-1 cursor-pointer text-[11px] text-[#9b9b94] select-none hover:text-[#6c6c66]">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={() => onToggleCompare(flashlight.id)}
-              className="cb !w-[13px] !h-[13px]"
-            />
-            Compare
-          </label>
+          <button
+            onClick={(e) => { e.preventDefault(); onToggleCompare(flashlight.id) }}
+            title={isSelected ? 'Remove from compare' : 'Add to compare'}
+            aria-pressed={isSelected}
+            className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
+          >
+            <GitCompare size={16} className={isSelected ? 'text-brand-500' : ''} />
+          </button>
           <button
             onClick={(e) => { e.preventDefault(); toggleWishlist(flashlight.id) }}
             title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}

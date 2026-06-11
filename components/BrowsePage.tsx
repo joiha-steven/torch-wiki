@@ -273,7 +273,7 @@ export default function BrowsePage() {
         )}
       </header>
 
-      <div className="max-w-[1360px] mx-auto px-7 py-7 flex gap-10">
+      <div className="max-w-[1280px] mx-auto px-7 py-7 flex gap-10">
         <div className="hidden md:block">
           <FilterPanel
             filters={filters}

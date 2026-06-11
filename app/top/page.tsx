@@ -96,7 +96,7 @@ export default async function TopPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1360px] mx-auto px-7 py-8">
+      <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
           <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Top lists</h1>

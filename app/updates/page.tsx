@@ -252,7 +252,7 @@ export default function UpdatesPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1360px] mx-auto px-7 py-8">
+      <div className="max-w-[1280px] mx-auto px-7 py-8">
         <div className="text-center mb-10">
           <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Updates</h1>
           <p className="mt-2 text-[13px] text-[#6c6c66]">What&apos;s new on torch.EDC.wiki</p>

@@ -175,7 +175,7 @@ export default async function FlashlightPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: safeJson(breadcrumbLd) }}
       />
 
-      <div className="max-w-[1360px] mx-auto px-7 py-8">
+      <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="grid md:grid-cols-2 gap-14 items-start">
           <ImageGallery

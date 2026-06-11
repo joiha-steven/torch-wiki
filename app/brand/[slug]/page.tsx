@@ -123,7 +123,7 @@ export default async function BrandPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
 
-      <div className="max-w-[1360px] mx-auto px-7 py-8">
+      <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         {/* Brand hero */}
         <div className="max-w-[760px]">
