@@ -317,9 +317,11 @@ Sections in order:
 
 **Charging:** Any / USB / Magnetic / None
 
-**Lumen steps:** 100, 300, 500, 800, 1K, 2K, 5K, 10K, Any
+**Lumens buckets** (range min–max on `max_lumens`; sentinel max 50000): `<100`, `100–300`, `300–600`, `600–1000`, `1K–2K`, `2K–5K`, `5K–10K`, `>10K`, Any. Single-select; a bucket sets `minLumens`+`maxLumens` (query: `gte`/`lte` on `max_lumens`).
 
-**Price steps:** $50, $100, $200, $300, $500, $800, $1K, $2K, $3K, $5K, $10K, Any
+**Price buckets** (range min–max on `price_usd`; sentinel max 99999): `<$50`, `$50–100`, `$100–200`, `$200–300`, `$300–500`, `$500+`, `$1K+`, `$2K+`, `$3K+`, Any. Single-select; sets `minPrice`+`maxPrice`. The `+` buckets have no upper bound (max = sentinel).
+
+(Both rendered by the shared `RangeButtons` group in `components/FilterPanel.tsx`; buckets are defined in `LUMEN_BUCKETS` / `PRICE_BUCKETS` there.)
 
 ## Color System
 

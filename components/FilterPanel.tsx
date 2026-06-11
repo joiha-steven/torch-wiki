@@ -19,7 +19,30 @@ const SORT_OPTIONS = [
   { value: 'weight_asc',  label: 'Weight (Light–Heavy)' },
 ]
 
-const LUMEN_STEPS = [100, 300, 500, 800, 1000, 2000, 5000, 10000]
+// Single-select range buckets. Sentinels for "no upper bound": lumens 50000, price 99999.
+const LUMEN_MAX = 50000
+const PRICE_MAX = 99999
+const LUMEN_BUCKETS = [
+  { label: '<100',     min: 0,     max: 100 },
+  { label: '100–300',  min: 100,   max: 300 },
+  { label: '300–600',  min: 300,   max: 600 },
+  { label: '600–1000', min: 600,   max: 1000 },
+  { label: '1K–2K',    min: 1000,  max: 2000 },
+  { label: '2K–5K',    min: 2000,  max: 5000 },
+  { label: '5K–10K',   min: 5000,  max: 10000 },
+  { label: '>10K',     min: 10000, max: LUMEN_MAX },
+]
+const PRICE_BUCKETS = [
+  { label: '<$50',     min: 0,    max: 50 },
+  { label: '$50–100',  min: 50,   max: 100 },
+  { label: '$100–200', min: 100,  max: 200 },
+  { label: '$200–300', min: 200,  max: 300 },
+  { label: '$300–500', min: 300,  max: 500 },
+  { label: '$500+',    min: 500,  max: PRICE_MAX },
+  { label: '$1K+',     min: 1000, max: PRICE_MAX },
+  { label: '$2K+',     min: 2000, max: PRICE_MAX },
+  { label: '$3K+',     min: 3000, max: PRICE_MAX },
+]
 
 const CHARGING_OPTIONS = [
   { value: null,        label: 'Any' },
@@ -54,29 +77,30 @@ function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: ()
   )
 }
 
-// Single-select glass pill group
-function StepButtons({ steps, value, maxSentinel, onChange, format }: {
-  steps: number[]
-  value: number
-  maxSentinel: number
-  onChange: (v: number) => void
-  format?: (n: number) => string
+// Single-select range-bucket pill group. A bucket sets (min, max); re-clicking
+// the active bucket or "Any" resets to (0, resetMax).
+function RangeButtons({ buckets, min, max, resetMax, onSelect }: {
+  buckets: { label: string; min: number; max: number }[]
+  min: number
+  max: number
+  resetMax: number
+  onSelect: (min: number, max: number) => void
 }) {
-  const fmt = format ?? ((n: number) => n >= 1000 ? `${n / 1000}K` : String(n))
+  const isActive = (b: { min: number; max: number }) => min === b.min && max === b.max
   return (
     <div className="flex flex-wrap gap-1.5">
-      {steps.map(s => (
+      {buckets.map(b => (
         <button
-          key={s}
-          onClick={() => onChange(s === value ? maxSentinel : s)}
-          className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${value === s ? 'on' : ''}`}
+          key={b.label}
+          onClick={() => isActive(b) ? onSelect(0, resetMax) : onSelect(b.min, b.max)}
+          className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${isActive(b) ? 'on' : ''}`}
         >
-          {fmt(s)}
+          {b.label}
         </button>
       ))}
       <button
-        onClick={() => onChange(maxSentinel)}
-        className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${value === maxSentinel ? 'on' : ''}`}
+        onClick={() => onSelect(0, resetMax)}
+        className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${min === 0 && max === resetMax ? 'on' : ''}`}
       >
         Any
       </button>
@@ -103,12 +127,13 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
     filters.batteryTypes.length > 0 ||
     filters.emitters.length > 0 ||
     filters.madeIn.length > 0 ||
-    filters.maxLumens < 50000 ||
+    filters.minLumens > 0 ||
+    filters.maxLumens < LUMEN_MAX ||
     filters.minPrice > 0 ||
-    filters.maxPrice < 99999 ||
+    filters.maxPrice < PRICE_MAX ||
     filters.chargingType !== null
 
-  const clearAll = () => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], maxLumens: 50000, minPrice: 0, maxPrice: 99999, chargingType: null })
+  const clearAll = () => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], minLumens: 0, maxLumens: LUMEN_MAX, minPrice: 0, maxPrice: PRICE_MAX, chargingType: null })
 
   return (
     <aside className="w-[226px] shrink-0 space-y-[18px] text-[13px]">
@@ -152,54 +177,30 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         </div>
       )}
 
-      {/* Max Lumens */}
+      {/* Lumens */}
       <div>
         <p className={sectionTitle}>
-          Max Lumens{filters.maxLumens < 50000 && (
+          Lumens{(filters.minLumens > 0 || filters.maxLumens < LUMEN_MAX) && (
             <span className="ml-1.5 text-brand-500 normal-case">
-              ≤{filters.maxLumens >= 1000 ? `${filters.maxLumens / 1000}K` : filters.maxLumens}
+              {LUMEN_BUCKETS.find(b => b.min === filters.minLumens && b.max === filters.maxLumens)?.label ?? ''}
             </span>
           )}
         </p>
-        <StepButtons steps={LUMEN_STEPS} value={filters.maxLumens} maxSentinel={50000}
-          onChange={v => onChange({ ...filters, maxLumens: v })} />
+        <RangeButtons buckets={LUMEN_BUCKETS} min={filters.minLumens} max={filters.maxLumens} resetMax={LUMEN_MAX}
+          onSelect={(min, max) => onChange({ ...filters, minLumens: min, maxLumens: max })} />
       </div>
 
       {/* Price Range */}
       <div>
         <p className={sectionTitle}>
-          Price Range
-          {(filters.minPrice > 0 || filters.maxPrice < 99999) && (
+          Price Range{(filters.minPrice > 0 || filters.maxPrice < PRICE_MAX) && (
             <span className="ml-1.5 text-brand-500 normal-case">
-              {filters.minPrice > 0 ? `$${filters.minPrice}` : ''}{filters.minPrice > 0 && filters.maxPrice < 99999 ? '–' : ''}{filters.maxPrice < 99999 ? `$${filters.maxPrice}` : ''}
+              {PRICE_BUCKETS.find(b => b.min === filters.minPrice && b.max === filters.maxPrice)?.label ?? ''}
             </span>
           )}
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          {[50, 150, 500].map(v => {
-            const label = v === 50 ? '<$50' : v === 150 ? '$50–150' : '$150–500'
-            const active = filters.maxPrice === v
-            return (
-              <button key={v} onClick={() => onChange({ ...filters, maxPrice: active ? 99999 : v, minPrice: 0 })}
-                className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${active ? 'on' : ''}`}>
-                {label}
-              </button>
-            )
-          })}
-          {[500, 1000, 2000].map(v => {
-            const active = filters.minPrice === v
-            return (
-              <button key={v} onClick={() => onChange({ ...filters, minPrice: active ? 0 : v, maxPrice: 99999 })}
-                className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${active ? 'on' : ''}`}>
-                ${v >= 1000 ? `${v / 1000}K` : v}+
-              </button>
-            )
-          })}
-          <button onClick={() => onChange({ ...filters, minPrice: 0, maxPrice: 99999 })}
-            className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${filters.minPrice === 0 && filters.maxPrice === 99999 ? 'on' : ''}`}>
-            Any
-          </button>
-        </div>
+        <RangeButtons buckets={PRICE_BUCKETS} min={filters.minPrice} max={filters.maxPrice} resetMax={PRICE_MAX}
+          onSelect={(min, max) => onChange({ ...filters, minPrice: min, maxPrice: max })} />
       </div>
 
       {/* Category */}
