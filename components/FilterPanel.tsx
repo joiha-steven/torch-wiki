@@ -271,7 +271,9 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         Original content &amp; data compilation:{' '}
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">CC BY 4.0</a>
         {' '}· Code:{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">MIT</a>.{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">MIT</a>
+        {' '}·{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>.{' '}
         Product specs are factual data; product images belong to their respective manufacturers.
         {siteStats && (
           <> {siteStats.flashlights.toLocaleString()} flashlights · {siteStats.brands} brands · {siteStats.users} users.</>
