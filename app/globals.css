@@ -35,7 +35,7 @@
   --glass-2: rgba(255, 255, 255, 0.56);
   --glass-blur: 24px;
   --glass-edge: rgba(255, 255, 255, 0.75);
-  --glass-shadow: 0 10px 34px rgba(24, 24, 30, 0.1);
+  --glass-shadow: 0 3px 12px rgba(24, 24, 30, 0.05);
   --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
   --radius: 18px;
   --radius-sm: 12px;
@@ -78,7 +78,7 @@ body {
     rgba(255, 255, 255, 0.62);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow), var(--glass-inset);
-  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  transition: border-color 0.15s;
 }
 .glass-card::after {
   content: '';
@@ -91,9 +91,7 @@ body {
 }
 .glass-card > * { position: relative; z-index: 1; }
 .glass-card:hover {
-  border-color: #fff;
-  transform: translateY(-3px);
-  box-shadow: 0 18px 44px rgba(24, 24, 30, 0.16), var(--glass-inset);
+  border-color: var(--border-hover);
 }
 .glass-card.is-selected {
   border-color: var(--accent);
@@ -133,7 +131,7 @@ body {
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 /* Dark-glass controls that sit inside the nav (search pill, icon button) */
