@@ -45,11 +45,13 @@ export const metadata: Metadata = {
     description: SITE_DESC,
     url: 'https://torch.edc.wiki',
     locale: 'en_US',
+    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'torch.EDC.wiki — Flashlight Database' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'torch.EDC.wiki — Flashlight Database',
     description: SITE_DESC,
+    images: ['/og-default.jpg'],
   },
   appleWebApp: {
     capable: true,

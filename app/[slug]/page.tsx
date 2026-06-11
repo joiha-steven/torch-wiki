@@ -65,14 +65,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `${BASE}/${slug}`,
       siteName: 'torch.EDC.wiki',
-      images: f.image_url ? [{ url: f.image_url, alt: `${f.brand} ${f.model}` }] : [],
+      images: f.image_url ? [{ url: f.image_url, alt: `${f.brand} ${f.model}` }] : ['/og-default.jpg'],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: ogTitle,
       description,
-      images: f.image_url ? [f.image_url] : [],
+      images: f.image_url ? [f.image_url] : ['/og-default.jpg'],
     },
     alternates: { canonical: `${BASE}/${slug}` },
   }

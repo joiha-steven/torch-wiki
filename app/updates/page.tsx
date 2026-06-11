@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     url: 'https://torch.edc.wiki/updates',
     siteName: 'torch.EDC.wiki',
     type: 'website',
+    images: ['/og-default.jpg'],
   },
 }
 

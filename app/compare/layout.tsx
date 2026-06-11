@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     url: 'https://torch.edc.wiki/compare',
     siteName: 'torch.EDC.wiki',
     type: 'website',
+    images: ['/og-default.jpg'],
   },
 }
 

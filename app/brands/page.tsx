@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     url: `${BASE}/brands`,
     siteName: 'torch.EDC.wiki',
     type: 'website',
+    images: ['/og-default.jpg'],
   },
 }
 
