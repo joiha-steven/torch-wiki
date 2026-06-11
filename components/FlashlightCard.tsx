@@ -44,7 +44,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
               sizes="(max-width: 819px) calc(50vw - 24px), (max-width: 1100px) calc(33vw - 24px), calc(25vw - 24px)"
               priority={priority}
               onLoad={() => setImgLoaded(true)}
-              className={`object-contain p-1.5 img-load ${imgLoaded ? 'is-loaded' : ''}`}
+              className={`object-contain p-1 img-load ${imgLoaded ? 'is-loaded' : ''}`}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
