@@ -8,6 +8,7 @@ import { brandSlug } from '@/lib/brand'
 import type { Flashlight, Brand } from '@/lib/types'
 import Header from '@/components/Header'
 import MarkdownContent from '@/components/MarkdownContent'
+import BrandEditButton from '@/components/BrandEditButton'
 import BrandFlashlights from './BrandFlashlights'
 
 // Pre-render brand pages at build; cleared on-demand like flashlight pages.
@@ -114,9 +115,13 @@ export default async function BrandPage({ params }: Props) {
             </div>
           )}
 
-          <p className="mt-5 text-[13px] text-[#6c6c66]">
-            <b className="text-[#17171a] font-semibold">{lights.length}</b> model{lights.length !== 1 ? 's' : ''} in the database
-          </p>
+          <div className="mt-5 flex items-center gap-4">
+            <p className="text-[13px] text-[#6c6c66]">
+              <b className="text-[#17171a] font-semibold">{lights.length}</b> model{lights.length !== 1 ? 's' : ''} in the database
+            </p>
+            <span className="text-[#d3d3cb]">·</span>
+            <BrandEditButton name={name} initial={info} />
+          </div>
         </div>
 
         {/* Flashlights by year */}

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Heart, Bookmark } from 'lucide-react'
 import { Flashlight } from '@/lib/types'
 import { formatBatteries } from '@/lib/battery'
+import { brandSlug } from '@/lib/brand'
 import { useAuth } from '@/lib/auth-context'
 
 type Props = {
@@ -71,8 +72,13 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
 
       {/* Brand + Model — flex-1 keeps every card the same height */}
       <div className="flex-1">
+        <Link
+          href={`/brand/${brandSlug(flashlight.brand)}`}
+          className="text-[12.5px] text-[#6c6c66] leading-none mb-0.5 inline-block hover:text-brand-600 transition-colors"
+        >
+          {flashlight.brand}
+        </Link>
         <Link href={`/${flashlight.slug}`} className="block">
-          <p className="text-[12.5px] text-[#6c6c66] leading-none mb-0.5">{flashlight.brand}</p>
           <h3 className="text-[15px] font-semibold text-[#17171a] leading-snug tracking-[-0.01em]">{flashlight.model}</h3>
         </Link>
       </div>
