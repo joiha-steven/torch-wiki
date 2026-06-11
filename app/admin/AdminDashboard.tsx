@@ -248,7 +248,7 @@ function ReportsPanel() {
 
   return (
     <div>
-      <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 mb-6 w-fit">
         {STATUS_TABS.map(t => (
           <button key={t.key} onClick={() => setStatusFilter(t.key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
@@ -779,7 +779,7 @@ function BrandsPanel() {
 
   return (
     <>
-      <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 mb-6 w-fit">
         {TABS.map(t => (
           <button key={t.key} onClick={() => setStatusFilter(t.key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
@@ -885,11 +885,11 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-[1360px] mx-auto px-7 py-8">
 
         {/* Top bar: section switcher + force clear */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 w-fit">
           <button onClick={() => setSection('submissions')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${section === 'submissions' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
             <Layers size={14} /> Submissions
@@ -938,7 +938,7 @@ export default function AdminDashboard() {
           <BrandsPanel />
         ) : (
           <>
-            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-6 w-fit">
+            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 mb-6 w-fit">
               {SUB_TABS.map(t => (
                 <button key={t.key} onClick={() => setSubTab(t.key)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${subTab === t.key ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}>

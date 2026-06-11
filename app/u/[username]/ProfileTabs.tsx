@@ -66,7 +66,7 @@ export default function ProfileTabs({ added, edits, collection, showCollection }
 
   return (
     <div>
-      <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit mb-6">
+      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-xl p-1 w-fit mb-6">
         {TABS.map(t => (
           <button
             key={t.key}

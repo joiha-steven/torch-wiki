@@ -131,7 +131,8 @@ export default async function UserProfilePage({ params }: Props) {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-[1360px] mx-auto px-7 py-8">
+        <div className="max-w-3xl">
 
         {/* Profile header */}
         <div className="flex items-center gap-4 mb-8">
@@ -165,6 +166,7 @@ export default async function UserProfilePage({ params }: Props) {
           collection={collectionItems}
           showCollection={!!profile.show_collection}
         />
+        </div>
       </div>
     </div>
   )

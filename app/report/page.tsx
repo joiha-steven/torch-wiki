@@ -107,9 +107,9 @@ export default function ReportPage() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="max-w-xl mx-auto px-4 py-8">
+      <div className="max-w-[1360px] mx-auto px-7 py-8">
 
-        <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
+        <div className="max-w-xl bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
           {done ? (
             <div className="py-10 text-center space-y-3">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
