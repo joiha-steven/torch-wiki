@@ -349,7 +349,6 @@ function UsersPanel() {
   const [msg, setMsg]             = useState('')
   const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null)
 
-  const perPage = 20
   const queryRef = useRef(query)
   queryRef.current = query
 

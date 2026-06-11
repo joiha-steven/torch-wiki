@@ -32,13 +32,10 @@
 
   /* ---- Liquid Glass tokens (shipped defaults) ---- */
   --glass: rgba(255, 255, 255, 0.42);
-  --glass-2: rgba(255, 255, 255, 0.56);
   --glass-blur: 24px;
   --glass-edge: rgba(255, 255, 255, 0.75);
   --glass-shadow: 0 3px 12px rgba(24, 24, 30, 0.05);
   --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
-  --radius: 18px;
-  --radius-sm: 12px;
 }
 
 body {
@@ -97,15 +94,6 @@ body {
   border-color: var(--accent);
 }
 
-/* Denser glass — thumbnails, small tiles */
-.glass-2 {
-  background: var(--glass-2);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid var(--glass-edge);
-  box-shadow: var(--glass-inset);
-}
-
 /* Segmented filter pill — translucent white fill (no backdrop blur; cheap) */
 .glass-pill {
   font-family: var(--font-mono);
@@ -153,7 +141,6 @@ body {
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass,
   .glass-card { background: rgba(255, 255, 255, 0.9); }
-  .glass-2,
   .glass-pill { background: rgba(255, 255, 255, 0.92); }
   .floating-nav { background: rgba(14, 14, 16, 0.92); }
   .glass-dark { background: rgba(255, 255, 255, 0.22); }

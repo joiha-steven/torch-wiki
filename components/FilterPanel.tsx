@@ -20,7 +20,6 @@ const SORT_OPTIONS = [
 ]
 
 const LUMEN_STEPS = [100, 300, 500, 800, 1000, 2000, 5000, 10000]
-const PRICE_STEPS = [50, 100, 200, 300, 500, 800, 1000, 2000, 3000, 5000, 10000]
 
 const CHARGING_OPTIONS = [
   { value: null,        label: 'Any' },
