@@ -621,6 +621,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
+      <p className="text-[11px] text-slate-400 leading-relaxed">
+        By submitting, you agree your contribution is factual data from legitimate sources, and any original text you write is licensed under{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-slate-600">CC BY 4.0</a>.
+      </p>
+
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onCancel} className="flex-1 text-sm text-slate-600 border border-slate-200 rounded-lg py-2.5 hover:bg-slate-50">
           Cancel

@@ -267,10 +267,14 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       </div>
 
       <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-[#e7e7e1]">
-        All specs and images belong to their respective brands. Non-commercial.{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>.
+        © 2026 torch.edc.wiki — a non-commercial reference project, not affiliated with any brand.{' '}
+        Original content &amp; data compilation:{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">CC BY 4.0</a>
+        {' '}· Code:{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">MIT</a>.{' '}
+        Product specs are factual data; product images belong to their respective manufacturers.
         {siteStats && (
-          <> Currently {siteStats.flashlights.toLocaleString()} flashlights · {siteStats.brands} brands · {siteStats.users} users.</>
+          <> {siteStats.flashlights.toLocaleString()} flashlights · {siteStats.brands} brands · {siteStats.users} users.</>
         )}
       </p>
     </aside>

@@ -1,5 +1,7 @@
 # Torch EDC.wiki
 
+[![Code: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](./LICENSE) [![Content: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 A community reference database for flashlight collectors and enthusiasts. Built by a flashlight hobbyist, for flashlight hobbyists.
 
 No ads. No fees. No profit.
@@ -160,6 +162,15 @@ Script is safe to re-run — skips images already on Blob. Some brand CDNs requi
 
 ---
 
-## Content & images
+## License & content
 
-All product information, specifications, and images belong to their respective manufacturers and brands. This site is a non-commercial reference project with no affiliation to any flashlight brand.
+This is a **non-commercial reference project** with no affiliation to any flashlight brand. Different layers of the project carry different legal status — they are **not** under a single blanket license. Full details in [`LICENSE`](./LICENSE) (code) and [`LICENSE-CONTENT.md`](./LICENSE-CONTENT.md) (everything else).
+
+| Layer | What it covers | Owner | License / status |
+|---|---|---|---|
+| **Source code** | The application code in this repository | torch.edc.wiki | [MIT](./LICENSE) |
+| **Compilation & original text** | Schema, data selection/arrangement, descriptions, notes, comparisons | torch.edc.wiki | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (incl. sui generis database right) |
+| **Factual specifications** | Lumens, battery, dimensions, IP rating, etc. | No one (facts) | Not copyrightable — no license needed |
+| **Product images** | Photos of products | Respective manufacturers | Not licensed; non-commercial reference use only; notice-and-takedown |
+
+Product images belong to their respective manufacturers and are shown for non-commercial identification and reference only. We make no copyright or licensing claim over them. **Rights holders:** if you'd like an image removed, contact us and we'll take it down promptly.
