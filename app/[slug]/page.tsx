@@ -206,8 +206,8 @@ export default async function FlashlightPage({ params }: Props) {
 
         {/* Description — full width, above the spec table */}
         {flashlight.description && (
-          <div className="mt-10 pt-6 border-t border-[#e7e7e1] max-w-[720px] text-[15px] leading-[1.7] text-[#6c6c66]">
-            <MarkdownContent>{flashlight.description}</MarkdownContent>
+          <div className="mt-10 pt-6 border-t border-[#e7e7e1] max-w-[720px]">
+            <MarkdownContent className="text-[15px] leading-[1.7] text-[#6c6c66]">{flashlight.description}</MarkdownContent>
           </div>
         )}
 
