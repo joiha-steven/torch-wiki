@@ -17,6 +17,21 @@ Use sources in this priority order. Higher = more reliable.
 
 Never use Amazon specs as source of truth. Cross-check anything unusual against the brand site.
 
+### Shopify stores — bulk fetch via `products.json`
+
+Many brand sites run on Shopify (Nextorch, LED Lenser, Malkoff, Foursevens/Prometheus via darksucks.com). When they do, skip HTML scraping and pull structured JSON:
+
+```
+https://www.<brand>.com/collections/<collection-handle>/products.json?limit=250
+https://www.<brand>.com/products/<product-handle>.json
+```
+
+One collection call returns up to 250 products, each with `title`, `handle`, `body_html` (description + spec table/text), `images[]` (all gallery images, full size) and `variants[].price`. This is the fastest, most reliable Tier-1 source — prefer it over parsing rendered pages.
+
+- Specs live in `body_html`: either a two-column spec `<table>` or an inline `TECHNICAL SPECIFICATIONS:` block — parse both.
+- Image `src` URLs are Shopify CDN (`cdn.shopify.com`), already full size; no `Referer` needed.
+- Keep the scratch dump (raw JSON + a normalize step → a clean `*-data.json`) out of git; commit only the seed script and the cleaned data file. See `scripts/seed-nextorch.mjs` for the pattern.
+
 ---
 
 ## 2. Slug Rules
@@ -33,6 +48,8 @@ Fenix PD36 TAC            →  fenix-pd36-tac
 - Replace spaces and underscores with `-`
 - Collapse multiple hyphens into one
 - No trailing hyphen
+
+**Sub-brands:** keep a sub-line under its parent brand rather than creating a new `brands` row. Set `brand` to the parent and prefix the model with the sub-line name. e.g. Nextorch's NEXDOT weapon lights → `brand: 'Nextorch'`, `model: 'NEXDOT WL25'`, slug `nextorch-wl25` (the sub-line word is in the model, not the slug).
 
 Slugs are permanent — once a product is in the DB, never change its slug.
 
