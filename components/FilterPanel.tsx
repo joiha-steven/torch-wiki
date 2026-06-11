@@ -6,7 +6,7 @@ const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Head
 
 const BATTERY_TYPES = [
   'CR123A', 'D-cell', 'AA', 'AAA',
-  '10440', '14500', '16340', '18350', '18650', '21700', '26650', 'Built-in',
+  '10440', '14500', '16340', '16650', '18350', '18650', '21700', '26650', 'Built-in',
 ]
 
 const SORT_OPTIONS = [
