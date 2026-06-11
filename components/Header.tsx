@@ -22,7 +22,7 @@ export default function Header() {
   return (
     <header
       className="floating-nav sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
-      style={{ width: 'min(1320px, calc(100% - 32px))' }}
+      style={{ width: 'min(1240px, calc(100% - 32px))' }}
     >
       <div className="flex items-center gap-8 px-[22px] h-14">
         <Link

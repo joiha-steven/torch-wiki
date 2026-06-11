@@ -35,8 +35,9 @@
   --glass: rgba(255, 255, 255, 0.42);
   --glass-blur: 24px;
   --glass-edge: rgba(255, 255, 255, 0.75);
-  --glass-shadow: 0 3px 12px rgba(24, 24, 30, 0.05);
-  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
+  /* a touch more float + a brighter specular rim → reads more like glass */
+  --glass-shadow: 0 4px 16px rgba(24, 24, 30, 0.06);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 0 0 0.5px rgba(255, 255, 255, 0.4);
 
   /* ---- Motion tokens — keep it subtle & fast ----
      One easing + three durations so every transition feels related.
@@ -114,8 +115,8 @@ h1, h2, h3 {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(133deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 26%, rgba(255, 255, 255, 0) 50%);
-  opacity: 0.7;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 48%);
+  opacity: 0.85;
 }
 .glass-card > * { position: relative; z-index: 1; }
 .glass-card:hover {
@@ -144,13 +145,19 @@ h1, h2, h3 {
 
 /* Floating dark-glass nav capsule */
 .floating-nav {
-  background: rgba(8, 8, 10, 0.9);
-  /* light blur only — bar is ~90% opaque so blur barely shows, and a sticky
-     blurred bar repaints on every scroll frame, so keep the radius small */
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-  backdrop-filter: blur(12px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  /* dark fill + a soft top sheen so the capsule reads as wet glass */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 44%),
+    rgba(8, 8, 10, 0.86);
+  /* a bit more blur + saturation for richer glass; bar stays ~86% opaque so it
+     stays legible and the sticky repaint cost stays low */
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.05);
 }
 
 /* Dark-glass controls that sit inside the nav (search pill, icon button) */
