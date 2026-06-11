@@ -15,8 +15,9 @@
   /* Warm off-white page surface — overrides Tailwind's gray-100 */
   --color-gray-100: #f6f6f3;
 
-  /* JetBrains Mono for numeric values */
-  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+  /* Single typeface site-wide. `font-mono` now maps to Inter too (numbers get
+     tabular figures via the rule below so spec tables/prices stay aligned). */
+  --font-mono: var(--font-inter), system-ui, sans-serif;
 }
 
 :root {
@@ -47,9 +48,9 @@ body {
     linear-gradient(180deg, #fbfbf9 0%, var(--bg) 60%);
   background-repeat: no-repeat;
   color: var(--ink);
-  /* San Francisco on Apple (per design), Inter everywhere else for a consistent,
-     well-hinted look on both standard and Retina displays. */
-  font-family: -apple-system, BlinkMacSystemFont, var(--font-inter), 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Inter site-wide (self-hosted variable font); system sans only as a fallback
+     before the font loads. Consistent on both standard and Retina displays. */
+  font-family: var(--font-inter), system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   /* Lighter, smoother weight on macOS/iOS; grayscale AA on Firefox/macOS */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -66,6 +67,12 @@ h1, h2, h3 {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Numeric displays (lumens, prices, dimensions) — Inter with aligned tabular figures */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 
 /* ============ Liquid Glass surfaces ============ */

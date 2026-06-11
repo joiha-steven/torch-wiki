@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Providers from '@/components/Providers'
@@ -8,18 +8,14 @@ import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { SITE_URL, SITE_NAME, OG_IMAGE } from '@/lib/seo'
 import './globals.css'
 
-// Inter — clean, well-hinted variable UI/display font. Apple devices still get
-// San Francisco (via -apple-system in the CSS stack); Inter covers everyone else.
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
+// Single site-wide typeface: Inter (variable, weights 100–900). Self-hosted from
+// the repo — no Google Fonts request at build or runtime; Next serves it with an
+// immutable long-cache header.
+const inter = localFont({
+  src: './fonts/inter-variable.woff2',
   variable: '--font-inter',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
   display: 'swap',
-  variable: '--font-mono',
+  weight: '100 900',
 })
 
 const SITE_DESC = 'Community reference database for flashlight collectors and enthusiasts — full specs, reviews, images and release history for hundreds of EDC, tactical, thrower and headlamp flashlights.'
@@ -108,7 +104,7 @@ const siteJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={inter.variable}>
       <head>
         <script
           type="application/ld+json"
