@@ -237,34 +237,6 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Reviews */}
-        {flashlight.reviews && flashlight.reviews.length > 0 && (
-          <div className="mt-8 border-t border-[#e7e7e1]">
-            <h2 className="text-[13px] font-semibold text-[#17171a] py-4">Reviews</h2>
-            <div className="space-y-0">
-              {flashlight.reviews.map((r: { id: string; type: string | null; title: string; reviewer: string | null; summary: string | null; url: string }) => (
-                <a
-                  key={r.id}
-                  href={r.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start gap-3 py-3 border-t border-[#e7e7e1] hover:text-brand-600 group"
-                >
-                  <div className="mt-0.5 text-slate-300 group-hover:text-brand-500 shrink-0">
-                    {r.type === 'video' ? <Video size={14} /> : <FileText size={14} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 group-hover:text-brand-700">{r.title}</p>
-                    {r.reviewer && <p className="text-xs text-slate-400 mt-0.5">{r.reviewer}</p>}
-                    {r.summary && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{r.summary}</p>}
-                  </div>
-                  <ExternalLink size={11} className="text-slate-300 group-hover:text-brand-400 mt-0.5 shrink-0" />
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* User manual */}
         <ManualSection
           slug={flashlight.slug}
@@ -273,6 +245,39 @@ export default async function FlashlightPage({ params }: Props) {
             ...(flashlight.manual_url ? [flashlight.manual_url] : []),
           ]))}
         />
+
+        {/* Reviews — below the manual; newest first */}
+        {flashlight.reviews && flashlight.reviews.length > 0 && (
+          <div className="mt-8 border-t border-[#e7e7e1]">
+            <h2 className="text-[13px] font-semibold text-[#17171a] py-4">Reviews</h2>
+            <div className="space-y-0">
+              {[...flashlight.reviews]
+                .sort((a: { published_at: string | null }, b: { published_at: string | null }) =>
+                  (b.published_at ? new Date(b.published_at).getTime() : 0) -
+                  (a.published_at ? new Date(a.published_at).getTime() : 0))
+                .map((r: { id: string; type: string | null; title: string; url: string; published_at: string | null }) => (
+                <a
+                  key={r.id}
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 py-3 border-t border-[#e7e7e1] hover:text-brand-600 group"
+                >
+                  <div className="text-slate-300 group-hover:text-brand-500 shrink-0">
+                    {r.type === 'video' ? <Video size={14} /> : <FileText size={14} />}
+                  </div>
+                  <p className="flex-1 min-w-0 text-sm font-medium text-slate-900 group-hover:text-brand-700 truncate">{r.title}</p>
+                  {r.published_at && (
+                    <span className="text-xs text-slate-400 font-mono shrink-0">
+                      {new Date(r.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                  <ExternalLink size={11} className="text-slate-300 group-hover:text-brand-400 shrink-0" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Timeline */}
         <div className="mt-8 pt-4 border-t border-[#e7e7e1] space-y-1 text-xs text-slate-400">

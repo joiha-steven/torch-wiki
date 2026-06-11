@@ -28,6 +28,14 @@ type ImageEntry = {
   existingDbId?: string // flashlight_images.id (for extras)
 }
 
+type ReviewRow = {
+  url: string
+  title: string
+  published_at: string | null   // ISO date
+  type: string | null           // 'video' | 'article'
+  fetching?: boolean
+}
+
 type Props = {
   mode: 'new' | 'edit'
   initial?: Partial<Flashlight>
@@ -95,6 +103,12 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       ?? (initial?.manual_url ? [initial.manual_url] : [])
     return urls.map((url, i) => ({ url, name: i === 0 ? 'manual.pdf' : `manual-${i}.pdf` }))
   })
+  // Review links — paste a URL, the system auto-fills title + post date (editable)
+  const [reviewRows, setReviewRows] = useState<ReviewRow[]>(() =>
+    (initial?.reviews ?? []).map(r => ({
+      url: r.url, title: r.title ?? '', published_at: r.published_at ?? null, type: r.type ?? null, fetching: false,
+    }))
+  )
   const fileRef = useRef<HTMLInputElement>(null)
   const pdfRef = useRef<HTMLInputElement>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
@@ -142,6 +156,37 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     const newFiles = pdfFiles.filter((_, i) => i !== idx)
     setPdfFiles(newFiles)
     setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
+  }
+
+  // ── Review links ──
+  const updateReview = (i: number, patch: Partial<ReviewRow>) =>
+    setReviewRows(rows => rows.map((r, j) => j === i ? { ...r, ...patch } : r))
+  const addReviewRow = () => setReviewRows(rows => [...rows, { url: '', title: '', published_at: null, type: null }])
+  const removeReviewRow = (i: number) => setReviewRows(rows => rows.filter((_, j) => j !== i))
+
+  // Fetch title + post date for a pasted review URL
+  async function fetchReviewMeta(i: number) {
+    const row = reviewRows[i]
+    if (!row?.url?.trim()) return
+    updateReview(i, { fetching: true })
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/fetch-review-meta', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: row.url.trim() }),
+      })
+      const meta = await res.json() as { title?: string | null; published_at?: string | null; type?: string | null }
+      updateReview(i, {
+        // Only fill blanks — don't clobber what the user already typed/edited
+        title: row.title?.trim() ? row.title : (meta.title ?? ''),
+        published_at: row.published_at ?? meta.published_at ?? null,
+        type: row.type ?? meta.type ?? null,
+        fetching: false,
+      })
+    } catch {
+      updateReview(i, { fetching: false })
+    }
   }
 
   function removeImage(id: string) {
@@ -242,9 +287,20 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         }
       }
 
-      // Rebuild submissionData with image directives for edit
+      // Review links — keep only rows with a URL; trim + carry title/date/type
+      const _reviews = reviewRows
+        .filter(r => r.url.trim())
+        .map(r => ({
+          url: r.url.trim(),
+          title: r.title.trim() || r.url.trim(),
+          published_at: r.published_at,
+          type: r.type,
+        }))
+
+      // Rebuild submissionData with image + review directives
       const finalSubmissionData = {
         ...submissionData,
+        _reviews,
         ...(mode === 'edit' ? {
           _primaryImageUrl,
           _removeExtraDbIds: removedExtraDbIds,
@@ -253,9 +309,10 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       // 2b. Persist image directives into the submission row (for both admin and pending paths)
       //     so that when a mod approves a pending edit the image changes are applied correctly.
-      if (mode === 'edit') {
-        await supabase.from('flashlight_submissions').update({ data: finalSubmissionData }).eq('id', sub.id)
-      }
+      // Persist directives for BOTH modes so a mod approving later from the
+      // pending queue applies the same image + review changes (new mode needs
+      // this for _reviews; edit mode also for the image directives).
+      await supabase.from('flashlight_submissions').update({ data: finalSubmissionData }).eq('id', sub.id)
 
       // 3. Admin/mod: auto-approve — apply changes immediately
       if (isAdmin) {
@@ -450,6 +507,53 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
             className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) handlePdfFile(f) }}
           />
+        </div>
+      </Field>
+
+      <Field label="Reviews">
+        <p className="text-xs text-slate-400 mb-2">Paste a review link — the title and post date are filled in automatically (you can edit them). Add as many as you like.</p>
+        <div className="space-y-3">
+          {reviewRows.map((r, i) => (
+            <div key={i} className="border border-slate-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={r.url}
+                  onChange={e => updateReview(i, { url: e.target.value })}
+                  onBlur={() => { if (r.url.trim() && !r.title.trim()) fetchReviewMeta(i) }}
+                  placeholder="https://…  (review article or video URL)"
+                  className={input + ' flex-1'}
+                />
+                <button type="button" onClick={() => fetchReviewMeta(i)} disabled={r.fetching || !r.url.trim()}
+                  className="h-10 px-3 shrink-0 text-xs font-medium border border-slate-200 rounded-lg text-slate-600 hover:bg-white disabled:opacity-50 flex items-center gap-1.5">
+                  {r.fetching ? <Loader2 size={13} className="animate-spin" /> : null}
+                  {r.fetching ? 'Fetching' : 'Fetch'}
+                </button>
+                <button type="button" onClick={() => removeReviewRow(i)} className="text-slate-400 hover:text-red-500 shrink-0">
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+                <input
+                  type="text"
+                  value={r.title}
+                  onChange={e => updateReview(i, { title: e.target.value })}
+                  placeholder="Title (auto-filled)"
+                  className={input}
+                />
+                <input
+                  type="date"
+                  value={r.published_at ? r.published_at.slice(0, 10) : ''}
+                  onChange={e => updateReview(i, { published_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                  className={input + ' sm:w-44'}
+                />
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={addReviewRow}
+            className="flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition-colors">
+            <Plus size={14} /> Add review link
+          </button>
         </div>
       </Field>
 

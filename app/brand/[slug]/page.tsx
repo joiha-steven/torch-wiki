@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { Globe, MapPin, Calendar, Factory } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
@@ -75,6 +76,18 @@ export default async function BrandPage({ params }: Props) {
     info?.headquarters ? { icon: MapPin, label: info.headquarters } : null,
     info?.made_in ? { icon: Factory, label: `Made in ${info.made_in}` } : null,
   ].filter(Boolean) as { icon: typeof Calendar; label: string }[]
+
+  // Attribution — same logic as flashlight pages: updated_by set + timestamps
+  // equal → added by that user; differ → also edited by them; null → system.
+  const addedByUser  = !!info?.updated_by && info?.updated_at === info?.created_at
+  const editedByUser = !!info?.updated_by && info?.updated_at !== info?.created_at
+  let updatedByNickname: string | null = null
+  if (info?.updated_by) {
+    const { data: profile } = await supabase.from('profiles').select('nickname').eq('id', info.updated_by).single()
+    updatedByNickname = profile?.nickname ?? null
+  }
+  const fmtDate = (iso?: string | null) =>
+    iso ? new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null
 
   // Structured data: Brand entity + breadcrumb trail
   const jsonLd = {
@@ -158,6 +171,34 @@ export default async function BrandPage({ params }: Props) {
             <BrandFlashlights items={lights} />
           )}
         </div>
+
+        {/* Attribution timeline */}
+        {(info?.created_at || info?.updated_by) && (
+          <div className="mt-8 pt-4 border-t border-[#e7e7e1] space-y-1 text-xs text-slate-400">
+            {editedByUser && (
+              <div className="flex items-center gap-2">
+                <span className="text-slate-300">–</span>
+                <span>
+                  Updated by{' '}
+                  {updatedByNickname
+                    ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                    : 'user'}
+                  {info?.updated_at ? `${' · '}${fmtDate(info.updated_at)}` : ''}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="text-slate-300">–</span>
+              <span>
+                Added by{' '}
+                {addedByUser && updatedByNickname
+                  ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                  : 'system'}
+                {info?.created_at ? `${' · '}${fmtDate(info.created_at)}` : ''}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

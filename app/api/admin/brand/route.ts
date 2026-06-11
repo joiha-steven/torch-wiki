@@ -39,7 +39,7 @@ export async function PATCH(request: Request) {
   const admin = getSupabaseAdmin()
   const { error } = await admin
     .from('brands')
-    .upsert({ name, ...cleanData(data ?? {}) }, { onConflict: 'name' })
+    .upsert({ name, ...cleanData(data ?? {}), updated_by: user.id, updated_at: new Date().toISOString() }, { onConflict: 'name' })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

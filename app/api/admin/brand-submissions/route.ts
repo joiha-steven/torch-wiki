@@ -51,7 +51,11 @@ export async function PATCH(request: Request) {
 
   if (action === 'approve') {
     const data = (sub.data ?? {}) as Record<string, unknown>
-    const payload: Record<string, unknown> = { name: sub.brand_name }
+    const payload: Record<string, unknown> = {
+      name: sub.brand_name,
+      updated_by: sub.user_id ?? null,
+      updated_at: new Date().toISOString(),
+    }
     for (const k of ALLOWED) if (k in data) payload[k] = data[k] === '' ? null : data[k]
 
     const { error: upErr } = await admin.from('brands').upsert(payload, { onConflict: 'name' })

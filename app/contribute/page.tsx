@@ -119,7 +119,7 @@ export default function ContributePage() {
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('suggest')
     if (!id) return
-    supabase.from('flashlights').select('*, flashlight_images(*)').eq('id', id).single()
+    supabase.from('flashlights').select('*, flashlight_images(*), reviews(*)').eq('id', id).single()
       .then(({ data }) => {
         if (data) { setEditTarget(data as Flashlight); setTab('edit') }
       })
@@ -251,7 +251,7 @@ export default function ContributePage() {
                   : (
                     <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
                       <FlashlightPicker onPick={async f => {
-                    const { data } = await supabase.from('flashlights').select('*, flashlight_images(*)').eq('id', f.id).single()
+                    const { data } = await supabase.from('flashlights').select('*, flashlight_images(*), reviews(*)').eq('id', f.id).single()
                     if (data) setEditTarget(data as Flashlight)
                   }} />
                     </div>

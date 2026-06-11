@@ -13,6 +13,8 @@ export type Brand = {
   about?: string | null           // company / maker bio — Markdown
   logo_url?: string | null        // optional brand logo (Vercel Blob)
   created_at?: string
+  updated_by?: string | null      // auth.users id of last editor (null = system/seed)
+  updated_at?: string | null      // last edit time
 }
 
 export type FlashlightImage = {
@@ -71,6 +73,7 @@ export type Review = {
   url: string
   type: string | null
   summary: string | null
+  published_at: string | null   // when the review article/video was posted
   created_at: string
 }
 

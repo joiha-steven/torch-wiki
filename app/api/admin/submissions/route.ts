@@ -94,8 +94,28 @@ export async function PATCH(request: Request) {
         )
       }
 
+      // Helper: replace a flashlight's review links with the submitted set.
+      // (The edit form always loads existing reviews, so replace-all is safe.)
+      type ReviewInput = { url?: string; title?: string; published_at?: string | null; type?: string | null }
+      async function applyReviews(flashlightId: string, reviews: ReviewInput[]) {
+        await admin.from('reviews').delete().eq('flashlight_id', flashlightId)
+        const clean = (reviews ?? []).filter(r => r?.url?.trim())
+        if (!clean.length) return
+        await admin.from('reviews').insert(
+          clean.map(r => ({
+            flashlight_id: flashlightId,
+            url: r.url!.trim(),
+            title: r.title?.trim() || r.url!.trim(),
+            published_at: r.published_at ?? null,
+            type: r.type ?? null,
+          }))
+        )
+      }
+
       if (submissionData?.type === 'new') {
         const d: Record<string, unknown> = { ...(submissionData.data ?? {}) }
+        const reviews = (d._reviews as ReviewInput[] | undefined) ?? []
+        delete d._reviews
         const slug = `${d.brand ?? ''}-${d.model ?? ''}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
         responseSlug = slug
         const imgs = (submissionImages ?? []) as { url: string; sort_order: number; is_primary: boolean }[]
@@ -109,7 +129,10 @@ export async function PATCH(request: Request) {
           .single()
 
         // Insert extra images into flashlight_images
-        if (newFl?.id) await insertExtraImages(newFl.id, imgs)
+        if (newFl?.id) {
+          await insertExtraImages(newFl.id, imgs)
+          await applyReviews(newFl.id, reviews)
+        }
 
       } else if (targetId) {
         const d: Record<string, unknown> = { ...(submissionData?.data ?? {}) }
@@ -119,11 +142,13 @@ export async function PATCH(request: Request) {
 
         if (slug) await movePdfs(d, slug)
 
-        // Extract image management directives (stored in data by the form)
+        // Extract directives stored in data by the form (not flashlight columns)
         const primaryImageUrl = '_primaryImageUrl' in d ? d._primaryImageUrl as string | null : undefined
         const removeExtraDbIds = (d._removeExtraDbIds as string[] | undefined) ?? []
+        const reviews = (d._reviews as ReviewInput[] | undefined) ?? []
         delete d._primaryImageUrl
         delete d._removeExtraDbIds
+        delete d._reviews
 
         // Delete removed extra images from DB + Vercel Blob
         if (removeExtraDbIds.length) {
@@ -159,6 +184,7 @@ export async function PATCH(request: Request) {
 
         // Insert newly uploaded extra images into flashlight_images
         await insertExtraImages(targetId, imgs)
+        await applyReviews(targetId, reviews)
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
