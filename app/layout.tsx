@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import Providers from '@/components/Providers'
 import PageFade from '@/components/PageFade'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
@@ -148,7 +147,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GoogleAnalytics />
         <CookieConsent />
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   )
