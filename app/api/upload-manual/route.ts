@@ -20,11 +20,22 @@ export async function POST(request: Request) {
   const slug = form.get('slug') as string | null
 
   if (!file || !slug) return NextResponse.json({ error: 'Missing file or slug' }, { status: 400 })
+  // Validate slug shape before using it in a blob path — blocks path traversal
+  // (e.g. "../../x") since the slug is interpolated straight into the storage key.
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    return NextResponse.json({ error: 'Invalid slug' }, { status: 400 })
+  }
   if (file.type !== 'application/pdf') return NextResponse.json({ error: 'Only PDF allowed' }, { status: 400 })
   if (file.size > 20 * 1024 * 1024) return NextResponse.json({ error: 'File too large (max 20MB)' }, { status: 400 })
 
+  // Don't trust the declared Content-Type — verify the real PDF magic bytes.
+  const buf = Buffer.from(await file.arrayBuffer())
+  if (buf.subarray(0, 5).toString('latin1') !== '%PDF-') {
+    return NextResponse.json({ error: 'File is not a valid PDF' }, { status: 400 })
+  }
+
   // Upload to Vercel Blob
-  const { url } = await put(`flashlights/${slug}/manual.pdf`, file, {
+  const { url } = await put(`flashlights/${slug}/manual.pdf`, buf, {
     access: 'public',
     contentType: 'application/pdf',
     addRandomSuffix: false,
@@ -36,7 +47,7 @@ export async function POST(request: Request) {
     .update({ manual_url: url })
     .eq('slug', slug)
 
-  if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
+  if (dbErr) return NextResponse.json({ error: 'Failed to save manual' }, { status: 500 })
 
   // Revalidate the flashlight page
   revalidatePath(`/${slug}`)

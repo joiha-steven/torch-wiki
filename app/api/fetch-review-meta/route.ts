@@ -2,18 +2,42 @@ import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 // Reject obvious internal / private hosts to limit SSRF. (Best-effort: covers
-// the common cases without doing DNS resolution.)
+// the common literal-IP cases without doing DNS resolution — DNS-rebinding is
+// out of scope here; the endpoint is auth-gated and rate-limited at the edge.)
 function isBlockedHost(hostname: string): boolean {
-  const h = hostname.toLowerCase()
-  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local') || h.endsWith('.internal')) return true
-  if (h === '::1' || h === '0.0.0.0') return true
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, '') // strip IPv6 brackets
+  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local') || h.endsWith('.lan') || h.endsWith('.internal')) return true
+  if (h === 'metadata.google.internal') return true
+  // IPv6 loopback / unspecified / unique-local (fc00::/7) / link-local (fe80::/10)
+  if (h === '::1' || h === '::' || h === '0.0.0.0') return true
+  if (/^f[cd][0-9a-f]*:/.test(h)) return true            // fc00::/7
+  if (/^fe[89ab][0-9a-f]*:/.test(h)) return true         // fe80::/10
+  if (/^::ffff:/.test(h)) return true                    // IPv4-mapped IPv6
   // IPv4 private / loopback / link-local (incl. cloud metadata 169.254.169.254)
   if (/^127\./.test(h)) return true
   if (/^10\./.test(h)) return true
   if (/^192\.168\./.test(h)) return true
   if (/^169\.254\./.test(h)) return true
   if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(h)) return true
+  if (/^100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\./.test(h)) return true // CGNAT 100.64/10
   return false
+}
+
+// Fetch that follows redirects manually, re-validating each hop's host so a
+// crafted page can't redirect us into the private network (SSRF via redirect).
+async function safeFetch(startUrl: string, init: RequestInit, maxHops = 4): Promise<Response | null> {
+  let current = startUrl
+  for (let i = 0; i < maxHops; i++) {
+    const res = await fetch(current, { ...init, redirect: 'manual' })
+    if (res.status < 300 || res.status >= 400) return res
+    const loc = res.headers.get('location')
+    if (!loc) return res
+    let next: URL
+    try { next = new URL(loc, current) } catch { return null }
+    if ((next.protocol !== 'http:' && next.protocol !== 'https:') || isBlockedHost(next.hostname)) return null
+    current = next.toString()
+  }
+  return null // too many redirects
 }
 
 function pickMeta(html: string, patterns: RegExp[]): string | null {
@@ -97,9 +121,8 @@ export async function POST(request: Request) {
     try {
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), 8000)
-      const res = await fetch(parsed.toString(), {
+      const res = await safeFetch(parsed.toString(), {
         signal: controller.signal,
-        redirect: 'follow',
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; torchEDCwikiBot/1.0; +https://torch.edc.wiki)',
           'Accept-Language': 'en-US,en;q=0.9',
@@ -108,7 +131,7 @@ export async function POST(request: Request) {
         },
       }).finally(() => clearTimeout(timer))
 
-      if (res.ok) {
+      if (res?.ok) {
         // Read up to ~2MB — YouTube pushes og:title / uploadDate past 600KB.
         const html = (await res.text()).slice(0, 2 * 1024 * 1024)
 

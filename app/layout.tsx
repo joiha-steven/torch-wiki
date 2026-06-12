@@ -103,13 +103,20 @@ const siteJsonLd = {
   ],
 }
 
+// Escape `<` so a value ending up in the JSON-LD can never break out of the
+// <script> tag (matches the safeJson helper in app/[slug]/page.tsx). The inputs
+// here are constants today, but this keeps it safe if they ever become dynamic.
+function safeJson(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c')
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJson(siteJsonLd) }}
         />
       </head>
       <body className="min-h-screen flex flex-col">
