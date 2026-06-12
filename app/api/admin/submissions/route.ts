@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { copy, del } from '@vercel/blob'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { getAdminUser } from '@/lib/verify-admin'
 
 const ALLOWED_ACTIONS = new Set(['approved', 'rejected'])
 
@@ -17,18 +18,6 @@ async function moveBlob(oldUrl: string, newPath: string): Promise<string> {
 
 function isSubmissionBlob(url: string) {
   return url?.includes('/submissions/manuals/')
-}
-
-async function verifyAdmin(request: Request) {
-  const token = (request.headers.get('Authorization') ?? '').replace('Bearer ', '')
-  if (!token) return null
-  const admin = getSupabaseAdmin()
-  const { data: { user }, error } = await admin.auth.getUser(token)
-  if (error || !user) return null
-  // Short-circuit: skip profile query for bootstrap admin email
-  if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) return user
-  const { data: profile } = await admin.from('profiles').select('is_admin, is_moderator').eq('id', user.id).single()
-  return (profile?.is_admin || profile?.is_moderator) ? user : null
 }
 
 async function movePdfs(d: Record<string, unknown>, slug: string) {
@@ -49,8 +38,8 @@ async function movePdfs(d: Record<string, unknown>, slug: string) {
 }
 
 export async function GET(request: Request) {
-  const user = await verifyAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const user = await getAdminUser(request)
+  if (!user || (!user.isAdmin && !user.isModerator)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const admin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
@@ -67,8 +56,8 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const user = await verifyAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const user = await getAdminUser(request)
+  if (!user || (!user.isAdmin && !user.isModerator)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const admin = getSupabaseAdmin()
   const body = await request.json().catch(() => null)
@@ -84,9 +73,11 @@ export async function PATCH(request: Request) {
 
   if (action === 'approved') {
     try {
-      // Look up actual user_id from DB — never trust client payload
+      // Record BOTH parties: updated_by = the admin/mod who approved, and
+      // submitted_by = the original contributor (from the submission row).
+      const reviewerId = user.id
       const { data: sub } = await admin.from('flashlight_submissions').select('user_id').eq('id', id).single()
-      const authorId = sub?.user_id ?? null
+      const submittedBy = sub?.user_id ?? null
 
       // Helper: insert non-primary submission images into flashlight_images
       async function insertExtraImages(
@@ -130,7 +121,7 @@ export async function PATCH(request: Request) {
         await movePdfs(d, slug)
         const { data: newFl } = await admin
           .from('flashlights')
-          .insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: authorId })
+          .insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: reviewerId, submitted_by: submittedBy })
           .select('id')
           .single()
 
@@ -182,7 +173,7 @@ export async function PATCH(request: Request) {
         }
 
         // `slug` last so it overrides the stale slug the form carries in `d`
-        const updateData: Record<string, unknown> = { ...d, slug, updated_by: authorId, updated_at: new Date().toISOString() }
+        const updateData: Record<string, unknown> = { ...d, slug, updated_by: reviewerId, submitted_by: submittedBy, updated_at: new Date().toISOString() }
 
         // Primary image: use explicit directive if set, else fall back to newly uploaded primary
         const imgs = (submissionImages ?? []) as { url: string; sort_order: number; is_primary: boolean }[]
