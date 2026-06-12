@@ -228,9 +228,17 @@ export default function BrowsePage() {
         </div>
 
         <main className="flex-1 min-w-0">
-          <div className="flex items-center justify-end gap-3 mb-5 md:hidden">
+          <div className="flex items-center justify-between gap-3 mb-5 md:hidden">
             <span className="text-[13px] text-ink-2">
               <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
+              {siteStats && (
+                <>
+                  <span className="text-line-strong mx-1.5">·</span>
+                  <b className="text-ink font-semibold">{siteStats.brands.toLocaleString()}</b> brands
+                  <span className="text-line-strong mx-1.5">·</span>
+                  <b className="text-ink font-semibold">{siteStats.users.toLocaleString()}</b> users
+                </>
+              )}
             </span>
             <button
               onClick={() => setFilterOpen(true)}

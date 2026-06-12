@@ -165,7 +165,7 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
                   <th className="px-3 py-2 text-left font-medium">{sub.type === 'edit' ? 'After' : 'Value'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-line">
                 {SPEC_LABELS.map(([key, label]) => {
                   const after = sub.data[key]
                   const before = sub.type === 'edit' ? (original as Partial<Flashlight>)[key] : undefined
@@ -580,7 +580,7 @@ function TeamPanel() {
       ) : admins.length === 0 ? (
         <p className="text-xs text-ink-3">No admins found.</p>
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-line">
           {admins.map(a => (
             <li key={a.id} className="flex items-center justify-between py-2.5 gap-3">
               <div className="min-w-0">

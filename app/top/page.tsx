@@ -111,7 +111,7 @@ export default async function TopPage() {
                 <p className="text-xs text-ink-3 mt-0.5">{list.subtitle}</p>
               </div>
 
-              <ol className="divide-y divide-slate-50">
+              <ol className="divide-y divide-line">
                 {list.items.map((f, i) => {
                   const stat = list.stat(f)
                   return (
