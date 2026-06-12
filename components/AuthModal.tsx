@@ -5,6 +5,7 @@ import { X, Loader2 } from 'lucide-react'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
+import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
 
 type Tab = 'signin' | 'signup' | 'forgot' | 'mfa' | 'recovery'
 
@@ -149,7 +150,7 @@ export default function AuthModal() {
       options: { emailRedirectTo: window.location.origin },
     })
     if (error) setError(error.message)
-    else setMessage('Check your email for a confirmation link.')
+    else { setMessage('Check your email for a confirmation link.'); trackEvent(AnalyticsEvent.Signup) }
     turnstileRef.current?.reset(); setCaptchaToken(null)
     setLoading(false)
   }

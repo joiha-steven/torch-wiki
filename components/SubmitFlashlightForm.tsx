@@ -10,6 +10,7 @@ import Image from 'next/image'
 import MarkdownEditor from '@/components/MarkdownEditor'
 import { useIsAdmin } from '@/lib/use-is-admin'
 import { batteryOptions } from '@/lib/battery'
+import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
@@ -348,6 +349,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         return
       }
 
+      trackEvent(mode === 'edit' ? AnalyticsEvent.ContributionEdit : AnalyticsEvent.ContributionNew)
       onSuccess()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')

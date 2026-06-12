@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase } from './supabase'
+import { trackEvent, AnalyticsEvent } from './analytics'
 
 type AuthContextType = {
   user: User | null
@@ -98,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await supabase.from('user_wishlists').delete().eq('user_id', user.id).eq('flashlight_id', flashlightId)
     } else {
       await supabase.from('user_wishlists').insert({ user_id: user.id, flashlight_id: flashlightId })
+      trackEvent(AnalyticsEvent.WishlistAdd)
     }
   }, [user, wishlistIds])
 
@@ -113,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await supabase.from('user_collections').delete().eq('user_id', user.id).eq('flashlight_id', flashlightId)
     } else {
       await supabase.from('user_collections').insert({ user_id: user.id, flashlight_id: flashlightId })
+      trackEvent(AnalyticsEvent.CollectionAdd)
     }
   }, [user, collectionIds])
 
