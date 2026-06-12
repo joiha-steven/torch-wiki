@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, SlidersHorizontal, X, Menu } from 'lucide-react'
 import Link from 'next/link'
@@ -175,13 +175,16 @@ export default function BrowsePage() {
     setLoadingMore(false)
   }
 
-  const toggleCompare = (id: string) => {
+  // Stable identity so memoised cards don't all re-render on every toggle.
+  const toggleCompare = useCallback((id: string) => {
     setCompareIds(prev => {
       const next = prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 4 ? [...prev, id] : prev
       localStorage.setItem('compareIds', JSON.stringify(next))
       return next
     })
-  }
+  }, [])
+  // O(1) membership lookup; only the cards whose flag flips will re-render.
+  const compareSet = useMemo(() => new Set(compareIds), [compareIds])
 
   const hasMore = items.length < totalCount
   const availableMadeIn = Array.from(new Set(brandsMeta.map(b => b.made_in).filter(Boolean) as string[])).sort()
@@ -258,7 +261,7 @@ export default function BrowsePage() {
                 className="bg-transparent text-[#f3f3f0] text-[13px] w-full focus:outline-none placeholder-[#f3f3f0]/50"
               />
               {filters.search && (
-                <button onClick={() => setFilters({ ...filters, search: '' })}>
+                <button onClick={() => setFilters({ ...filters, search: '' })} aria-label="Clear search">
                   <X size={14} className="text-[#f3f3f0]/60 hover:text-[#f3f3f0]" />
                 </button>
               )}
@@ -267,6 +270,7 @@ export default function BrowsePage() {
               className="sm:hidden flex items-center justify-center text-[#f3f3f0]/70 hover:text-[#f3f3f0]"
               onClick={() => setNavOpen(o => !o)}
               aria-label="Menu"
+              aria-expanded={navOpen}
             >
               {navOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -346,7 +350,7 @@ export default function BrowsePage() {
                   <FlashlightCard
                     key={f.id}
                     flashlight={f}
-                    compareIds={compareIds}
+                    isSelected={compareSet.has(f.id)}
                     onToggleCompare={toggleCompare}
                     priority={i < 4}
                   />
@@ -371,12 +375,12 @@ export default function BrowsePage() {
       </div>
 
       {filterOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Filters">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFilterOpen(false)} />
           <div className="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-xl overflow-y-auto p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="font-semibold text-slate-800">Filters</span>
-              <button onClick={() => setFilterOpen(false)}><X size={18} className="text-slate-500" /></button>
+              <button onClick={() => setFilterOpen(false)} aria-label="Close filters"><X size={18} className="text-slate-500" /></button>
             </div>
             <FilterPanel
               filters={filters}

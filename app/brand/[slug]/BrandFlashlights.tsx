@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Flashlight } from '@/lib/types'
 import FlashlightCard from '@/components/FlashlightCard'
@@ -29,13 +29,14 @@ export default function BrandFlashlights({ items }: { items: Flashlight[] }) {
     if (stored) setCompareIds(JSON.parse(stored))
   }, [])
 
-  const toggleCompare = (id: string) => {
+  const toggleCompare = useCallback((id: string) => {
     setCompareIds(prev => {
       const next = prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 4 ? [...prev, id] : prev
       localStorage.setItem('compareIds', JSON.stringify(next))
       return next
     })
-  }
+  }, [])
+  const compareSet = useMemo(() => new Set(compareIds), [compareIds])
 
   const groups = groupByYear(items)
 
@@ -54,7 +55,7 @@ export default function BrandFlashlights({ items }: { items: Flashlight[] }) {
                 <FlashlightCard
                   key={f.id}
                   flashlight={f}
-                  compareIds={compareIds}
+                  isSelected={compareSet.has(f.id)}
                   onToggleCompare={toggleCompare}
                 />
               ))}

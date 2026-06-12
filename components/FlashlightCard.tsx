@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Bookmark, GitCompare } from 'lucide-react'
@@ -11,13 +11,14 @@ import { useAuth } from '@/lib/auth-context'
 
 type Props = {
   flashlight: Flashlight
-  compareIds: string[]
+  isSelected: boolean
   onToggleCompare: (id: string) => void
   priority?: boolean
 }
 
-export default function FlashlightCard({ flashlight, compareIds, onToggleCompare, priority = false }: Props) {
-  const isSelected = compareIds.includes(flashlight.id)
+// Memoised: with a boolean `isSelected` (instead of the whole compareIds array)
+// only the cards whose selection actually changed re-render on a compare toggle.
+function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = false }: Props) {
   const [imgLoaded, setImgLoaded] = useState(false)
   const { wishlistIds, collectionIds, toggleWishlist, toggleCollection } = useAuth()
   const inWishlist = wishlistIds.has(flashlight.id)
@@ -110,6 +111,7 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
           <button
             onClick={(e) => { e.preventDefault(); onToggleCompare(flashlight.id) }}
             title={isSelected ? 'Remove from compare' : 'Add to compare'}
+            aria-label={`${isSelected ? 'Remove' : 'Add'} ${flashlight.brand} ${flashlight.model} ${isSelected ? 'from' : 'to'} compare`}
             aria-pressed={isSelected}
             className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
           >
@@ -118,6 +120,8 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
           <button
             onClick={(e) => { e.preventDefault(); toggleWishlist(flashlight.id) }}
             title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-label={`${inWishlist ? 'Remove' : 'Add'} ${flashlight.brand} ${flashlight.model} ${inWishlist ? 'from' : 'to'} wishlist`}
+            aria-pressed={inWishlist}
             className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
           >
             <Heart
@@ -129,6 +133,8 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
           <button
             onClick={(e) => { e.preventDefault(); toggleCollection(flashlight.id) }}
             title={inCollection ? 'Remove from collection' : 'Add to collection'}
+            aria-label={`${inCollection ? 'Remove' : 'Add'} ${flashlight.brand} ${flashlight.model} ${inCollection ? 'from' : 'to'} collection`}
+            aria-pressed={inCollection}
             className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
           >
             <Bookmark
@@ -142,3 +148,5 @@ export default function FlashlightCard({ flashlight, compareIds, onToggleCompare
     </div>
   )
 }
+
+export default memo(FlashlightCard)

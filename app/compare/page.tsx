@@ -90,6 +90,7 @@ export default function ComparePage() {
 
         <div className="bg-white border border-[#e7e7e1] rounded-xl overflow-x-auto">
           <table className="w-full text-sm">
+            <caption className="sr-only">Side-by-side specification comparison of the selected flashlights</caption>
             <thead>
               <tr className="border-b border-[#e7e7e1]">
                 <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6c6c66] w-36 sticky left-0 bg-white">
