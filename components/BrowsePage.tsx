@@ -223,19 +223,18 @@ export default function BrowsePage() {
             availableBrands={availableBrands}
             availableEmitters={availableEmitters}
             availableMadeIn={availableMadeIn}
-            siteStats={siteStats ?? undefined}
           />
         </div>
 
         <main className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-3 mb-5 md:hidden">
-            <span className="text-[13px] text-ink-2">
+          <div className="flex items-center justify-end gap-2 mb-5 md:hidden">
+            <span className="text-[12px] text-ink-2 text-right">
               <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
               {siteStats && (
                 <>
-                  <span className="text-line-strong mx-1.5">·</span>
+                  <span className="text-line-strong mx-1">·</span>
                   <b className="text-ink font-semibold">{siteStats.brands.toLocaleString()}</b> brands
-                  <span className="text-line-strong mx-1.5">·</span>
+                  <span className="text-line-strong mx-1">·</span>
                   <b className="text-ink font-semibold">{siteStats.users.toLocaleString()}</b> users
                 </>
               )}
@@ -257,6 +256,7 @@ export default function BrowsePage() {
             onToggleCompare={toggleCompare}
             loadingMore={loadingMore}
             sentinelRef={sentinelRef}
+            siteStats={siteStats ?? undefined}
           />
         </main>
       </div>

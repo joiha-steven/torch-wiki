@@ -115,10 +115,9 @@ type Props = {
   availableBrands: string[]
   availableEmitters: string[]
   availableMadeIn?: string[]
-  siteStats?: { flashlights: number; brands: number; users: number }
 }
 
-export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [], siteStats }: Props) {
+export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [] }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
 
@@ -277,9 +276,6 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         {' '}·{' '}
         <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">GitHub</a>.{' '}
         Product specs are factual data; product images belong to their respective manufacturers.
-        {siteStats && (
-          <> {siteStats.flashlights.toLocaleString()} flashlights · {siteStats.brands} brands · {siteStats.users} users.</>
-        )}
       </p>
     </aside>
   )

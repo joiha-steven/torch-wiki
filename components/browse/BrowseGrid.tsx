@@ -15,6 +15,7 @@ export default function BrowseGrid({
   onToggleCompare,
   loadingMore,
   sentinelRef,
+  siteStats,
 }: {
   loading: boolean
   items: Flashlight[]
@@ -23,6 +24,7 @@ export default function BrowseGrid({
   onToggleCompare: (id: string) => void
   loadingMore: boolean
   sentinelRef: RefObject<HTMLDivElement | null>
+  siteStats?: { flashlights: number; brands: number; users: number }
 }) {
   if (loading) {
     return (
@@ -42,6 +44,14 @@ export default function BrowseGrid({
     <>
       <p className="hidden md:block text-[13px] text-ink-2 mb-[22px]">
         <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
+        {siteStats && (
+          <>
+            <span className="text-line-strong mx-1.5">·</span>
+            <b className="text-ink font-semibold">{siteStats.brands.toLocaleString()}</b> brands
+            <span className="text-line-strong mx-1.5">·</span>
+            <b className="text-ink font-semibold">{siteStats.users.toLocaleString()}</b> users
+          </>
+        )}
       </p>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((f, i) => (
