@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, SlidersHorizontal, X, Menu } from 'lucide-react'
-import Link from 'next/link'
+import { SlidersHorizontal, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
-import FlashlightCard from './FlashlightCard'
-import FlashlightCardSkeleton from './FlashlightCardSkeleton'
 import FilterPanel from './FilterPanel'
-import UserMenu from './UserMenu'
+import BrowseHeader from './browse/BrowseHeader'
+import BrowseGrid from './browse/BrowseGrid'
+import CompareBar from './browse/CompareBar'
 
 const PAGE_SIZE = 32
 
@@ -82,24 +81,11 @@ export default function BrowsePage() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
-  const [navOpen, setNavOpen] = useState(false)
   const [availableBrands, setAvailableBrands] = useState<string[]>([])
   const [availableEmitters, setAvailableEmitters] = useState<string[]>([])
   const [brandsMeta, setBrandsMeta] = useState<{ name: string; made_in: string | null }[]>([])
   const [siteStats, setSiteStats] = useState<{ flashlights: number; brands: number; users: number } | null>(null)
   const fetchId = useRef(0)
-  const searchRef = useRef<HTMLInputElement>(null)
-  const headerRef = useRef<HTMLElement>(null)
-
-  // Liquid-glass: feed the pointer position to CSS vars so a specular
-  // highlight tracks the cursor across the header (set on the DOM, no re-render).
-  function trackHeaderPointer(e: React.PointerEvent<HTMLElement>) {
-    const el = headerRef.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    el.style.setProperty('--gx', `${((e.clientX - r.left) / r.width) * 100}%`)
-    el.style.setProperty('--gy', `${((e.clientY - r.top) / r.height) * 100}%`)
-  }
 
   // Load brand + emitter lists — cached in localStorage for 5 minutes
   useEffect(() => {
@@ -214,99 +200,10 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen">
-      <header
-        ref={headerRef}
-        onPointerMove={trackHeaderPointer}
-        className="floating-nav lg-surface sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
-        style={{ width: 'min(1224px, calc(100% - 56px))' }}
-      >
-        <div className="relative z-[1] flex items-center gap-8 px-[22px] h-14">
-          <Link href="/" className="font-extrabold text-[17px] tracking-[-0.02em] shrink-0" onClick={() => setNavOpen(false)}>
-            <span style={{ color: '#eba00b' }}>torch</span><span className="text-[#f3f3f0]">.EDC.wiki</span>
-          </Link>
-          <nav className="hidden sm:flex gap-0.5 text-sm font-medium">
-            {[
-              { href: '/',        label: 'Browse' },
-              { href: '/brands',  label: 'Brands' },
-              { href: '/top',     label: 'Top' },
-              { href: '/compare', label: 'Compare' },
-              { href: '/updates', label: 'Updates' },
-              { href: '/report',  label: 'Report' },
-            ].map(n => {
-              const active = n.href === '/'
-              return (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  className={`px-3 py-1.5 rounded-full transition-colors ${
-                    active
-                      ? 'text-[#f3f3f0] bg-white/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]'
-                      : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0] hover:bg-white/[0.06]'
-                  }`}
-                >
-                  {n.label}
-                </Link>
-              )
-            })}
-          </nav>
-          <div className="ml-auto flex items-center gap-3">
-            <div className="glass-dark hidden sm:flex items-center gap-2 rounded-full px-3.5 h-[34px] w-60">
-              <Search size={15} className="text-[#f3f3f0]/65 shrink-0" />
-              <input
-                ref={searchRef}
-                type="text"
-                placeholder="Search…"
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="bg-transparent text-[#f3f3f0] text-[13px] w-full focus:outline-none placeholder-[#f3f3f0]/50"
-              />
-              {filters.search && (
-                <button onClick={() => setFilters({ ...filters, search: '' })} aria-label="Clear search">
-                  <X size={14} className="text-[#f3f3f0]/60 hover:text-[#f3f3f0]" />
-                </button>
-              )}
-            </div>
-            <button
-              className="sm:hidden flex items-center justify-center text-[#f3f3f0]/70 hover:text-[#f3f3f0]"
-              onClick={() => setNavOpen(o => !o)}
-              aria-label="Menu"
-              aria-expanded={navOpen}
-            >
-              {navOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-            <UserMenu />
-          </div>
-        </div>
-
-        {/* Mobile nav dropdown — includes search on small screens */}
-        {navOpen && (
-          <nav className="relative z-[1] sm:hidden border-t border-white/10 px-[22px] py-3 flex flex-col gap-0.5">
-            <div className="glass-dark flex items-center gap-2 rounded-full px-3.5 h-[34px] mb-2">
-              <Search size={15} className="text-[#f3f3f0]/65 shrink-0" />
-              <input
-                type="text"
-                placeholder="Search…"
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="bg-transparent text-[#f3f3f0] text-[13px] w-full focus:outline-none placeholder-[#f3f3f0]/50"
-              />
-            </div>
-            {[
-              { href: '/',        label: 'Browse' },
-              { href: '/brands',  label: 'Brands' },
-              { href: '/top',     label: 'Top' },
-              { href: '/compare', label: 'Compare' },
-              { href: '/updates', label: 'Updates' },
-              { href: '/report',  label: 'Report' },
-            ].map(n => (
-              <Link key={n.href} href={n.href} onClick={() => setNavOpen(false)}
-                className="text-sm text-[#f3f3f0]/60 hover:text-[#f3f3f0] py-2.5 border-b border-white/10 last:border-0">
-                {n.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-      </header>
+      <BrowseHeader
+        search={filters.search}
+        onSearchChange={(v) => setFilters(f => ({ ...f, search: v }))}
+      />
 
       <div className="max-w-[1280px] mx-auto px-7 py-7 flex gap-10">
         <div className="hidden md:block">
@@ -334,43 +231,15 @@ export default function BrowsePage() {
             </button>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <FlashlightCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : items.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-[#9b9b94] text-sm">No flashlights found.</div>
-          ) : (
-            <>
-              <p className="hidden md:block text-[13px] text-[#6c6c66] mb-[22px]"><b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                {items.map((f, i) => (
-                  <FlashlightCard
-                    key={f.id}
-                    flashlight={f}
-                    isSelected={compareSet.has(f.id)}
-                    onToggleCompare={toggleCompare}
-                    priority={i < 4}
-                  />
-                ))}
-              </div>
-
-              {/* Infinite scroll sentinel */}
-              <div ref={sentinelRef} className="mt-8 flex justify-center h-8">
-                {loadingMore && (
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25"/>
-                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                    </svg>
-                    Loading…
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+          <BrowseGrid
+            loading={loading}
+            items={items}
+            totalCount={totalCount}
+            compareSet={compareSet}
+            onToggleCompare={toggleCompare}
+            loadingMore={loadingMore}
+            sentinelRef={sentinelRef}
+          />
         </main>
       </div>
 
@@ -393,26 +262,11 @@ export default function BrowsePage() {
         </div>
       )}
 
-      {compareIds.length > 0 && (
-        <div
-          className="floating-nav fixed bottom-4 left-1/2 -translate-x-1/2 z-40 rounded-[22px] text-[#f3f3f0]"
-          style={{ width: 'min(1320px, calc(100% - 32px))' }}
-        >
-          <div className="flex items-center justify-between px-[22px] h-14">
-            <span className="text-[#f3f3f0]/70 text-sm">{compareIds.length} selected</span>
-            <div className="flex items-center gap-4">
-              <button onClick={() => { setCompareIds([]); localStorage.removeItem('compareIds') }} className="text-[#f3f3f0]/60 hover:text-[#f3f3f0] text-xs">Clear</button>
-              <button
-                onClick={() => { localStorage.setItem('compareIds', JSON.stringify(compareIds)); router.push('/compare') }}
-                disabled={compareIds.length < 2}
-                className="bg-brand-500 hover:brightness-95 disabled:opacity-40 text-[#1d1604] text-xs px-4 py-2 rounded-full font-semibold transition-[filter]"
-              >
-                Compare ({compareIds.length})
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CompareBar
+        count={compareIds.length}
+        onClear={() => { setCompareIds([]); localStorage.removeItem('compareIds') }}
+        onCompare={() => { localStorage.setItem('compareIds', JSON.stringify(compareIds)); router.push('/compare') }}
+      />
     </div>
   )
 }
