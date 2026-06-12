@@ -2,10 +2,18 @@
 
 import Link from 'next/link'
 import { useConsent, setConsent } from '@/lib/use-consent'
+import { useAuth } from '@/lib/auth-context'
+import { useGaSettings, gaActive } from '@/lib/use-ga-settings'
 
 export default function CookieConsent() {
   const consent = useConsent()
+  const { isAdmin } = useAuth()
+  const settings = useGaSettings()
 
+  // The banner only exists to gate GA's cookie. If GA isn't configured/on
+  // (no Measurement ID), there's no cookie to consent to — and admins are
+  // never tracked — so skip it entirely.
+  if (isAdmin || !gaActive(settings)) return null
   // Only show until the visitor makes a choice.
   if (consent !== null) return null
 
