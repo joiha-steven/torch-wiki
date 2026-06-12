@@ -13,7 +13,7 @@ import CompareBar from './browse/CompareBar'
 // Mobile shows a 2-column grid — load a small first batch so the initial paint
 // is light, then let infinite-scroll fill the rest. Desktop loads a full page.
 const PAGE_SIZE_DESKTOP = 32
-const PAGE_SIZE_MOBILE = 12
+const PAGE_SIZE_MOBILE = 16
 
 const DEFAULT_FILTERS: FilterState = {
   search: '',
