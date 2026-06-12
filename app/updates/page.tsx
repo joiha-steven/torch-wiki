@@ -26,6 +26,32 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 12, 2026',
+    title: 'Browse sorting, mobile loading & performance',
+    items: [
+      'Browse now defaults to a Random order that reshuffles every day — so every brand gets a fair turn near the top instead of always being listed A–Z',
+      'New "Random" option in the Sort by menu; you can still switch to Model, Lumens, Price, Beam distance or Weight anytime',
+      'Mobile opens faster — it loads a smaller first batch of flashlights, then fills in more as you scroll',
+      'Faster, lighter product images — optimized sizes tuned to each layout with long-term caching',
+      'Price and Lumens filters are now clear min–max ranges (e.g. $100–200, 1K–2K lm)',
+      'Refined the floating glass header with a subtle cursor-following highlight, and matched its width to the page',
+      'Gentle, tasteful motion across the site (and it respects your "reduce motion" setting)',
+      'Fixed product images that had briefly stopped loading',
+    ],
+  },
+  {
+    date: 'June 12, 2026',
+    title: 'Security, privacy & accessibility',
+    items: [
+      'Hardened image uploads and contribution forms against abuse',
+      'Added security headers and tightened how external review links are fetched for previews',
+      'Site settings (like the analytics configuration) are now locked to admins at the database level',
+      'Friendly error screens with a one-tap "Try again" if something goes wrong',
+      'Accessibility: a skip-to-content link, clearer labels on icon buttons, and screen-reader improvements on the filters and the compare table',
+      'Approved contributions now credit both the original contributor and the reviewer who approved them',
+    ],
+  },
+  {
+    date: 'June 12, 2026',
     title: 'NEXTORCH catalog, licensing & privacy',
     items: [
       'NEXTORCH added — 72 flashlights across tactical, duty, EDC, weapon lights, headlamps, penlights and search lights, with full specs and product galleries',

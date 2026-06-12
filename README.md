@@ -20,7 +20,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 **Browsing & discovery**
 - Filter by brand, category, battery type, LED/emitter, country of manufacture ("Made in"), max lumens, price range, and charging method
-- Sort by model, lumens, price, beam distance, or weight
+- Sort by Random (the default — reshuffled daily so every brand gets fair exposure), model, lumens, price, beam distance, or weight
 - Multi-word search — "surefire 6px" matches brand + model simultaneously
 - Compare up to 4 flashlights side by side
 - Top Lists — recently added, newest releases, most expensive, best value
@@ -71,15 +71,20 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Cloudflare Turnstile captcha on signup, forgot password, and submission forms
 - Login rate limiting: 5 failed attempts → 10-minute lockout
 - 2FA with SHA-256 hashed recovery codes
+- Image-upload tokens require a valid session or a passed Turnstile (no open upload endpoint)
+- Site settings restricted to admins at the database level (Row-Level Security)
+- SSRF-guarded link-preview fetcher; baseline security headers (HSTS, nosniff, frame, referrer, permissions)
+- Admin email kept server-side only — never shipped in the client bundle
 
 **Performance**
 - Flashlight detail pages pre-rendered at build time (SSG), served from Vercel edge
 - On-demand cache invalidation when admin approves changes — no stale data
 - User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
 - Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency
-- Infinite scroll on browse page — loads more flashlights automatically as you scroll
+- Infinite scroll on browse page — loads more flashlights automatically as you scroll (mobile loads a smaller first batch for a faster open)
 - Skeleton loading with shimmer effect while data loads
-- Image `sizes` and `priority` optimized per grid layout for faster LCP
+- Image optimization tuned to the actual layouts (fewer size variants, 1-year cache) for faster LCP and lower cost
+- Random browse order reshuffled nightly via a Postgres `pg_cron` job
 - Daily Vercel Cron ping keeps Supabase free tier from pausing
 
 **SEO**

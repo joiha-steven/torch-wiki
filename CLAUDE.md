@@ -39,13 +39,14 @@ Key tables:
 - `flashlights` — main product table. RLS disabled (public read). Key columns:
   - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter` (legacy text), `emitters` (text[]), `battery_type` (legacy text), `battery_count` (legacy int), `battery_types` (text[]), `battery_options` (jsonb `[{type,count}]`), `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
   - content: `image_url` (Vercel Blob URL), `slug`, `notes`, `manual_url` (legacy), `manual_urls` (text[]), `description`, `is_discontinued`
-  - attribution: `updated_by` (uuid → auth.users) — set when admin approves a user edit
+  - ordering: `sort_seed` (double precision, default `random()`) — backs the **Random** browse sort (the default). Reshuffled nightly by a pg_cron job `reshuffle-flashlights` (`0 17 * * *` UTC = midnight Vietnam) so the order rotates daily. Browse orders by `sort_seed` then `id` (tie-break).
+  - attribution: `updated_by` (uuid → auth.users) = the admin/mod who approved; `submitted_by` (uuid → profiles) = the original contributor. Both set on approval in `/api/admin/submissions`.
 - `flashlight_images` — extra images per flashlight (`url`, `sort_order`)
 - `reviews` — review links per flashlight (`title`, `reviewer`, `url`, `type`, `summary`, `published_at`). Editable in the contribute/edit form: paste a URL → `/api/fetch-review-meta` (server-side, auth-gated, SSRF-guarded) fetches the og/JSON-LD `title` + published date, prefilled and editable. Multiple links per light. Stored as `_reviews` in the submission `data` and applied **replace-all** on approval (the edit form always loads existing reviews first, so nothing is lost). Detail page renders Reviews **below** the User manual, newest first (icon + title + date + link).
 - `user_wishlists` — `(user_id, flashlight_id)` — RLS: user sees own rows only
 - `user_collections` — `(user_id, flashlight_id, purchase_price, material, color, purchase_date, quantity)` — RLS: user sees own rows only
 - `profiles` — `(id, nickname, is_admin, is_moderator, show_collection, updated_at)` — RLS: public SELECT, owner INSERT/UPDATE. Nickname: letters/numbers/`-`/`_` only, 3–30 chars, unique, **permanent once set**. Real-time availability check (debounced 500ms) on the input. `is_admin` / `is_moderator` control access — set via SQL. `show_collection` (bool, default false): when on, the user's collection appears on their public `/u/[nickname]` page (flashlight + quantity only — never price/date); toggled in My Account → Profile.
-- `settings` — `(key, value)` — site-wide config. Keys: `ga_measurement_id`, `ga_enabled`. RLS disabled.
+- `settings` — `(key, value)` — site-wide config. Keys: `ga_measurement_id`, `ga_enabled`. **RLS: public SELECT, admin-only write** (AdminDashboard writes with the admin's session via the anon client; the policy enforces `profiles.is_admin`). Service role (API routes) bypasses RLS.
 - `brands` — `(name pk, country, made_in, founded_year, headquarters, website, about, logo_url, created_at, updated_by, updated_at)` — per-brand metadata (brand's origin country + where products are made). `updated_by`/`updated_at` drive the "Added by / Updated by" footer on brand pages (same logic as flashlights: updated_by null = system). RLS: public SELECT. `name` must match `flashlights.brand` exactly. Detail page looks it up by brand name and shows "Brand Origin" / "Made In". Also powers the **"Made in" browse filter** — BrowsePage loads `brands(name, made_in)` into the meta cache and resolves a selected country to the matching brand names (`.in('brand', …)`, since `made_in` isn't a flashlights column). Managed centrally (SQL/script), not via the contribute form.
 - `flashlight_submissions` — user-submitted new flashlights or edits. `type` (new|edit), `status` (pending|approved|rejected), `target_id` (flashlight being edited), `data` (jsonb), `user_id`
 - `submission_images` — images attached to a submission (`url`, `sort_order`, `is_primary`)
@@ -83,6 +84,31 @@ ON CONFLICT (name) DO UPDATE SET country = EXCLUDED.country, made_in = EXCLUDED.
 ALTER TABLE brands  ADD COLUMN IF NOT EXISTS updated_by uuid;
 ALTER TABLE brands  ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS published_at timestamptz;
+```
+
+**Migration — contributor attribution** (run once in Supabase SQL editor):
+```sql
+ALTER TABLE flashlights ADD COLUMN IF NOT EXISTS submitted_by uuid REFERENCES profiles(id);
+```
+
+**Migration — random browse sort + nightly reshuffle** (run once in Supabase SQL editor; needs the `pg_cron` extension enabled in Dashboard → Database → Extensions):
+```sql
+ALTER TABLE flashlights ADD COLUMN IF NOT EXISTS sort_seed double precision DEFAULT random();
+UPDATE flashlights SET sort_seed = random() WHERE sort_seed IS NULL;
+CREATE INDEX IF NOT EXISTS idx_flashlights_sort_seed ON flashlights (sort_seed);
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+SELECT cron.schedule('reshuffle-flashlights', '0 17 * * *', $$update flashlights set sort_seed = random()$$);
+```
+
+**Migration — lock down `settings` writes (RLS)** (run once in Supabase SQL editor):
+```sql
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "settings read" ON settings;
+CREATE POLICY "settings read" ON settings FOR SELECT USING (true);
+DROP POLICY IF EXISTS "settings admin write" ON settings;
+CREATE POLICY "settings admin write" ON settings FOR ALL
+  USING      (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.is_admin = true))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.is_admin = true));
 ```
 
 **Note on emitters:** `emitter` (text) is legacy. `emitters` (text[]) is canonical — always use for filtering and display.
@@ -169,7 +195,7 @@ Three tabs:
 
 ## Admin (`/admin`)
 
-- Accessible when `profiles.is_admin = true` OR `profiles.is_moderator = true` OR email = `NEXT_PUBLIC_ADMIN_EMAIL`
+- Access decided by `profiles.is_admin` / `profiles.is_moderator`. The bootstrap `NEXT_PUBLIC_ADMIN_EMAIL` match is enforced **server-side only** (API routes via `getAdminUser`); the `/admin` page + `useIsAdmin` use the profiles flags so the admin email never ships in client JS. (Owner account already has `is_admin = true`.)
 - **2FA required** — blocks access until TOTP factor enrolled
 - Sections: **Submissions** | **Reports** | **Users** | **Settings** (users + settings: admin only)
 - Submissions fetched via `/api/admin/submissions` (service role — bypasses RLS, sees all users' submissions)
@@ -186,6 +212,23 @@ Three tabs:
 ALTER TABLE flashlights ADD COLUMN IF NOT EXISTS manual_urls text[] DEFAULT '{}';
 UPDATE flashlights SET manual_urls = ARRAY[manual_url] WHERE manual_url IS NOT NULL AND (manual_urls IS NULL OR manual_urls = '{}');
 ```
+
+## Security
+
+- **Admin auth helper** — `lib/verify-admin.ts` → `getAdminUser(request)` authenticates the bearer token and returns `{ id, email, isAdmin, isModerator }`. Each route applies its own level: **content** routes (`brand`, `brand-submissions`, `flashlight`, `submissions`, `revalidate`) accept `isAdmin || isModerator`; **role-management** routes (`users`, `set-role`, `list-moderators`) require `isAdmin`. The bootstrap admin email is checked **inside the helper, server-side only** — it is no longer read by client code, so it never ships in the client bundle (`app/admin/page.tsx` + `lib/use-is-admin.ts` rely on `profiles` flags). `list-admins` (cookie/session auth) and `upload-image` (clientPayload token) keep their own auth on purpose.
+- **`/api/upload`** — does not mint Vercel Blob tokens for anyone. `onBeforeGenerateToken` requires a `clientPayload` JSON of `{ session }` (a Supabase access token, validated via `getUser`) **or** `{ turnstile }` (verified via Turnstile siteverify). Callers: MarkdownEditor + SubmitFlashlightForm send the session token; the report page sends the session token when logged in, else the Turnstile token (anonymous attachments). The report page only runs the standalone captcha-verify when there's **no** attachment (the upload consumes the single-use token otherwise).
+- **`/api/upload-manual`** — admin/mod only; validates the slug shape (path-traversal) and checks the real `%PDF-` magic bytes (not just the declared Content-Type).
+- **`/api/fetch-review-meta`** — SSRF-guarded: follows redirects manually and re-validates each hop's host; blocklist covers IPv4 private/loopback/link-local + CGNAT 100.64/10, IPv6 ULA/link-local/mapped, `.lan`/`.internal`, and the cloud-metadata host.
+- **`/api/recover-account`** — protect against recovery-code brute-force with a Vercel Firewall rate-limit rule (edge); an AAL1 (password-only) session could otherwise brute the codes to drop 2FA.
+- **Security headers** — `next.config.ts` `headers()` sets HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN`, `Permissions-Policy` on every response (no CSP — would need to allow Supabase/Blob/GA/Turnstile/video embeds).
+- **JSON-LD** — `safeJson()` escapes `<` in `app/layout.tsx` and `app/[slug]/page.tsx`.
+- **Recommended (Vercel dashboard)** — Firewall → Custom Rules: rate-limit `/api/upload`, `/api/recover-account`, `/api/fetch-review-meta`, `/api/admin/`, `/api/revalidate`. Keep **AI Bots = Off** (we want crawlers + `llms.txt`). The WAF OWASP managed ruleset is Enterprise-only.
+
+## Image Optimization & Cost
+
+- All product images are optimized by Vercel's image optimizer (`/_next/image`). Billed per **transformation** (a unique image×size×format), cached for `minimumCacheTTL = 1 year`. Free/Hobby has a quota — exceeding it returns **HTTP 402** and images break site-wide (this happened; fixed by upgrading to Pro).
+- `next.config.ts` trims variants to keep transformations low: `deviceSizes: [640, 828, 1080, 1920]`, `imageSizes: [128, 384]` (≈6 variants/image instead of up to 16), matched to the actual card/hero/thumbnail layouts. `remotePatterns` restricted to Blob + `cdn.shopify.com`.
+- Blob URLs are immutable (random suffix) → safe to cache "forever"; changing an image yields a new URL.
 
 ## Image Workflow
 
@@ -225,10 +268,13 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `lib/types.ts` | TypeScript types for all DB tables |
 | `components/AuthModal.tsx` | Sign in / Sign up / Forgot / MFA challenge / Recovery code |
 | `components/UserMenu.tsx` | User icon in header — dropdown menu |
-| `components/Header.tsx` | Shared sticky header — logo, nav, UserMenu. **Note:** `BrowsePage.tsx` does NOT use this — it has its own inline header (with an integrated search box). Header style/nav changes must be made in BOTH places to stay in sync. |
-| `components/BrowsePage.tsx` | Main browse page — server-side filter/sort, pagination 32/page |
-| `components/FilterPanel.tsx` | Sidebar filters |
-| `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons |
+| `components/Header.tsx` | Shared sticky header — logo, nav, UserMenu. **Note:** the browse page does NOT use this — it has its own header `components/browse/BrowseHeader.tsx` (with an integrated search box). Header style/nav changes must be made in BOTH places to stay in sync. |
+| `components/BrowsePage.tsx` | Main browse page — owns data fetch + filter/sort state + infinite-scroll observer. Page size: **mobile 16, desktop 32** (`PAGE_SIZE_MOBILE/DESKTOP`, chosen once from viewport at mount). Default sort = **random** (`sort_seed`). Split into `components/browse/{BrowseHeader, BrowseGrid, CompareBar}` (presentational; the sentinel ref is forwarded to BrowseGrid so fetch/scroll logic stays in the parent). |
+| `components/browse/BrowseHeader.tsx` · `BrowseGrid.tsx` · `CompareBar.tsx` | Extracted browse pieces — floating header+search, results grid, bottom compare bar |
+| `components/FilterPanel.tsx` | Sidebar filters — incl. the Sort by select (`SORT_OPTIONS`, default `random`) |
+| `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons. `memo`-wrapped; takes `isSelected: boolean` (not the compareIds array) so only the toggled card re-renders. |
+| `components/ErrorState.tsx` | Shared on-brand error UI used by `app/error.tsx` + `app/[slug]/error.tsx` error boundaries |
+| `lib/verify-admin.ts` | `getAdminUser(request)` — shared bearer-token admin/mod auth for API routes (see Security) |
 | `components/SubmitFlashlightForm.tsx` | Full spec form — image/PDF management, Markdown description, Turnstile captcha (skipped for admin), admin auto-approve |
 | `components/MarkdownContent.tsx` | Renders Markdown with Tailwind styles — used in flashlight detail and form preview |
 | `components/SuggestEditButton.tsx` | Smart "Suggest an edit" / "Edit" link — shows "Edit" for admin/mod, "Suggest an edit" for users |
@@ -242,7 +288,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/api/admin/flashlight/route.ts` | PATCH — direct flashlight update (used by admin auto-approve path) |
 | `app/api/admin/upload-image/route.ts` | Admin image upload handler — auth via clientPayload bearer token |
 | `app/api/upload-pdf/route.ts` | Client upload handler for PDFs in contribute form — auth via clientPayload bearer token |
-| `app/api/upload-manual/route.ts` | Direct admin PDF upload — stores to `flashlights/{slug}/manual.pdf` |
+| `app/api/upload-manual/route.ts` | Direct **admin/mod-only** PDF upload — stores to `flashlights/{slug}/manual.pdf`; validates slug + `%PDF-` magic bytes |
 | `lib/cdn.ts` | `cdnUrl()` — rewrites Vercel Blob PDF URLs to Cloudflare CDN proxy domain |
 | `lib/seo.ts` | `SITE_URL`, `SITE_NAME`, `OG_IMAGE` — single source of truth for canonical origin + default share image (`public/og-default.jpg`, 1200×630) |
 | `app/api/fetch-review-meta/route.ts` | POST `{url}` (auth-gated, SSRF-guarded) → og/JSON-LD title + published date; uses YouTube/Vimeo **oEmbed** first (reliable title), HTML fallback for the date |
@@ -259,7 +305,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/updates/page.tsx` | Static changelog |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
 | `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
-| `app/api/upload/route.ts` | Vercel Blob client upload handler |
+| `app/api/upload/route.ts` | Vercel Blob client upload handler — gated by `clientPayload` `{ session }` (Supabase token) or `{ turnstile }` (see Security) |
 | `app/api/revalidate/route.ts` | On-demand cache invalidation — called by admin on approval or force-clear |
 | `app/api/ga-settings/route.ts` | Returns GA `{ enabled, id }` from `settings` table (5 min cache) |
 | `app/sitemap.ts` | Auto-generated `/sitemap.xml` — all flashlight slugs + static pages (1hr revalidate) |
@@ -322,6 +368,8 @@ Sections in order:
 **Price buckets** (range min–max on `price_usd`; sentinel max 99999): `<$50`, `$50–100`, `$100–200`, `$200–300`, `$300–500`, `$500+`, `$1K+`, `$2K+`, `$3K+`, Any. Single-select; sets `minPrice`+`maxPrice`. The `+` buckets have no upper bound (max = sentinel).
 
 (Both rendered by the shared `RangeButtons` group in `components/FilterPanel.tsx`; buckets are defined in `LUMEN_BUCKETS` / `PRICE_BUCKETS` there.)
+
+**Sort by** (`SORT_OPTIONS` in `FilterPanel.tsx`): **Random** (default), Model A–Z, Lumens (High–Low / Low–High), Price (Low–High / High–Low), Beam Distance (Far–Near), Weight (Light–Heavy). Random orders by `flashlights.sort_seed` (+ `id` tie-break) and reshuffles nightly via pg_cron — see the schema note.
 
 ## Color System
 
