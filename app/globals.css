@@ -125,6 +125,17 @@
   color-scheme: dark;   /* native scrollbar / form controls follow dark */
 }
 
+/* Product-image plate in dark mode — keep a bright center (so white-background
+   photos still blend) but soften the edges with a vignette + a thin inner ring
+   and inset shadow, so it reads as a recessed display panel rather than a
+   glaring white sticker on the dark card. Light mode keeps the flat white plate. */
+:root[data-theme="dark"] .bg-plate {
+  background-image: radial-gradient(125% 125% at 50% 38%, #e7e7e3 0%, #d3d4cf 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.10),
+    inset 0 10px 26px rgba(0, 0, 0, 0.10);
+}
+
 body {
   /* subtle white → bg vertical wash so glass surfaces (and the dark nav)
      actually read as glass rather than flat fills */
