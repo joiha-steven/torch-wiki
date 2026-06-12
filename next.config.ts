@@ -20,6 +20,29 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'cdn.shopify.com' },
     ],
   },
+  // Security headers applied to every response (Vercel honours these at the edge
+  // routing layer). Kept conservative so nothing breaks: no CSP here (it would
+  // need to allow Supabase, Blob, GA, Turnstile, YouTube/Vimeo embeds — easy to
+  // break the site), just the low-risk hardening headers + HSTS.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          // force HTTPS for 2 years incl. subdomains (eligible for preload list)
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          // stop browsers MIME-sniffing a response into a different type
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // don't leak full URLs to third parties on cross-origin navigation
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // disallow the site being framed elsewhere (clickjacking)
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // deny powerful APIs we never use
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ]
+  },
 }
 
 export default nextConfig
