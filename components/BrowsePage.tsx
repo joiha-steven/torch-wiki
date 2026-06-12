@@ -55,9 +55,9 @@ function buildQuery(filters: FilterState, from: number, to: number, madeInBrands
   }
 
   switch (filters.sortBy) {
-    // Order by the (random v4) uuid — a stable shuffle that isn't biased by name,
-    // and paginates consistently across infinite-scroll pages.
-    case 'random':      q = q.order('id', { ascending: true }); break
+    // Order by the random sort_seed column (reshuffled nightly by a pg_cron job)
+    // with id as a deterministic tie-break so infinite-scroll pages don't overlap.
+    case 'random':      q = q.order('sort_seed', { ascending: true }).order('id', { ascending: true }); break
     case 'lumens_desc': q = q.order('max_lumens', { ascending: false, nullsFirst: false }); break
     case 'lumens_asc':  q = q.order('max_lumens', { ascending: true,  nullsFirst: false }); break
     case 'price_asc':   q = q.order('price_usd',  { ascending: true,  nullsFirst: false }); break
