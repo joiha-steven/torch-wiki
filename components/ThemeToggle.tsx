@@ -84,9 +84,6 @@ export default function ThemeToggle() {
           className="absolute right-0 top-11 w-[236px] rounded-2xl p-1.5 z-50"
           style={{ background: 'var(--menu-bg)', border: '1px solid var(--menu-border)', boxShadow: '0 16px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12)' }}
         >
-          <p className="px-2.5 pt-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] uppercase" style={{ color: 'var(--ink-3)' }}>
-            Appearance
-          </p>
           {OPTIONS.map(({ mode: m, label, Icon, hint }) => {
             const active = mode === m
             return (

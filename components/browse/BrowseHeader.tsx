@@ -59,8 +59,8 @@ export default function BrowseHeader({
                 href={n.href}
                 className={`px-3 py-1.5 rounded-full transition-colors ${
                   active
-                    ? 'text-[#f3f3f0] bg-white/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]'
-                    : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0] hover:bg-white/[0.06]'
+                    ? 'text-[#f3f3f0] bg-[#ffe8c8]/[0.13] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]'
+                    : 'text-[#f3f3f0]/60 hover:text-[#f3f3f0] hover:bg-[#ffe8c8]/[0.08]'
                 }`}
               >
                 {n.label}

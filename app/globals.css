@@ -67,7 +67,7 @@
   --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 48%);
   --pill-bg: rgba(255, 255, 255, 0.72);
   --pill-edge: rgba(255, 255, 255, 0.75);
-  --nav-bg: rgba(10, 10, 12, 0.93);
+  --nav-bg: rgba(31, 33, 38, 0.92);   /* lighter graphite capsule (was near-black) */
 
   /* dropdown / menu surfaces */
   --menu-bg: #ffffff;
@@ -247,8 +247,9 @@ h1, h2, h3 {
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
+  /* warm specular glow (~4000K) instead of pure white */
   background: radial-gradient(120px circle at var(--gx, 50%) var(--gy, -10%),
-    rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 55%);
+    rgba(255, 232, 200, 0.16), rgba(255, 232, 200, 0) 55%);
   opacity: 0;
   transition: opacity var(--dur) var(--ease-out);
 }
@@ -268,8 +269,8 @@ h1, h2, h3 {
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 .glass-dark:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 232, 200, 0.16);   /* warm ~4000K hover */
+  border-color: rgba(255, 232, 200, 0.28);
 }
 
 /* Graceful fallback where backdrop-filter is unsupported — raise fills toward
