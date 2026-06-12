@@ -84,6 +84,9 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 **Performance**
 - Flashlight detail pages pre-rendered at build time (SSG), served from Vercel edge
+- Browse page server-renders its first batch + filter lists (ISR, hourly) next to the database, so the grid arrives in the HTML — no client round-trip to the DB on first paint
+- Browse grid fetches only the columns each card renders (not whole rows), cutting first-load payload by ~⅔; counts use estimated mode to avoid full table scans
+- Sign-in modal (and its captcha) is lazy-loaded only when opened, off the first-paint bundle
 - On-demand cache invalidation when admin approves changes — no stale data
 - User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
 - Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency

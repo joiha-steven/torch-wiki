@@ -269,7 +269,9 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `components/AuthModal.tsx` | Sign in / Sign up / Forgot / MFA challenge / Recovery code |
 | `components/UserMenu.tsx` | User icon in header — dropdown menu |
 | `components/Header.tsx` | Shared sticky header — logo, nav, UserMenu. **Note:** the browse page does NOT use this — it has its own header `components/browse/BrowseHeader.tsx` (with an integrated search box). Header style/nav changes must be made in BOTH places to stay in sync. |
-| `components/BrowsePage.tsx` | Main browse page — owns data fetch + filter/sort state + infinite-scroll observer. Page size: **mobile 16, desktop 32** (`PAGE_SIZE_MOBILE/DESKTOP`, chosen once from viewport at mount). Default sort = **random** (`sort_seed`). Split into `components/browse/{BrowseHeader, BrowseGrid, CompareBar}` (presentational; the sentinel ref is forwarded to BrowseGrid so fetch/scroll logic stays in the parent). |
+| `components/BrowsePage.tsx` | Main browse page — owns filter/sort state + infinite-scroll observer. **Seeded by the server** via optional `initialItems`/`initialCount`/`initialMeta` props (see Caching → Browse first-paint); skips the first client fetch when seeded. Page size: **mobile 16, desktop 32** (`PAGE_SIZE_MOBILE/DESKTOP`, chosen once from viewport at mount). Default sort = **random** (`sort_seed`). Split into `components/browse/{BrowseHeader, BrowseGrid, CompareBar}` (presentational; the sentinel ref is forwarded to BrowseGrid so fetch/scroll logic stays in the parent). |
+| `lib/browse.ts` | Shared browse query layer used by **both** `app/page.tsx` (server) and `BrowsePage` (client): `DEFAULT_FILTERS`, `PAGE_SIZE_*`, `BROWSE_COLS` (card-only column list), `buildQuery()` (`count: 'estimated'`), `madeInBrandNames()`, `fetchBrowseMeta()`. Single source of truth so the server-seeded first page and client refetches stay identical. |
+| `components/Providers.tsx` | Global `AuthProvider` + auth-modal portal. `AuthModal` is **`next/dynamic` (`ssr: false`)** — its Turnstile dependency only loads when the user opens sign-in, keeping it out of the first-paint bundle. |
 | `components/browse/BrowseHeader.tsx` · `BrowseGrid.tsx` · `CompareBar.tsx` | Extracted browse pieces — floating header+search, results grid, bottom compare bar |
 | `components/FilterPanel.tsx` | Sidebar filters — incl. the Sort by select (`SORT_OPTIONS`, default `random`) |
 | `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons. `memo`-wrapped; takes `isSelected: boolean` (not the compareIds array) so only the toggled card re-renders. |
@@ -324,9 +326,9 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | Page type | Cache | Cleared by |
 |---|---|---|
 | `/[slug]` flashlight pages | Static (SSG) — served from Vercel edge | Deploy · Admin approves submission · Force clear button |
-| `/` browse page | Static shell (client fetches data) | Deploy |
+| `/` browse page | **ISR `revalidate = 3600`** — server renders the first 32 cards + filter meta next to the DB (iad1), ships them in the HTML; client takes over for filter/scroll | Deploy · hourly revalidate |
 | `/my` `/account` `/contribute` `/compare` `/report` | `force-dynamic` — never cached | Always fresh |
-| Brand/emitter filter lists | localStorage, 5 min TTL | Auto-expire · Admin approve/force-clear clears immediately |
+| Brand/emitter filter lists | Server-seeded on first load (ISR 1h); localStorage 5 min TTL on client navigation | Auto-expire · Admin approve/force-clear clears immediately |
 
 **Vercel Cron:** `vercel.json` schedules `/api/ping` daily at 08:00 UTC — queries DB to prevent Supabase free tier from pausing.
 
@@ -336,7 +338,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 - Admin edits DB directly (Supabase Table Editor) → use **"Force clear cache"** button in `/admin` to clear all flashlight pages at once
 - Every **deploy** → Vercel rebuilds all static pages automatically
 
-`brands` and `emitters` filter lists are cached in **localStorage for 1 hour** (BrowsePage).
+**Browse first-paint (perf):** `app/page.tsx` is an async Server Component (`revalidate = 3600`) that runs `buildQuery(DEFAULT_FILTERS, …)` + `fetchBrowseMeta()` from `lib/browse.ts` at iad1 (same region as Supabase, sub-ms) and passes `initialItems`/`initialCount`/`initialMeta` into `BrowsePage`. The client seeds its state from those props and **skips the first fetch** (`skipNextFetch` ref) — no client round-trip to the DB on first load (was the root cause of the slow FCP when testing from far away). Browse queries select only `BROWSE_COLS` (the columns the card renders), never `select('*')` — ~⅓ the old payload. Counts use `count: 'estimated'` (exact for this small table, no full scan). Infinite-scroll `loadMore` offsets by `items.length` (not `page × size`) so a server-seeded 32 + a client `pageSize` of 16 never overlap. `brands`/`emitters` lists fall back to **localStorage (5 min)** only on client navigation.
 
 ## Flashlight Detail Page
 

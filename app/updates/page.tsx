@@ -26,6 +26,16 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 13, 2026',
+    title: 'Faster browse page',
+    items: [
+      'The browse page now arrives ready — the first set of flashlights and the filter lists are rendered on our servers and sent with the page, instead of loading in after it opens',
+      'Noticeably quicker first view, especially on slower connections and far from the US — the grid no longer waits on a round-trip to the database before it appears',
+      'Lighter page — each flashlight in the grid now sends only what the card needs, cutting the amount downloaded on first load by roughly two-thirds',
+      'The sign-in window now loads only when you open it, so it no longer adds weight to every page',
+    ],
+  },
+  {
+    date: 'June 13, 2026',
     title: 'Dark mode',
     items: [
       'New dark mode — tap the theme button next to your account icon to switch between Light, Dark, Follow system, or Auto (dark from 6pm to 6am)',

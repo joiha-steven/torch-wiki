@@ -5,85 +5,37 @@ import { useRouter } from 'next/navigation'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
+import {
+  PAGE_SIZE_DESKTOP,
+  PAGE_SIZE_MOBILE,
+  DEFAULT_FILTERS,
+  buildQuery,
+  madeInBrandNames,
+  fetchBrowseMeta,
+  type BrandMeta,
+  type BrowseMeta,
+  type SiteStats,
+} from '@/lib/browse'
 import FilterPanel from './FilterPanel'
 import BrowseHeader from './browse/BrowseHeader'
 import BrowseGrid from './browse/BrowseGrid'
 import CompareBar from './browse/CompareBar'
 
-// Mobile shows a 2-column grid — load a small first batch so the initial paint
-// is light, then let infinite-scroll fill the rest. Desktop loads a full page.
-const PAGE_SIZE_DESKTOP = 32
-const PAGE_SIZE_MOBILE = 16
-
-const DEFAULT_FILTERS: FilterState = {
-  search: '',
-  brands: [],
-  categories: [],
-  batteryTypes: [],
-  emitters: [],
-  madeIn: [],
-  minLumens: 0,
-  maxLumens: 50000,
-  minPrice: 0,
-  maxPrice: 99999,
-  chargingType: null,
-  sortBy: 'random',
+type Props = {
+  // Seeded by the server component (app/page.tsx) so the first grid + filter
+  // lists render from the HTML, with no client round-trip on first paint.
+  initialItems?: FlashlightType[]
+  initialCount?: number
+  initialMeta?: BrowseMeta
 }
 
-// madeInBrands: when the "Made in" filter is active, the precomputed list of brand
-// names whose made_in matches the selection (made_in lives on the brands table).
-function buildQuery(filters: FilterState, from: number, to: number, madeInBrands: string[] | null = null) {
-  let q = supabase.from('flashlights').select('*', { count: 'exact' })
-
-  if (filters.brands.length > 0) q = q.in('brand', filters.brands)
-  if (madeInBrands !== null) q = q.in('brand', madeInBrands)
-  if (filters.categories.length > 0) q = q.in('category', filters.categories)
-  if (filters.batteryTypes.length > 0) q = q.overlaps('battery_types', filters.batteryTypes)
-  if (filters.emitters.length > 0) q = q.overlaps('emitters', filters.emitters)
-  if (filters.minLumens > 0) q = q.gte('max_lumens', filters.minLumens)
-  if (filters.maxLumens < 50000) q = q.lte('max_lumens', filters.maxLumens)
-  if (filters.minPrice > 0) q = q.gte('price_usd', filters.minPrice)
-  if (filters.maxPrice < 99999) q = q.lte('price_usd', filters.maxPrice)
-  if (filters.chargingType !== null) q = q.eq('charging_type', filters.chargingType)
-  if (filters.search.trim()) {
-    // Split into words — each word must match brand OR model (AND between words)
-    // "surefire 6px" → (brand|model has "surefire") AND (brand|model has "6px")
-    const words = filters.search.trim().split(/\s+/).filter(Boolean)
-    for (const word of words) {
-      q = q.or(`model.ilike.%${word}%,brand.ilike.%${word}%`)
-    }
-  }
-
-  switch (filters.sortBy) {
-    // Order by the random sort_seed column (reshuffled nightly by a pg_cron job)
-    // with id as a deterministic tie-break so infinite-scroll pages don't overlap.
-    case 'random':      q = q.order('sort_seed', { ascending: true }).order('id', { ascending: true }); break
-    case 'lumens_desc': q = q.order('max_lumens', { ascending: false, nullsFirst: false }); break
-    case 'lumens_asc':  q = q.order('max_lumens', { ascending: true,  nullsFirst: false }); break
-    case 'price_asc':   q = q.order('price_usd',  { ascending: true,  nullsFirst: false }); break
-    case 'price_desc':  q = q.order('price_usd',  { ascending: false, nullsFirst: false }); break
-    case 'throw_desc':  q = q.order('beam_distance_m', { ascending: false, nullsFirst: false }); break
-    case 'weight_asc':  q = q.order('weight_g',   { ascending: true,  nullsFirst: false }); break
-    default:            q = q.order('model', { ascending: true })
-  }
-
-  return q.range(from, to)
-}
-
-// Resolve the "Made in" filter (a brands-table attribute) to the set of brand names to match on.
-// Returns null when the filter is inactive (no constraint).
-function madeInBrandNames(filters: FilterState, brandsMeta: { name: string; made_in: string | null }[]): string[] | null {
-  if (filters.madeIn.length === 0) return null
-  return brandsMeta.filter(b => b.made_in && filters.madeIn.includes(b.made_in)).map(b => b.name)
-}
-
-export default function BrowsePage() {
+export default function BrowsePage({ initialItems, initialCount, initialMeta }: Props = {}) {
   const router = useRouter()
-  const [items, setItems] = useState<FlashlightType[]>([])
-  const [totalCount, setTotalCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const hasServerData = initialItems !== undefined
+  const [items, setItems] = useState<FlashlightType[]>(initialItems ?? [])
+  const [totalCount, setTotalCount] = useState(initialCount ?? 0)
+  const [loading, setLoading] = useState(!hasServerData)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [page, setPage] = useState(0)
   // Decide the page size once, from the viewport at mount (mobile loads fewer).
   const [pageSize] = useState(() =>
     typeof window !== 'undefined' && window.innerWidth < 768 ? PAGE_SIZE_MOBILE : PAGE_SIZE_DESKTOP
@@ -91,14 +43,20 @@ export default function BrowsePage() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
-  const [availableBrands, setAvailableBrands] = useState<string[]>([])
-  const [availableEmitters, setAvailableEmitters] = useState<string[]>([])
-  const [brandsMeta, setBrandsMeta] = useState<{ name: string; made_in: string | null }[]>([])
-  const [siteStats, setSiteStats] = useState<{ flashlights: number; brands: number; users: number } | null>(null)
+  const [availableBrands, setAvailableBrands] = useState<string[]>(initialMeta?.brands ?? [])
+  const [availableEmitters, setAvailableEmitters] = useState<string[]>(initialMeta?.emitters ?? [])
+  const [brandsMeta, setBrandsMeta] = useState<BrandMeta[]>(initialMeta?.brandsMeta ?? [])
+  const [siteStats, setSiteStats] = useState<SiteStats | null>(initialMeta?.stats ?? null)
   const fetchId = useRef(0)
+  // The filter-change effect fires once on mount; when the server already seeded
+  // the first page (default filters) skip that first fetch so we don't re-query
+  // identical data across the network right after hydration.
+  const skipNextFetch = useRef(hasServerData)
 
-  // Load brand + emitter lists — cached in localStorage for 5 minutes
+  // Load brand + emitter lists when the server didn't seed them (e.g. client
+  // navigation). Cached in localStorage for 5 minutes.
   useEffect(() => {
+    if (initialMeta) return
     const CACHE_KEY = 'meta_cache'
     const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
@@ -114,19 +72,7 @@ export default function BrowsePage() {
         }
       } catch {}
 
-      // Fetch lists + counts in parallel
-      const [{ data: b }, { data: e }, { data: br }, { count: fCount }, { count: uCount }] = await Promise.all([
-        supabase.rpc('get_distinct_brands'),
-        supabase.rpc('get_distinct_emitters'),
-        supabase.from('brands').select('name, made_in'),
-        supabase.from('flashlights').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      ])
-      const brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]
-      const emitters = (e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[]
-      const brandsMeta = (br ?? []) as { name: string; made_in: string | null }[]
-      const stats = { flashlights: fCount ?? 0, brands: brands.length, users: uCount ?? 0 }
-
+      const { brands, emitters, brandsMeta, stats } = await fetchBrowseMeta()
       setAvailableBrands(brands)
       setAvailableEmitters(emitters)
       setBrandsMeta(brandsMeta)
@@ -134,7 +80,7 @@ export default function BrowsePage() {
       try { localStorage.setItem(CACHE_KEY, JSON.stringify({ brands, emitters, brandsMeta, stats, ts: Date.now() })) } catch {}
     }
     loadMeta()
-  }, [])
+  }, [initialMeta])
 
   // Load compare IDs
   useEffect(() => {
@@ -144,8 +90,10 @@ export default function BrowsePage() {
     } catch {}
   }, [])
 
-  // Fetch on filter change — debounce search by 300ms
+  // Fetch on filter change — debounce search by 300ms. Skips the first run after
+  // a server-seeded mount (filters are still default → same data we already have).
   useEffect(() => {
+    if (skipNextFetch.current) { skipNextFetch.current = false; return }
     const id = ++fetchId.current
     const delay = filters.search ? 300 : 0
     const madeInBrands = madeInBrandNames(filters, brandsMeta)
@@ -153,21 +101,20 @@ export default function BrowsePage() {
       setLoading(true)
       const { data, count } = await buildQuery(filters, 0, pageSize - 1, madeInBrands)
       if (fetchId.current !== id) return
-      setItems(data ?? [])
+      setItems((data ?? []) as FlashlightType[])
       setTotalCount(count ?? 0)
-      setPage(0)
       setLoading(false)
     }, delay)
     return () => clearTimeout(timer)
   }, [filters, brandsMeta, pageSize])
 
   async function loadMore() {
-    const next = page + 1
     setLoadingMore(true)
-    const from = next * pageSize
+    // Offset from what we already have (the first page may be a server-seeded 32,
+    // larger than the client pageSize) so infinite-scroll pages never overlap.
+    const from = items.length
     const { data } = await buildQuery(filters, from, from + pageSize - 1, madeInBrandNames(filters, brandsMeta))
-    setItems(prev => [...prev, ...(data ?? [])])
-    setPage(next)
+    setItems(prev => [...prev, ...((data ?? []) as FlashlightType[])])
     setLoadingMore(false)
   }
 
