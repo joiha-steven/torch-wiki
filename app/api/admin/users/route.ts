@@ -1,30 +1,14 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { getAdminUser } from '@/lib/verify-admin'
 import { supabase as anonClient } from '@/lib/supabase'
 import { SITE_URL } from '@/lib/seo'
 
-async function getCallerUser(request: Request) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '')
-  if (!token) return null
-  const admin = getSupabaseAdmin()
-  const { data: { user } } = await admin.auth.getUser(token)
-  return user
-}
-
-async function assertAdmin(request: Request) {
-  const user = await getCallerUser(request)
-  if (!user) return { user: null, ok: false }
-  const admin = getSupabaseAdmin()
-  const { data: profile } = await admin.from('profiles').select('is_admin').eq('id', user.id).single()
-  const ok = profile?.is_admin === true || user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
-  return { user, ok }
-}
-
 // GET /api/admin/users?q=search&page=1
 export async function GET(request: Request) {
-  const { user, ok } = await assertAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (!ok)   return NextResponse.json({ error: 'Forbidden' },    { status: 403 })
+  const user = await getAdminUser(request)
+  if (!user)         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!user.isAdmin) return NextResponse.json({ error: 'Forbidden' },    { status: 403 })
 
   const admin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
@@ -66,9 +50,9 @@ export async function GET(request: Request) {
 
 // POST /api/admin/users
 export async function POST(request: Request) {
-  const { user, ok } = await assertAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (!ok)   return NextResponse.json({ error: 'Forbidden' },    { status: 403 })
+  const user = await getAdminUser(request)
+  if (!user)         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!user.isAdmin) return NextResponse.json({ error: 'Forbidden' },    { status: 403 })
 
   const admin = getSupabaseAdmin()
   const body = await request.json().catch(() => null)

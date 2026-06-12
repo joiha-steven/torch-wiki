@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { getAdminUser } from '@/lib/verify-admin'
 
 // Authorize either with a shared secret (server-side scripts / seed jobs via the
 // `x-revalidate-secret` header) or with an admin/moderator session bearer token
@@ -10,20 +11,8 @@ async function isAuthorized(request: Request): Promise<boolean> {
   const secret = process.env.REVALIDATE_SECRET
   if (secret && request.headers.get('x-revalidate-secret') === secret) return true
 
-  const token = (request.headers.get('authorization') ?? '').replace('Bearer ', '')
-  if (!token) return false
-
-  const admin = getSupabaseAdmin()
-  const { data: { user }, error } = await admin.auth.getUser(token)
-  if (error || !user) return false
-  if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) return true
-
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('is_admin, is_moderator')
-    .eq('id', user.id)
-    .single()
-  return !!(profile?.is_admin || profile?.is_moderator)
+  const user = await getAdminUser(request)
+  return !!user && (user.isAdmin || user.isModerator)
 }
 
 export async function POST(request: Request) {
