@@ -10,6 +10,7 @@ const BATTERY_TYPES = [
 ]
 
 const SORT_OPTIONS = [
+  { value: 'random',      label: 'Random' },
   { value: 'model_asc',   label: 'Model A–Z' },
   { value: 'lumens_desc', label: 'Lumens (High–Low)' },
   { value: 'lumens_asc',  label: 'Lumens (Low–High)' },

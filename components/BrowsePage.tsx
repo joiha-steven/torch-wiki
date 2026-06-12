@@ -10,7 +10,10 @@ import BrowseHeader from './browse/BrowseHeader'
 import BrowseGrid from './browse/BrowseGrid'
 import CompareBar from './browse/CompareBar'
 
-const PAGE_SIZE = 32
+// Mobile shows a 2-column grid — load a small first batch so the initial paint
+// is light, then let infinite-scroll fill the rest. Desktop loads a full page.
+const PAGE_SIZE_DESKTOP = 32
+const PAGE_SIZE_MOBILE = 12
 
 const DEFAULT_FILTERS: FilterState = {
   search: '',
@@ -24,7 +27,7 @@ const DEFAULT_FILTERS: FilterState = {
   minPrice: 0,
   maxPrice: 99999,
   chargingType: null,
-  sortBy: 'model_asc',
+  sortBy: 'random',
 }
 
 // madeInBrands: when the "Made in" filter is active, the precomputed list of brand
@@ -52,6 +55,9 @@ function buildQuery(filters: FilterState, from: number, to: number, madeInBrands
   }
 
   switch (filters.sortBy) {
+    // Order by the (random v4) uuid — a stable shuffle that isn't biased by name,
+    // and paginates consistently across infinite-scroll pages.
+    case 'random':      q = q.order('id', { ascending: true }); break
     case 'lumens_desc': q = q.order('max_lumens', { ascending: false, nullsFirst: false }); break
     case 'lumens_asc':  q = q.order('max_lumens', { ascending: true,  nullsFirst: false }); break
     case 'price_asc':   q = q.order('price_usd',  { ascending: true,  nullsFirst: false }); break
@@ -78,6 +84,10 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(0)
+  // Decide the page size once, from the viewport at mount (mobile loads fewer).
+  const [pageSize] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? PAGE_SIZE_MOBILE : PAGE_SIZE_DESKTOP
+  )
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
@@ -141,7 +151,7 @@ export default function BrowsePage() {
     const madeInBrands = madeInBrandNames(filters, brandsMeta)
     const timer = setTimeout(async () => {
       setLoading(true)
-      const { data, count } = await buildQuery(filters, 0, PAGE_SIZE - 1, madeInBrands)
+      const { data, count } = await buildQuery(filters, 0, pageSize - 1, madeInBrands)
       if (fetchId.current !== id) return
       setItems(data ?? [])
       setTotalCount(count ?? 0)
@@ -149,13 +159,13 @@ export default function BrowsePage() {
       setLoading(false)
     }, delay)
     return () => clearTimeout(timer)
-  }, [filters, brandsMeta])
+  }, [filters, brandsMeta, pageSize])
 
   async function loadMore() {
     const next = page + 1
     setLoadingMore(true)
-    const from = next * PAGE_SIZE
-    const { data } = await buildQuery(filters, from, from + PAGE_SIZE - 1, madeInBrandNames(filters, brandsMeta))
+    const from = next * pageSize
+    const { data } = await buildQuery(filters, from, from + pageSize - 1, madeInBrandNames(filters, brandsMeta))
     setItems(prev => [...prev, ...(data ?? [])])
     setPage(next)
     setLoadingMore(false)
