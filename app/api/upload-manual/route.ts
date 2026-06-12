@@ -13,7 +13,21 @@ export async function POST(request: Request) {
   const { data: { user }, error: authErr } = await admin.auth.getUser(token)
   if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Any authenticated user can upload a manual (admin or regular user)
+  // Admin/mod only: this writes the manual straight to the live flashlight (no
+  // approval queue). Regular users add manuals through the submission flow
+  // (/api/upload-pdf → pending → admin approves). Without this gate, any logged-in
+  // user could overwrite any flashlight's manual.pdf directly.
+  if (user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('is_admin, is_moderator')
+      .eq('id', user.id)
+      .single()
+    if (!profile?.is_admin && !profile?.is_moderator) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
+
   // Parse multipart form
   const form = await request.formData()
   const file = form.get('file') as File | null
