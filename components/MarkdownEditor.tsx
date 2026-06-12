@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { upload } from '@vercel/blob/client'
 import { Bold, Italic, Heading2, List, Link2, ImagePlus, Video, Loader2 } from 'lucide-react'
 import MarkdownContent from '@/components/MarkdownContent'
+import { supabase } from '@/lib/supabase'
 
 function ToolbarButton({ onClick, title, disabled, children }: { onClick: () => void; title: string; disabled?: boolean; children: React.ReactNode }) {
   return (
@@ -92,9 +93,11 @@ export default function MarkdownEditor({ value, onChange, label = 'Description',
     setUploading(true)
     try {
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+      const { data: { session } } = await supabase.auth.getSession()
       const blob = await upload(`${uploadPrefix}/${crypto.randomUUID()}.${ext}`, file, {
         access: 'public',
         handleUploadUrl: '/api/upload',
+        clientPayload: JSON.stringify({ session: session?.access_token ?? '' }),
       })
       insertBlock(`![](${blob.url})`)
     } catch (err) {

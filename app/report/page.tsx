@@ -61,8 +61,10 @@ export default function ReportPage() {
     setError(''); setSubmitting(true)
 
     try {
-      // Verify captcha for anonymous users
-      if (!user) {
+      // Verify captcha for anonymous users WITHOUT an attachment. When there IS
+      // an attachment the captcha is consumed by the upload endpoint instead —
+      // Turnstile tokens are single-use, so we must not verify it twice.
+      if (!user && !file) {
         const res = await fetch('/api/captcha-verify', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: captchaToken }),
@@ -75,13 +77,23 @@ export default function ReportPage() {
         }
       }
 
-      // Upload attachment if any
+      // Upload attachment if any. Prove identity to /api/upload: logged-in users
+      // send their session token; anonymous users send the Turnstile token
+      // (verified + consumed server-side by the upload route).
       let attachmentUrl: string | null = null
       if (file) {
+        let uploadPayload: string
+        if (user) {
+          const { data: { session } } = await supabase.auth.getSession()
+          uploadPayload = JSON.stringify({ session: session?.access_token ?? '' })
+        } else {
+          uploadPayload = JSON.stringify({ turnstile: captchaToken ?? '' })
+        }
         const ext = file.name.split('.').pop()
         const blob = await upload(`reports/${crypto.randomUUID()}.${ext}`, file, {
           access: 'public',
           handleUploadUrl: '/api/upload',
+          clientPayload: uploadPayload,
         })
         attachmentUrl = blob.url
       }

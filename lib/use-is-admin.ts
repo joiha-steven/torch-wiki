@@ -10,7 +10,8 @@ export function useIsAdmin() {
 
   useEffect(() => {
     if (!user) { setIsAdmin(false); return }
-    if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) { setIsAdmin(true); return }
+    // Admin/mod is derived from the profiles table — the bootstrap ADMIN_EMAIL
+    // check lives server-side only so the admin's email never ships in client JS.
     supabase
       .from('profiles')
       .select('is_admin, is_moderator')

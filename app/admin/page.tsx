@@ -6,15 +6,16 @@ import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import AdminDashboard from './AdminDashboard'
 
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? ''
-
 export default function AdminPage() {
   const { user, loading, isAdmin, isModerator } = useAuth()
   const router = useRouter()
   const [mfaChecked, setMfaChecked] = useState(false)
   const [hasMfa, setHasMfa]         = useState(false)
 
-  const hasAccess = isAdmin || isModerator || (!!ADMIN_EMAIL && user?.email === ADMIN_EMAIL)
+  // Access is decided by the profiles flags (set in auth-context from the DB).
+  // The bootstrap ADMIN_EMAIL match is enforced server-side in the API routes
+  // only, so the admin email is never exposed in the client bundle.
+  const hasAccess = isAdmin || isModerator
 
   useEffect(() => {
     if (!loading && !hasAccess) router.replace('/')

@@ -259,6 +259,8 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       // 2. Upload NEW images to Vercel Blob, track URLs for approval
       const uploadedImages: { url: string; sort_order: number; is_primary: boolean }[] = []
       const uploadedUrlById = new Map<string, string>() // img.id → vercel URL
+      const { data: { session: upSession } } = await supabase.auth.getSession()
+      const uploadPayload = JSON.stringify({ session: upSession?.access_token ?? '' })
 
       for (let imgIndex = 0; imgIndex < images.length; imgIndex++) {
         const img = images[imgIndex]
@@ -266,7 +268,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: true } : i))
         const ext = img.file.name.split('.').pop()
         const path = `submissions/${sub.id}/${img.id}.${ext}`
-        const blob = await upload(path, img.file, { access: 'public', handleUploadUrl: '/api/upload' })
+        const blob = await upload(path, img.file, { access: 'public', handleUploadUrl: '/api/upload', clientPayload: uploadPayload })
         uploadedUrlById.set(img.id, blob.url)
         const imgRecord = { submission_id: sub.id, url: blob.url, sort_order: imgIndex, is_primary: img.isPrimary }
         await supabase.from('submission_images').insert(imgRecord)
