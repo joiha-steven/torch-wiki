@@ -25,6 +25,17 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 13, 2026',
+    title: 'Dark mode',
+    items: [
+      'New dark mode — tap the theme button next to your account icon to switch between Light, Dark, Follow system, or Auto (dark from 6pm to 6am)',
+      'Your choice is saved and applied before the page draws, so switching or reloading never flashes',
+      'Hand-tuned dark palette — warm graphite surfaces instead of harsh black, a slightly brighter amber accent, and product photos kept on a soft light plate so dark-bodied flashlights stay clear',
+      'Browse now shows the flashlight, brand and member counts together above the grid',
+      'The cookie banner now appears only when Google Analytics is actually set up — otherwise the site runs purely on cookieless analytics with nothing to consent to',
+    ],
+  },
+  {
     date: 'June 12, 2026',
     title: 'Browse sorting, mobile loading & performance',
     items: [
@@ -290,7 +301,7 @@ export default function UpdatesPage() {
           <div className="space-y-10 pl-8">
             {UPDATES.map((u, i) => (
               <div key={i} className="relative">
-                <div className="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-white" />
+                <div className="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-panel" />
 
                 <div className="flex items-baseline gap-3 mb-1">
                   <h2 className="font-semibold text-ink">{u.title}</h2>

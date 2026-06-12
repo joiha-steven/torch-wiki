@@ -310,8 +310,11 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/api/ga-settings/route.ts` | Returns GA `{ enabled, id }` from `settings` table (5 min cache) |
 | `app/sitemap.ts` | Auto-generated `/sitemap.xml` — all flashlight slugs + static pages (1hr revalidate) |
 | `app/robots.ts` | `/robots.txt` — allow all crawlers, block `/admin` and `/api/` |
-| `components/GoogleAnalytics.tsx` | Loads GA script client-side if enabled; skipped for admin users **and until cookie consent === 'accepted'** (so `_ga` is never set without consent) |
-| `components/CookieConsent.tsx` | Small bottom-left consent banner (aligned to the `max-w-[1360px]` content edge), links to `/privacy`; writes the choice and gates GA |
+| `components/GoogleAnalytics.tsx` | Loads GA script client-side if enabled; skipped for admin users **and until cookie consent === 'accepted'** (so `_ga` is never set without consent). Reads settings via `useGaSettings()` |
+| `components/CookieConsent.tsx` | Small bottom-left consent banner, links to `/privacy`; writes the choice and gates GA. **Hidden entirely unless GA is configured** (`gaActive` — Measurement ID set + enabled) and never shown to admins, so with no GA the site is cookieless and needs no banner |
+| `lib/use-ga-settings.ts` | `useGaSettings()` hook + `gaActive(s)` — shared, module-cached fetch of `/api/ga-settings` (one request for GoogleAnalytics + CookieConsent) |
+| `components/ThemeToggle.tsx` | 4-state theme switcher (Dark/Light/System/Auto). Writes `localStorage['theme-mode']`, sets `<html data-theme>`. See **Theming** section |
+| `lib/analytics.ts` | `trackEvent()` wrapper + `AnalyticsEvent` names for Vercel Analytics custom events / conversion goals (Signup, Collection/Wishlist Add, Contribution New/Edit). Contribution events fire only on the non-admin submit path |
 | `lib/use-consent.ts` | `useConsent()` (SSR-safe via `useSyncExternalStore`) + `getConsent`/`setConsent`; localStorage key `torch-cookie-consent`, syncs same-tab via custom event and cross-tab via storage event |
 | `app/privacy/page.tsx` | `/privacy` — Privacy & Cookies page (essential vs analytics cookies, cookieless Vercel Analytics, account data, images, notice-and-takedown) |
 | `app/[slug]/page.tsx` | Flashlight detail — `generateMetadata` (dynamic title/description/OG), JSON-LD Product schema |
@@ -387,6 +390,15 @@ No box-shadows anywhere. Hover = border darkens only.
 **Inter** is the single site-wide typeface — a self-hosted variable font (`app/fonts/inter-variable.woff2`) loaded via `next/font/local` in `app/layout.tsx` as the `--font-inter` CSS variable (no Google Fonts / third-party request). The old SF stack + JetBrains Mono were dropped; `font-mono` is still used as a Tailwind class for numeric values (lumens, price, dimensions, spec table values), now resolving to Inter's tabular figures.
 
 **Custom checkbox/radio CSS** in `globals.css` — classes `.cb` (checkbox) and `.rb` (radio). Flat, amber accent on check. Use instead of `accent-brand-500`.
+
+## Theming — light/dark (added 2026-06-13)
+
+Dark mode is a **token flip on `<html data-theme="light|dark">`**, not per-element overrides. Strategy:
+- **Semantic color tokens** in `app/globals.css` `@theme` map Tailwind utilities to runtime CSS vars so they flip automatically: `text-ink`/`-2`/`-3`, `border-line`/`-strong`, `bg-surface`, `bg-plate` (product-image plate), `bg-panel` (cards/modals/inputs/white panels). `:root` holds the light values; `:root[data-theme="dark"]` overrides them (warm graphite `#17181b`, brighter amber `#f4a820`, `--card-plate` stays light `#e9e9e5`). Glass/body/pill/nav/checkbox/shimmer rules all read tokens.
+- **`@custom-variant dark`** is bound to `data-theme` (NOT `prefers-color-scheme`), so `dark:` utilities follow the switcher.
+- **`components/ThemeToggle.tsx`** (in both `Header` and `browse/BrowseHeader`) is the 4-state switcher (Dark/Light/System/Auto-by-time). It writes `localStorage['theme-mode']` and sets `data-theme`. **Default is light** until the user picks. An **inline FOUC script in `app/layout.tsx`** resolves the theme before first paint (`<html suppressHydrationWarning>`), plus two `<meta name=theme-color>` tags (light/dark) synced at runtime.
+- **When writing new UI:** use the semantic tokens, never raw `bg-white`/`text-slate-*`/hard hexes. Product-image containers = `bg-plate` (so dark-bodied lights stay legible). Active tabs / dark buttons that were `bg-[#17171a] text-white` use `bg-ink text-surface` (inverts correctly per theme). White-alpha highlights on the dark nav (`bg-white/…`) are intentional and stay.
+- **Nav-link/hover highlights are warm (~4000K, `#ffe8c8`)** not pure white; the floating-nav capsule is a graphite (light `--nav-bg rgba(31,33,38,.92)`, dark `rgba(37,39,44,.92)`).
 
 ## Material Options (CollectionEditModal)
 

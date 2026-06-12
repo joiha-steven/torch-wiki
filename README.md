@@ -25,6 +25,12 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Compare up to 4 flashlights side by side
 - Top Lists — recently added, newest releases, most expensive, best value
 
+**Appearance**
+- Light and dark themes, switchable from the header — Light, Dark, Follow system, or Auto (dark 6pm–6am)
+- Choice is saved and applied before first paint (no flash on reload); defaults to Light until you choose
+- Warm graphite dark palette built on CSS color tokens flipped by `data-theme`; product photos stay on a light plate so dark-bodied lights remain legible
+- Fonts and the Liquid Glass effects are shared across both themes
+
 **Flashlight pages**
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
 - Multiple battery options per light (e.g. 2× 18350 or 1× 18650), with per-type cell counts
@@ -96,7 +102,8 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 **Analytics & privacy**
 - Google Analytics — toggle on/off and set Measurement ID from admin panel
 - Admin user excluded from tracking automatically
-- Cookie consent banner — GA loads (and the `_ga` cookie is set) only after the visitor clicks Accept; essential auth cookies and cookieless Vercel Analytics are unaffected
+- Cookie consent banner — shown only when Google Analytics is configured; GA loads (and the `_ga` cookie is set) only after the visitor clicks Accept. With no Measurement ID set, the banner is hidden and the site runs purely on cookieless Vercel Analytics
+- Conversion goals tracked via cookieless Vercel Analytics custom events (sign-up, wishlist/collection adds, contributions)
 - Privacy & Cookies page (`/privacy`) explaining what is and isn't collected
 
 ---
@@ -106,7 +113,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - [Next.js](https://nextjs.org) — App Router, TypeScript, Turbopack
 - [Supabase](https://supabase.com) — PostgreSQL database + Auth (email/password + TOTP 2FA)
 - [Vercel](https://vercel.com) — hosting, Blob CDN (images + PDFs), Analytics, Speed Insights
-- [Tailwind CSS v4](https://tailwindcss.com) — custom brand scale (`#eba00b`), warm off-white surface
+- [Tailwind CSS v4](https://tailwindcss.com) — custom brand scale (`#eba00b`), warm off-white surface, light/dark themes via `data-theme` color tokens
 - [Inter](https://rsms.me/inter/) — single self-hosted variable typeface (no third-party font requests)
 - [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) — captcha
 
