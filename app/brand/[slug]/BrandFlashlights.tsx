@@ -46,9 +46,9 @@ export default function BrandFlashlights({ items }: { items: Flashlight[] }) {
         {groups.map(([year, lights]) => (
           <section key={year ?? 'unknown'}>
             <div className="flex items-baseline gap-3 mb-4">
-              <h2 className="font-mono text-[15px] font-semibold text-[#17171a]">{year ?? 'Year unknown'}</h2>
-              <span className="text-[12px] text-[#9b9b94]">{lights.length} model{lights.length !== 1 ? 's' : ''}</span>
-              <span className="flex-1 h-px bg-[#e7e7e1]" />
+              <h2 className="font-mono text-[15px] font-semibold text-ink">{year ?? 'Year unknown'}</h2>
+              <span className="text-[12px] text-ink-3">{lights.length} model{lights.length !== 1 ? 's' : ''}</span>
+              <span className="flex-1 h-px bg-line" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {lights.map(f => (

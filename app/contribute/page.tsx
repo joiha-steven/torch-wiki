@@ -41,10 +41,10 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-500">Search for a flashlight to suggest a correction or fill in missing info.</p>
+      <p className="text-sm text-ink-3">Search for a flashlight to suggest a correction or fill in missing info.</p>
 
-      <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-brand-300">
-        <Search size={14} className="text-slate-400 shrink-0" />
+      <div className="flex items-center gap-2 bg-panel border border-line rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-brand-300">
+        <Search size={14} className="text-ink-3 shrink-0" />
         <input
           autoFocus
           type="text"
@@ -54,9 +54,9 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
           className="flex-1 text-sm bg-transparent focus:outline-none"
         />
         {query && (
-          <button onClick={() => setQuery('')}><X size={13} className="text-slate-400 hover:text-slate-700" /></button>
+          <button onClick={() => setQuery('')}><X size={13} className="text-ink-3 hover:text-ink-2" /></button>
         )}
-        {searching && <Loader2 size={13} className="animate-spin text-slate-400 shrink-0" />}
+        {searching && <Loader2 size={13} className="animate-spin text-ink-3 shrink-0" />}
       </div>
 
       {results.length > 0 && (
@@ -65,7 +65,7 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
             <button
               key={f.id}
               onClick={() => onPick(f)}
-              className="w-full flex items-center gap-3 bg-white border border-slate-200 hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors text-left"
+              className="w-full flex items-center gap-3 bg-panel border border-line hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors text-left"
             >
               <div className="relative w-12 h-10 shrink-0 bg-gray-100 rounded-lg overflow-hidden">
                 {f.image_url
@@ -74,10 +74,10 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-400">{f.brand}</p>
-                <p className="text-sm font-medium text-slate-900 truncate">{f.model}</p>
+                <p className="text-xs text-ink-3">{f.brand}</p>
+                <p className="text-sm font-medium text-ink truncate">{f.model}</p>
               </div>
-              {f.category && <span className="text-xs text-slate-400 shrink-0">{f.category}</span>}
+              {f.category && <span className="text-xs text-ink-3 shrink-0">{f.category}</span>}
               <Pencil size={13} className="text-slate-300 shrink-0" />
             </button>
           ))}
@@ -85,7 +85,7 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
       )}
 
       {query.trim() && !searching && results.length === 0 && (
-        <p className="text-sm text-slate-400 text-center py-6">No flashlights found for "{query}".</p>
+        <p className="text-sm text-ink-3 text-center py-6">No flashlights found for "{query}".</p>
       )}
     </div>
   )
@@ -94,12 +94,12 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
 // ── Success screen ───────────────────────────────────────────────────────────
 function SuccessScreen({ onAnother, onView }: { onAnother: () => void; onView: () => void }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-10 text-center space-y-4">
+    <div className="bg-panel rounded-xl border border-line p-10 text-center space-y-4">
       <p className="text-3xl">✓</p>
-      <p className="font-semibold text-slate-900">Submitted! We'll review it soon.</p>
+      <p className="font-semibold text-ink">Submitted! We'll review it soon.</p>
       <div className="flex justify-center gap-4 pt-2">
         <button onClick={onAnother} className="text-sm text-brand-600 hover:underline">Submit another</button>
-        <button onClick={onView} className="text-sm text-slate-500 hover:text-slate-800">View my submissions →</button>
+        <button onClick={onView} className="text-sm text-ink-3 hover:text-ink">View my submissions →</button>
       </div>
     </div>
   )
@@ -159,23 +159,23 @@ export default function ContributePage() {
         <div className="max-w-3xl mx-auto">
 
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Contribute</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">Add a new flashlight or improve an existing one.</p>
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Contribute</h1>
+          <p className="mt-2 text-[13px] text-ink-2">Add a new flashlight or improve an existing one.</p>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-slate-400" /></div>
+          <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-ink-3" /></div>
         ) : !user ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <p className="text-slate-500 text-sm">Sign in to contribute flashlight data.</p>
+            <p className="text-ink-3 text-sm">Sign in to contribute flashlight data.</p>
             <button onClick={openAuthModal} className="bg-brand-500 hover:bg-brand-400 text-black text-sm font-medium px-5 py-2 rounded-lg">
               Sign in
             </button>
           </div>
         ) : !nickname ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-            <p className="text-slate-700 font-medium">A nickname is required to contribute.</p>
-            <p className="text-slate-400 text-sm">Your nickname will be shown as the contributor on flashlight pages.</p>
+            <p className="text-ink-2 font-medium">A nickname is required to contribute.</p>
+            <p className="text-ink-3 text-sm">Your nickname will be shown as the contributor on flashlight pages.</p>
             <Link href="/account" className="bg-brand-500 hover:bg-brand-400 text-black text-sm font-medium px-5 py-2 rounded-lg">
               Set your nickname →
             </Link>
@@ -183,24 +183,24 @@ export default function ContributePage() {
         ) : (
           <>
             {/* Tabs */}
-            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto mb-8">
+            <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 w-fit mx-auto mb-8">
               <button
                 onClick={() => { setTab('add'); setSubmitted(false) }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'add' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'add' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}
               >
                 <Plus size={14} />
                 Add flashlight
               </button>
               <button
                 onClick={() => { setTab('edit'); setSubmitted(false) }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'edit' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'edit' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}
               >
                 <Pencil size={14} />
                 Edit existing
               </button>
               <button
                 onClick={() => setTab('submissions')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'submissions' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === 'submissions' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}
               >
                 <ClipboardList size={14} />
                 My submissions
@@ -212,7 +212,7 @@ export default function ContributePage() {
               submitted
                 ? <SuccessScreen onAnother={resetAdd} onView={() => setTab('submissions')} />
                 : (
-                  <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
+                  <div className="bg-panel rounded-2xl border border-line p-6 sm:p-7">
                     <SubmitFlashlightForm
                       mode="new"
                       onSuccess={(slug) => slug ? router.push(`/${slug}`) : setSubmitted(true)}
@@ -228,14 +228,14 @@ export default function ContributePage() {
                 ? <SuccessScreen onAnother={resetEdit} onView={() => setTab('submissions')} />
                 : editTarget
                   ? (
-                    <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
-                      <div className="flex items-start justify-between gap-3 mb-5 pb-5 border-b border-slate-100">
+                    <div className="bg-panel rounded-2xl border border-line p-6 sm:p-7">
+                      <div className="flex items-start justify-between gap-3 mb-5 pb-5 border-b border-line">
                         <div>
-                          <p className="text-xs text-slate-400 mb-0.5">Editing</p>
-                          <p className="font-semibold text-slate-900">{editTarget.brand} {editTarget.model}</p>
-                          <p className="text-xs text-slate-400 mt-1">Only changed fields will be reviewed.</p>
+                          <p className="text-xs text-ink-3 mb-0.5">Editing</p>
+                          <p className="font-semibold text-ink">{editTarget.brand} {editTarget.model}</p>
+                          <p className="text-xs text-ink-3 mt-1">Only changed fields will be reviewed.</p>
                         </div>
-                        <button onClick={() => setEditTarget(null)} className="text-xs text-slate-400 hover:text-slate-700 shrink-0 mt-1">
+                        <button onClick={() => setEditTarget(null)} className="text-xs text-ink-3 hover:text-ink-2 shrink-0 mt-1">
                           ← Pick another
                         </button>
                       </div>
@@ -249,7 +249,7 @@ export default function ContributePage() {
                     </div>
                   )
                   : (
-                    <div className="bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
+                    <div className="bg-panel rounded-2xl border border-line p-6 sm:p-7">
                       <FlashlightPicker onPick={async f => {
                     const { data } = await supabase.from('flashlights').select('*, flashlight_images(*), reviews(*)').eq('id', f.id).single()
                     if (data) setEditTarget(data as Flashlight)
@@ -261,11 +261,11 @@ export default function ContributePage() {
             {/* ── My submissions ── */}
             {tab === 'submissions' && (
               loadingSubmissions ? (
-                <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-slate-400" /></div>
+                <div className="flex justify-center py-16"><Loader2 size={18} className="animate-spin text-ink-3" /></div>
               ) : submissions.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
                   <ClipboardList size={40} className="text-slate-200" />
-                  <p className="text-slate-500">No submissions yet.</p>
+                  <p className="text-ink-3">No submissions yet.</p>
                   <button onClick={() => setTab('add')} className="text-sm text-brand-600 hover:underline">Submit your first →</button>
                 </div>
               ) : (
@@ -279,19 +279,19 @@ export default function ContributePage() {
                       ? [s.data.brand, s.data.model].filter(Boolean).join(' ') || 'New flashlight'
                       : fl ? `${fl.brand} ${fl.model}` : [s.data.brand, s.data.model].filter(Boolean).join(' ') || 'Edit'
                     return (
-                      <div key={s.id} className="bg-white rounded-xl border border-slate-200 px-5 py-4">
+                      <div key={s.id} className="bg-panel rounded-xl border border-line px-5 py-4">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[s.status]}`}>{s.status}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${isNew ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
                             {isNew ? 'New flashlight' : 'Edit'}
                           </span>
-                          <span className="font-medium text-slate-900 text-sm">{title}</span>
+                          <span className="font-medium text-ink text-sm">{title}</span>
                         </div>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-ink-3">
                           {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                         {s.reviewer_note && (
-                          <p className="mt-3 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2 italic">
+                          <p className="mt-3 text-sm text-ink-2 bg-slate-50 dark:bg-white/[0.04] rounded-lg px-3 py-2 italic">
                             Admin: &quot;{s.reviewer_note}&quot;
                           </p>
                         )}

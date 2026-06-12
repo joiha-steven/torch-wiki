@@ -67,20 +67,20 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+      <div className="relative bg-panel rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+        <button onClick={onClose} className="absolute top-4 right-4 text-ink-3 hover:text-ink-2">
           <X size={18} />
         </button>
 
-        <p className="text-xs text-slate-400 mb-0.5">{item.flashlights.brand}</p>
-        <h2 className="font-bold text-slate-900 mb-5">{item.flashlights.model}</h2>
+        <p className="text-xs text-ink-3 mb-0.5">{item.flashlights.brand}</p>
+        <h2 className="font-bold text-ink mb-5">{item.flashlights.model}</h2>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Purchase Price</label>
+              <label className="block text-xs font-medium text-ink-2 mb-1">Purchase Price</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 text-sm">$</span>
                 <input
                   type="number"
                   min="0"
@@ -88,38 +88,38 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
                   value={purchasePrice}
                   onChange={(e) => setPurchasePrice(e.target.value)}
                   placeholder="0.00"
-                  className="w-full border border-slate-200 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                  className="w-full border border-line rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Quantity</label>
+              <label className="block text-xs font-medium text-ink-2 mb-1">Quantity</label>
               <input
                 type="number"
                 min="1"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Purchase Date</label>
+            <label className="block text-xs font-medium text-ink-2 mb-1">Purchase Date</label>
             <input
               type="date"
               value={purchaseDate}
               onChange={(e) => setPurchaseDate(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+              className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Material</label>
+            <label className="block text-xs font-medium text-ink-2 mb-1">Material</label>
             <select
               value={selectedMaterial}
               onChange={(e) => setSelectedMaterial(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+              className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
             >
               <option value="">— Select material —</option>
               {MATERIALS.map((m) => (
@@ -132,19 +132,19 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
                 value={customMaterial}
                 onChange={(e) => setCustomMaterial(e.target.value)}
                 placeholder="Enter material…"
-                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                className="mt-2 w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
               />
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Color</label>
+            <label className="block text-xs font-medium text-ink-2 mb-1">Color</label>
             <input
               type="text"
               value={color}
               onChange={(e) => setColor(e.target.value)}
               placeholder="e.g. Black, Desert Tan, OD Green…"
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+              className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
         <div className="flex gap-2 mt-5">
           <button
             onClick={onClose}
-            className="flex-1 border border-slate-200 text-slate-600 text-sm py-2 rounded-lg hover:bg-slate-50 transition-colors"
+            className="flex-1 border border-line text-ink-2 text-sm py-2 rounded-lg hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5 transition-colors"
           >
             Cancel
           </button>

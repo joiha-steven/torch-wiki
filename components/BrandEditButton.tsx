@@ -35,7 +35,7 @@ export default function BrandEditButton({ name, initial }: { name: string; initi
       <button
         onClick={() => setOpen(true)}
         className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors ${
-          isAdmin ? 'text-brand-600 hover:text-brand-700' : 'text-slate-400 hover:text-slate-600'
+          isAdmin ? 'text-brand-600 hover:text-brand-700' : 'text-ink-3 hover:text-ink-2'
         }`}
       >
         {isAdmin ? <Pencil size={12} /> : <FileText size={12} />}

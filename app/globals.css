@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* `dark:` follows data-theme on <html> (NOT prefers-color-scheme directly) so
+   the 4-state theme switcher stays in control. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   /* Brand — amber #eba00b */
   --color-brand-50:  #fef9ec;
@@ -18,6 +22,17 @@
   /* Single typeface site-wide. `font-mono` now maps to Inter too (numbers get
      tabular figures via the rule below so spec tables/prices stay aligned). */
   --font-mono: var(--font-inter), system-ui, sans-serif;
+
+  /* Semantic colors → runtime CSS vars so utilities (text-ink, border-line…)
+     flip automatically with the theme. */
+  --color-ink:         var(--ink);
+  --color-ink-2:       var(--ink-2);
+  --color-ink-3:       var(--ink-3);
+  --color-line:        var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-surface:     var(--bg);
+  --color-plate:       var(--card-plate);
+  --color-panel:       var(--panel);
 }
 
 :root {
@@ -31,6 +46,12 @@
   --accent: #eba00b;
   --accent-ink: #1d1604;
 
+  /* page wash + product-image plate */
+  --bg-top: #fbfbf9;
+  --bg-glow: rgba(255, 255, 255, 0.70);
+  --card-plate: #ffffff;
+  --panel: #ffffff;        /* white cards/panels/modals/inputs */
+
   /* ---- Liquid Glass tokens (shipped defaults) ---- */
   --glass: rgba(255, 255, 255, 0.42);
   --glass-blur: 24px;
@@ -38,6 +59,21 @@
   /* a touch more float + a brighter specular rim → reads more like glass */
   --glass-shadow: 0 4px 16px rgba(24, 24, 30, 0.06);
   --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 0 0 0.5px rgba(255, 255, 255, 0.4);
+
+  /* glass fills/sheen as tokens so the dark theme can flip them */
+  --glass-fill: rgba(255, 255, 255, 0.62);
+  --glass-hi:   rgba(255, 255, 255, 0.70);
+  --glass-lo:   rgba(255, 255, 255, 0.35);
+  --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 48%);
+  --pill-bg: rgba(255, 255, 255, 0.72);
+  --pill-edge: rgba(255, 255, 255, 0.75);
+  --nav-bg: rgba(10, 10, 12, 0.93);
+
+  /* dropdown / menu surfaces */
+  --menu-bg: #ffffff;
+  --menu-border: #ececec;
+  --menu-text: #3a3a37;
+  --menu-hover: #f5f5f2;
 
   /* ---- Motion tokens — keep it subtle & fast ----
      One easing + three durations so every transition feels related.
@@ -48,13 +84,54 @@
   --dur-slow: 240ms;   /* page fade, image fade-in */
 }
 
+/* ============ Dark theme — warm graphite, not pure black ============ */
+:root[data-theme="dark"] {
+  --bg: #17181b;
+  --bg-top: #212327;
+  --bg-glow: rgba(255, 255, 255, 0.04);
+
+  --border: #2c2e33;
+  --border-strong: #3a3d43;
+  --border-hover: #4b4f56;
+
+  --ink:   #ededeb;   /* warm off-white, not harsh white */
+  --ink-2: #a6a69f;
+  --ink-3: #74746d;
+
+  --accent: #f4a820;  /* brand-400 — one step brighter for dark backgrounds */
+  --accent-ink: #1d1604;
+
+  --card-plate: #e9e9e5;   /* soft light plate keeps product photos legible */
+  --panel: #212327;        /* dark surface for cards/panels/modals/inputs */
+
+  /* glass: swap "milky white" for "very faint white on dark" */
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-edge: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 6px 22px rgba(0, 0, 0, 0.32);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 0.5px rgba(255, 255, 255, 0.03);
+  --glass-fill: rgba(255, 255, 255, 0.025);
+  --glass-hi:   rgba(255, 255, 255, 0.055);
+  --glass-lo:   rgba(255, 255, 255, 0.02);
+  --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0) 48%);
+  --pill-bg: rgba(255, 255, 255, 0.05);
+  --pill-edge: rgba(255, 255, 255, 0.10);
+  --nav-bg: rgba(37, 39, 44, 0.92);   /* lighter than page so the capsule still floats */
+
+  --menu-bg: #212327;
+  --menu-border: #34363c;
+  --menu-text: #cfcfca;
+  --menu-hover: rgba(255, 255, 255, 0.05);
+
+  color-scheme: dark;   /* native scrollbar / form controls follow dark */
+}
+
 body {
   /* subtle white → bg vertical wash so glass surfaces (and the dark nav)
      actually read as glass rather than flat fills */
   background-color: var(--bg);
   background-image:
-    radial-gradient(1100px 800px at 50% -10%, rgba(255, 255, 255, 0.7), transparent 60%),
-    linear-gradient(180deg, #fbfbf9 0%, var(--bg) 60%);
+    radial-gradient(1100px 800px at 50% -10%, var(--bg-glow), transparent 60%),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 60%);
   background-repeat: no-repeat;
   color: var(--ink);
   /* Inter site-wide (self-hosted variable font); system sans only as a fallback
@@ -103,8 +180,8 @@ h1, h2, h3 {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.35) 60%),
-    rgba(255, 255, 255, 0.62);
+    linear-gradient(160deg, var(--glass-hi), var(--glass-lo) 60%),
+    var(--glass-fill);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow), var(--glass-inset);
   transition: border-color var(--dur-fast) var(--ease-out);
@@ -115,7 +192,7 @@ h1, h2, h3 {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(125deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 48%);
+  background: var(--glass-sheen);
   opacity: 0.85;
 }
 .glass-card > * { position: relative; z-index: 1; }
@@ -129,13 +206,13 @@ h1, h2, h3 {
 /* Segmented filter pill — translucent white fill (no backdrop blur; cheap) */
 .glass-pill {
   font-family: var(--font-mono);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid var(--glass-edge);
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-edge);
   box-shadow: var(--glass-inset);
   color: var(--ink-2);
   transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
-.glass-pill:hover { border-color: #fff; color: var(--ink); }
+.glass-pill:hover { border-color: var(--border-hover); color: var(--ink); }
 .glass-pill.on {
   background: var(--accent);
   border-color: var(--accent);
@@ -148,7 +225,7 @@ h1, h2, h3 {
   /* solid-ish dark base for depth, a top sheen, and a bright top rim */
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 50%),
-    rgba(10, 10, 12, 0.93);
+    var(--nav-bg);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   backdrop-filter: blur(18px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.10);
@@ -203,6 +280,12 @@ h1, h2, h3 {
   .glass-pill { background: rgba(255, 255, 255, 0.92); }
   .floating-nav { background: rgba(14, 14, 16, 0.92); }
   .glass-dark { background: rgba(255, 255, 255, 0.22); }
+
+  :root[data-theme="dark"] .glass,
+  :root[data-theme="dark"] .glass-card { background: #1f2125; }
+  :root[data-theme="dark"] .glass-pill { background: #26282d; }
+  :root[data-theme="dark"] .floating-nav { background: rgba(37, 39, 44, 0.98); }
+  :root[data-theme="dark"] .glass-dark { background: rgba(255, 255, 255, 0.08); }
 }
 
 /* Respect users who ask for less motion — near-instant everything, and make
@@ -292,23 +375,30 @@ h1, h2, h3 {
   background-position: center;
 }
 .cb:hover:not(:checked) { border-color: var(--ink); }
+/* In dark, --ink is near-white so the white tick vanishes — draw a dark tick. */
+:root[data-theme="dark"] .cb:checked {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 7L5.5 10L11.5 4' stroke='%2317181b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
 
 .rb {
   appearance: none;
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  border: 1.5px solid #d4d4cc;
-  background: #fff;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.1s, border-color 0.1s;
 }
 .rb:checked {
-  border-color: #eba00b;
-  background: radial-gradient(circle, #eba00b 40%, #fff 42%);
+  border-color: var(--accent);
+  background: radial-gradient(circle, var(--accent) 40%, transparent 42%);
 }
-.rb:hover:not(:checked) { border-color: #eba00b; }
+.rb:hover:not(:checked) { border-color: var(--accent); }
+
+/* Theme switcher dropdown row hover */
+.theme-row:hover { background: var(--menu-hover) !important; }
 
 /* Skeleton shimmer */
 @keyframes shimmer {
@@ -320,4 +410,8 @@ h1, h2, h3 {
   background: linear-gradient(90deg, #efefec 25%, #e5e5e0 50%, #efefec 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
+}
+:root[data-theme="dark"] .skeleton-shimmer {
+  background: linear-gradient(90deg, #232527 25%, #2c2e31 50%, #232527 75%);
+  background-size: 800px 100%;
 }

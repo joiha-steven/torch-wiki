@@ -36,38 +36,38 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 w-full max-w-sm p-6">
+      <div className="bg-panel rounded-2xl shadow-lg border border-line w-full max-w-sm p-6">
         <Link href="/" className="block text-base font-bold mb-6" style={{ color: '#eba00b' }}>
           <span style={{ color: '#eba00b' }}>torch.</span><span className="text-white">EDC.wiki</span>
         </Link>
 
-        <h1 className="text-lg font-bold text-slate-900 mb-5">Set new password</h1>
+        <h1 className="text-lg font-bold text-ink mb-5">Set new password</h1>
 
         {!ready ? (
-          <p className="text-sm text-slate-500">Verifying reset link…</p>
+          <p className="text-sm text-ink-3">Verifying reset link…</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">New password</label>
+              <label className="block text-xs font-medium text-ink-2 mb-1">New password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
                 placeholder="••••••"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Confirm password</label>
+              <label className="block text-xs font-medium text-ink-2 mb-1">Confirm password</label>
               <input
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 required
                 minLength={6}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
                 placeholder="••••••"
               />
             </div>

@@ -17,7 +17,7 @@ export default function FlashlightCardSkeleton() {
       <div className="h-3 w-32 rounded bg-white/50 skeleton-shimmer mt-3" />
 
       {/* Foot */}
-      <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#e7e7e1]">
+      <div className="flex items-center justify-between pt-3 mt-3 border-t border-line">
         <div className="h-3.5 w-14 rounded bg-white/50 skeleton-shimmer" />
         <div className="flex gap-1">
           <div className="h-6 w-6 rounded bg-white/50 skeleton-shimmer" />

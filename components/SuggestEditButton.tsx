@@ -22,7 +22,7 @@ export default function SuggestEditButton({ flashlightId }: { flashlightId: stri
   return (
     <Link
       href={`/contribute?suggest=${flashlightId}`}
-      className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+      className="inline-flex items-center gap-1.5 text-xs text-ink-3 hover:text-ink-2 transition-colors"
     >
       <FileText size={12} />
       Suggest an edit

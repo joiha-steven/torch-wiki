@@ -229,12 +229,12 @@ export default function BrowsePage() {
 
         <main className="flex-1 min-w-0">
           <div className="flex items-center justify-end gap-3 mb-5 md:hidden">
-            <span className="text-[13px] text-[#6c6c66]">
-              <b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
+            <span className="text-[13px] text-ink-2">
+              <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
             </span>
             <button
               onClick={() => setFilterOpen(true)}
-              className="flex items-center gap-2 text-sm border border-slate-300 rounded-lg px-3 py-1.5 bg-white"
+              className="flex items-center gap-2 text-sm border border-line-strong rounded-lg px-3 py-1.5 bg-panel"
             >
               <SlidersHorizontal size={14} />
               Filters
@@ -256,10 +256,10 @@ export default function BrowsePage() {
       {filterOpen && (
         <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Filters">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFilterOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-xl overflow-y-auto p-5">
+          <div className="absolute right-0 top-0 bottom-0 w-72 bg-panel shadow-xl overflow-y-auto p-5">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold text-slate-800">Filters</span>
-              <button onClick={() => setFilterOpen(false)} aria-label="Close filters"><X size={18} className="text-slate-500" /></button>
+              <span className="font-semibold text-ink">Filters</span>
+              <button onClick={() => setFilterOpen(false)} aria-label="Close filters"><X size={18} className="text-ink-3" /></button>
             </div>
             <FilterPanel
               filters={filters}

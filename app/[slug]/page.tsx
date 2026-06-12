@@ -188,11 +188,11 @@ export default async function FlashlightPage({ params }: Props) {
             {/* Brand + Model */}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <Link href={`/brand/${brandSlug(flashlight.brand)}`} className="text-[14px] text-[#6c6c66] mb-0.5 inline-block hover:text-brand-600 transition-colors">{flashlight.brand}</Link>
-                <h1 className="text-[32px] font-bold text-[#17171a] tracking-[-0.025em] leading-[1.05]">{flashlight.model}</h1>
+                <Link href={`/brand/${brandSlug(flashlight.brand)}`} className="text-[14px] text-ink-2 mb-0.5 inline-block hover:text-brand-600 transition-colors">{flashlight.brand}</Link>
+                <h1 className="text-[32px] font-bold text-ink tracking-[-0.025em] leading-[1.05]">{flashlight.model}</h1>
               </div>
               {flashlight.is_discontinued && (
-                <span className="text-[11px] font-medium text-[#9b9b94] border border-[#e7e7e1] rounded px-2 py-0.5 shrink-0 mt-1">
+                <span className="text-[11px] font-medium text-ink-3 border border-line rounded px-2 py-0.5 shrink-0 mt-1">
                   Discontinued
                 </span>
               )}
@@ -200,14 +200,14 @@ export default async function FlashlightPage({ params }: Props) {
 
             {/* Category */}
             {flashlight.category && (
-              <span className="inline-block mt-3 text-[13px] font-medium text-[#9b9b94]">
+              <span className="inline-block mt-3 text-[13px] font-medium text-ink-3">
                 {flashlight.category} flashlight
               </span>
             )}
 
             {/* Price */}
             {flashlight.price_usd && (
-              <div className="mt-5 font-mono text-[28px] font-semibold text-[#17171a]">
+              <div className="mt-5 font-mono text-[28px] font-semibold text-ink">
                 ${flashlight.price_usd.toLocaleString()}
               </div>
             )}
@@ -222,19 +222,19 @@ export default async function FlashlightPage({ params }: Props) {
 
         {/* Description — boxed so text doesn't stretch full width */}
         {flashlight.description && (
-          <div className="mt-10 bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-7 max-w-[760px]">
-            <MarkdownContent className="text-[15px] leading-[1.7] text-[#6c6c66]">{flashlight.description}</MarkdownContent>
+          <div className="mt-10 bg-panel border border-line rounded-2xl p-6 sm:p-7 max-w-[760px]">
+            <MarkdownContent className="text-[15px] leading-[1.7] text-ink-2">{flashlight.description}</MarkdownContent>
           </div>
         )}
 
         {/* Specifications — two-column grid of hairline rows, fills the width */}
-        <div className="mt-10 border-t border-[#e7e7e1]">
-          <h2 className="text-[13px] font-semibold text-[#17171a] py-3.5">Specifications</h2>
+        <div className="mt-10 border-t border-line">
+          <h2 className="text-[13px] font-semibold text-ink py-3.5">Specifications</h2>
           <div className="grid sm:grid-cols-2 gap-x-14">
             {specs.map(s => (
-              <div key={s.label} className="flex items-baseline justify-between gap-6 py-2.5 border-t border-[#e7e7e1]">
-                <span className="text-[14px] text-[#6c6c66] shrink-0">{s.label}</span>
-                <span className="text-[13px] text-[#17171a] font-mono text-right">{s.value as string}</span>
+              <div key={s.label} className="flex items-baseline justify-between gap-6 py-2.5 border-t border-line">
+                <span className="text-[14px] text-ink-2 shrink-0">{s.label}</span>
+                <span className="text-[13px] text-ink font-mono text-right">{s.value as string}</span>
               </div>
             ))}
           </div>
@@ -251,8 +251,8 @@ export default async function FlashlightPage({ params }: Props) {
 
         {/* Reviews — below the manual; newest first */}
         {flashlight.reviews && flashlight.reviews.length > 0 && (
-          <div className="mt-8 border-t border-[#e7e7e1]">
-            <h2 className="text-[13px] font-semibold text-[#17171a] py-4">Reviews</h2>
+          <div className="mt-8 border-t border-line">
+            <h2 className="text-[13px] font-semibold text-ink py-4">Reviews</h2>
             <div className="space-y-0">
               {[...flashlight.reviews]
                 .sort((a: { published_at: string | null }, b: { published_at: string | null }) =>
@@ -264,14 +264,14 @@ export default async function FlashlightPage({ params }: Props) {
                   href={r.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 py-3 border-t border-[#e7e7e1] hover:text-brand-600 group"
+                  className="flex items-center gap-3 py-3 border-t border-line hover:text-brand-600 group"
                 >
                   <div className="text-slate-300 group-hover:text-brand-500 shrink-0">
                     {r.type === 'video' ? <Video size={14} /> : <FileText size={14} />}
                   </div>
-                  <p className="flex-1 min-w-0 text-sm font-medium text-slate-900 group-hover:text-brand-700 truncate">{r.title}</p>
+                  <p className="flex-1 min-w-0 text-sm font-medium text-ink group-hover:text-brand-700 truncate">{r.title}</p>
                   {r.published_at && (
-                    <span className="text-xs text-slate-400 font-mono shrink-0">
+                    <span className="text-xs text-ink-3 font-mono shrink-0">
                       {new Date(r.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                     </span>
                   )}
@@ -283,14 +283,14 @@ export default async function FlashlightPage({ params }: Props) {
         )}
 
         {/* Timeline */}
-        <div className="mt-8 pt-4 border-t border-[#e7e7e1] space-y-1 text-xs text-slate-400">
+        <div className="mt-8 pt-4 border-t border-line space-y-1 text-xs text-ink-3">
           {editedByUser && (
             <div className="flex items-center gap-2">
               <span className="text-slate-300">–</span>
               <span>
                 Updated by{' '}
                 {updatedByNickname
-                  ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                  ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
                   : 'user'
                 }
                 {' · '}{new Date(flashlight.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -302,7 +302,7 @@ export default async function FlashlightPage({ params }: Props) {
             <span>
               Added by{' '}
               {addedByUser && updatedByNickname
-                ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
                 : 'system'
               }
               {' · '}{new Date(flashlight.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

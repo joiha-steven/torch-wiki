@@ -35,13 +35,13 @@ export default function BrowseGrid({
   }
 
   if (items.length === 0) {
-    return <div className="flex items-center justify-center h-64 text-[#9b9b94] text-sm">No flashlights found.</div>
+    return <div className="flex items-center justify-center h-64 text-ink-3 text-sm">No flashlights found.</div>
   }
 
   return (
     <>
-      <p className="hidden md:block text-[13px] text-[#6c6c66] mb-[22px]">
-        <b className="text-[#17171a] font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
+      <p className="hidden md:block text-[13px] text-ink-2 mb-[22px]">
+        <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
       </p>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((f, i) => (
@@ -58,7 +58,7 @@ export default function BrowseGrid({
       {/* Infinite scroll sentinel */}
       <div ref={sentinelRef} className="mt-8 flex justify-center h-8">
         {loadingMore && (
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-ink-3">
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25"/>
               <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>

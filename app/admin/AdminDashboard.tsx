@@ -46,11 +46,11 @@ function DiffRow({ label, before, after, changed }: { label: string; before: unk
   }
   return (
     <tr className={changed ? 'bg-amber-50' : ''}>
-      <td className="px-3 py-2 text-xs text-slate-500 font-medium w-36 shrink-0">{label}</td>
+      <td className="px-3 py-2 text-xs text-ink-3 font-medium w-36 shrink-0">{label}</td>
       {before !== undefined && (
-        <td className={`px-3 py-2 text-sm ${changed ? 'text-red-500 line-through' : 'text-slate-700'}`}>{fmt(before)}</td>
+        <td className={`px-3 py-2 text-sm ${changed ? 'text-red-500 line-through' : 'text-ink-2'}`}>{fmt(before)}</td>
       )}
-      <td className={`px-3 py-2 text-sm ${changed ? 'text-green-700 font-medium' : 'text-slate-700'}`}>{fmt(after)}</td>
+      <td className={`px-3 py-2 text-sm ${changed ? 'text-green-700 font-medium' : 'text-ink-2'}`}>{fmt(after)}</td>
     </tr>
   )
 }
@@ -116,7 +116,7 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
   const images = sub.submission_images ?? []
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-panel rounded-xl border border-line overflow-hidden">
       {/* Header row */}
       <div className="flex items-start gap-4 px-5 py-4">
         {images[0] && (
@@ -129,25 +129,25 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${sub.type === 'new' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
               {sub.type === 'new' ? 'New' : 'Edit'}
             </span>
-            <span className="font-semibold text-slate-900">{(sub.data.brand ?? '') + ' ' + (sub.data.model ?? '')}</span>
-            {sub.type === 'edit' && <span className="text-xs text-slate-400">({changed.length} field{changed.length !== 1 ? 's' : ''} changed)</span>}
+            <span className="font-semibold text-ink">{(sub.data.brand ?? '') + ' ' + (sub.data.model ?? '')}</span>
+            {sub.type === 'edit' && <span className="text-xs text-ink-3">({changed.length} field{changed.length !== 1 ? 's' : ''} changed)</span>}
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">{formatDate(sub.created_at)}</p>
-          {sub.note && <p className="text-sm text-slate-600 mt-1 italic">"{sub.note}"</p>}
+          <p className="text-xs text-ink-3 mt-0.5">{formatDate(sub.created_at)}</p>
+          {sub.note && <p className="text-sm text-ink-2 mt-1 italic">"{sub.note}"</p>}
         </div>
-        <button onClick={() => setExpanded(e => !e)} className="text-slate-400 hover:text-slate-700 shrink-0 mt-1">
+        <button onClick={() => setExpanded(e => !e)} className="text-ink-3 hover:text-ink-2 shrink-0 mt-1">
           {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
       </div>
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="border-t border-slate-100 px-5 py-4 space-y-4">
+        <div className="border-t border-line px-5 py-4 space-y-4">
           {/* Images strip */}
           {images.length > 0 && (
             <div className="flex gap-2 flex-wrap">
               {images.map(img => (
-                <div key={img.id} className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 bg-white ${img.is_primary ? 'border-brand-500' : 'border-slate-200'}`}>
+                <div key={img.id} className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 bg-plate ${img.is_primary ? 'border-brand-500' : 'border-line'}`}>
                   <Image src={img.url} alt="" fill className="object-contain p-1" />
                   {img.is_primary && <span className="absolute bottom-0 left-0 right-0 text-center text-[9px] bg-brand-500 text-black py-0.5">Primary</span>}
                 </div>
@@ -156,10 +156,10 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
           )}
 
           {/* Spec diff table */}
-          <div className="overflow-x-auto rounded-lg border border-slate-100">
+          <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 text-xs text-slate-500">
+                <tr className="bg-slate-50 dark:bg-white/[0.04] text-xs text-ink-3">
                   <th className="px-3 py-2 text-left font-medium">Field</th>
                   {sub.type === 'edit' && <th className="px-3 py-2 text-left font-medium">Before</th>}
                   <th className="px-3 py-2 text-left font-medium">{sub.type === 'edit' ? 'After' : 'Value'}</th>
@@ -189,7 +189,7 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
                 value={reviewerNote}
                 onChange={e => setReviewerNote(e.target.value)}
                 placeholder="Note to user (optional — shown if rejected)"
-                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-brand-300"
+                className="w-full text-sm border border-line rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-brand-300"
                 rows={2}
               />
               <div className="flex gap-3">
@@ -207,7 +207,7 @@ function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmission; onAction
             </div>
           )}
           {sub.status !== 'pending' && sub.reviewer_note && (
-            <p className="text-sm text-slate-500 italic">Reviewer note: "{sub.reviewer_note}"</p>
+            <p className="text-sm text-ink-3 italic">Reviewer note: "{sub.reviewer_note}"</p>
           )}
         </div>
       )}
@@ -248,56 +248,56 @@ function ReportsPanel() {
 
   return (
     <div>
-      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 mb-8 w-fit mx-auto">
+      <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 mb-8 w-fit mx-auto">
         {STATUS_TABS.map(t => (
           <button key={t.key} onClick={() => setStatusFilter(t.key)}
-            className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${statusFilter === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+            className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${statusFilter === t.key ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
             {t.label}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
+        <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
       ) : reports.length === 0 ? (
-        <p className="text-slate-400 text-sm py-16 text-center">No {statusFilter} reports.</p>
+        <p className="text-ink-3 text-sm py-16 text-center">No {statusFilter} reports.</p>
       ) : (
         <div className="space-y-3">
           {reports.map(r => (
-            <div key={r.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div key={r.id} className="bg-panel rounded-xl border border-line overflow-hidden">
               <button
                 onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                className="w-full flex items-start gap-4 px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-start gap-4 px-5 py-4 text-left hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{r.topic}</span>
-                    {r.attachment_url && <span className="text-xs text-slate-400">📎</span>}
+                    <span className="text-xs font-medium bg-slate-100 dark:bg-white/[0.05] text-ink-2 px-2 py-0.5 rounded-full">{r.topic}</span>
+                    {r.attachment_url && <span className="text-xs text-ink-3">📎</span>}
                   </div>
-                  <p className="text-sm text-slate-700 truncate">{r.body}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-sm text-ink-2 truncate">{r.body}</p>
+                  <p className="text-xs text-ink-3 mt-0.5">
                     {r.email ?? (r.user_id ? 'Registered user' : 'Anonymous')} · {formatDate(r.created_at)}
                   </p>
                 </div>
-                {expanded === r.id ? <ChevronUp size={15} className="text-slate-400 mt-1 shrink-0" /> : <ChevronDown size={15} className="text-slate-400 mt-1 shrink-0" />}
+                {expanded === r.id ? <ChevronUp size={15} className="text-ink-3 mt-1 shrink-0" /> : <ChevronDown size={15} className="text-ink-3 mt-1 shrink-0" />}
               </button>
 
               {expanded === r.id && (
-                <div className="border-t border-slate-100 px-5 py-4 space-y-4">
-                  <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{r.body}</p>
+                <div className="border-t border-line px-5 py-4 space-y-4">
+                  <p className="text-sm text-ink-2 whitespace-pre-line leading-relaxed">{r.body}</p>
 
                   {r.attachment_url && (
                     <a href={r.attachment_url} target="_blank" rel="noopener noreferrer"
                       className="block w-fit">
                       <Image src={r.attachment_url} alt="attachment" width={320} height={200}
-                        className="rounded-lg border border-slate-200 object-cover max-h-48" />
+                        className="rounded-lg border border-line object-cover max-h-48" />
                     </a>
                   )}
 
                   <div className="flex gap-2 flex-wrap">
                     {statusFilter !== 'read' && (
                       <button onClick={() => setStatus(r.id, 'read')}
-                        className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-50">
+                        className="text-xs border border-line rounded-lg px-3 py-1.5 text-ink-2 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
                         Mark as read
                       </button>
                     )}
@@ -309,7 +309,7 @@ function ReportsPanel() {
                     )}
                     {statusFilter !== 'new' && (
                       <button onClick={() => setStatus(r.id, 'new')}
-                        className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 text-slate-500 hover:bg-slate-50">
+                        className="text-xs border border-line rounded-lg px-3 py-1.5 text-ink-3 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
                         Move to New
                       </button>
                     )}
@@ -407,7 +407,7 @@ function UsersPanel() {
       <input
         type="text" value={query} onChange={e => setQuery(e.target.value)}
         placeholder="Search by email or nickname…"
-        className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+        className="w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
       />
 
       {msg     && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">{msg}</p>}
@@ -416,21 +416,21 @@ function UsersPanel() {
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-slate-300" /></div>
       ) : users.length === 0 && !loadErr ? (
-        <p className="text-slate-400 text-sm py-12 text-center">No users found.</p>
+        <p className="text-ink-3 text-sm py-12 text-center">No users found.</p>
       ) : (
         <>
-          <p className="text-xs text-slate-400">Showing {users.length} of {total} user{total !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-ink-3">Showing {users.length} of {total} user{total !== 1 ? 's' : ''}</p>
           <div className="space-y-2">
             {users.map(u => (
-              <div key={u.id} className={`bg-white rounded-xl border px-5 py-3.5 flex items-center gap-4 ${u.banned ? 'border-red-100 bg-red-50/30' : 'border-slate-200'}`}>
+              <div key={u.id} className={`bg-panel rounded-xl border px-5 py-3.5 flex items-center gap-4 ${u.banned ? 'border-red-100 bg-red-50/30' : 'border-line'}`}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-slate-800 truncate">{u.email}</span>
+                    <span className="text-sm font-medium text-ink truncate">{u.email}</span>
                     {u.is_admin     && <span className="text-[10px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded font-medium">Admin</span>}
                     {u.is_moderator && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">Moderator</span>}
                     {u.banned       && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">Banned</span>}
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-ink-3 mt-0.5">
                     {u.nickname ? `@${u.nickname} · ` : ''}Joined {fmt(u.created_at)} · Last seen {fmt(u.last_sign_in)}
                   </p>
                 </div>
@@ -443,7 +443,7 @@ function UsersPanel() {
                       onClick={() => act(u.id, 'reset_password')}
                       disabled={!!acting}
                       title="Send password reset email"
-                      className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-40"
+                      className="p-2 text-ink-3 hover:text-ink-2 hover:bg-slate-100 dark:bg-white/[0.05] rounded-lg transition-colors disabled:opacity-40"
                     >
                       {acting === u.id + 'reset_password' ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
                     </button>
@@ -478,7 +478,7 @@ function UsersPanel() {
             <button
               onClick={() => { const next = page + 1; setPage(next); load(queryRef.current, next, true) }}
               disabled={loadingMore}
-              className="w-full py-2.5 border border-slate-200 rounded-lg text-sm text-slate-500 hover:bg-slate-50 disabled:opacity-50 flex items-center justify-center gap-2 bg-white"
+              className="w-full py-2.5 border border-line rounded-lg text-sm text-ink-3 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5 disabled:opacity-50 flex items-center justify-center gap-2 bg-panel"
             >
               {loadingMore && <Loader2 size={13} className="animate-spin" />}
               {loadingMore ? 'Loading…' : `Load more (${total - users.length} remaining)`}
@@ -490,14 +490,14 @@ function UsersPanel() {
       {/* Delete confirm modal */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4" onClick={() => setConfirmDelete(null)}>
-          <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
-            <h2 className="font-bold text-slate-900">Delete account?</h2>
-            <p className="text-sm text-slate-500">
-              This will permanently delete <span className="font-medium text-slate-700">{confirmDelete.email}</span> and all their data. This cannot be undone.
+          <div className="bg-panel rounded-xl border border-line p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="font-bold text-ink">Delete account?</h2>
+            <p className="text-sm text-ink-3">
+              This will permanently delete <span className="font-medium text-ink-2">{confirmDelete.email}</span> and all their data. This cannot be undone.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmDelete(null)}
-                className="flex-1 border border-slate-200 text-slate-600 text-sm py-2 rounded-lg hover:bg-slate-50">Cancel</button>
+                className="flex-1 border border-line text-ink-2 text-sm py-2 rounded-lg hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">Cancel</button>
               <button onClick={() => act(confirmDelete.id, 'delete')} disabled={!!acting}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-lg disabled:opacity-50 flex items-center justify-center gap-2">
                 {acting ? <Loader2 size={13} className="animate-spin" /> : null}
@@ -568,24 +568,24 @@ function TeamPanel() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+    <div className="bg-panel rounded-xl border border-line p-6 space-y-5">
       <div>
-        <h2 className="text-sm font-semibold text-slate-900">Moderators</h2>
-        <p className="text-xs text-slate-400 mt-0.5">Moderators can review submissions and reports, but can't change settings</p>
+        <h2 className="text-sm font-semibold text-ink">Moderators</h2>
+        <p className="text-xs text-ink-3 mt-0.5">Moderators can review submissions and reports, but can't change settings</p>
       </div>
 
       {/* Current admins */}
       {loading ? (
         <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-300" /></div>
       ) : admins.length === 0 ? (
-        <p className="text-xs text-slate-400">No admins found.</p>
+        <p className="text-xs text-ink-3">No admins found.</p>
       ) : (
         <ul className="divide-y divide-slate-100">
           {admins.map(a => (
             <li key={a.id} className="flex items-center justify-between py-2.5 gap-3">
               <div className="min-w-0">
-                <p className="text-sm text-slate-800 truncate">{a.email}</p>
-                {a.nickname && <p className="text-xs text-slate-400">{a.nickname}</p>}
+                <p className="text-sm text-ink truncate">{a.email}</p>
+                {a.nickname && <p className="text-xs text-ink-3">{a.nickname}</p>}
               </div>
               <button
                 onClick={() => removeAdmin(a)}
@@ -607,10 +607,10 @@ function TeamPanel() {
           value={newEmail}
           onChange={e => setNewEmail(e.target.value)}
           placeholder="Email address"
-          className="flex-1 h-9 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+          className="flex-1 h-9 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
         />
         <button type="submit" disabled={adding || !newEmail.trim()}
-          className="flex items-center gap-1.5 h-9 px-3 bg-slate-900 hover:bg-slate-800 text-white text-sm rounded-lg disabled:opacity-50 shrink-0">
+          className="flex items-center gap-1.5 h-9 px-3 bg-slate-900 hover:bg-slate-800 dark:bg-[#33363c] dark:hover:bg-[#3e4148] text-white text-sm rounded-lg disabled:opacity-50 shrink-0">
           {adding ? <Loader2 size={13} className="animate-spin" /> : <UserPlus size={13} />}
           Add
         </button>
@@ -661,39 +661,39 @@ function SettingsPanel() {
   }
 
   if (loading) {
-    return <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
+    return <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
   }
 
   return (
     <div className="space-y-6 max-w-lg">
 
       {/* Google Analytics */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+      <div className="bg-panel rounded-xl border border-line p-6 space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">Google Analytics</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Track visits, sessions, and user behavior</p>
+            <h2 className="text-sm font-semibold text-ink">Google Analytics</h2>
+            <p className="text-xs text-ink-3 mt-0.5">Track visits, sessions, and user behavior</p>
           </div>
           {/* Toggle */}
           <button
             type="button"
             onClick={() => setGaEnabled(e => !e)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${gaEnabled ? 'bg-brand-500' : 'bg-slate-200'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${gaEnabled ? 'bg-brand-500' : 'bg-slate-200 dark:bg-white/[0.07]'}`}
           >
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${gaEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-panel shadow transition-transform ${gaEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1.5">
-            Measurement ID <span className="text-slate-400 font-normal">(e.g. G-XXXXXXXXXX)</span>
+          <label className="block text-xs font-medium text-ink-3 mb-1.5">
+            Measurement ID <span className="text-ink-3 font-normal">(e.g. G-XXXXXXXXXX)</span>
           </label>
           <input
             type="text"
             value={gaId}
             onChange={e => setGaId(e.target.value)}
             placeholder="G-XXXXXXXXXX"
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+            className="w-full h-10 border border-line rounded-lg px-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
           />
           {gaId && !gaId.match(/^G-[A-Z0-9]+$/) && (
             <p className="text-xs text-amber-600 mt-1">Format should be G-XXXXXXXXXX</p>
@@ -701,14 +701,14 @@ function SettingsPanel() {
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <div className={`flex items-center gap-1.5 text-xs ${gaEnabled ? 'text-green-600' : 'text-slate-400'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${gaEnabled ? 'bg-green-500' : 'bg-slate-300'}`} />
+          <div className={`flex items-center gap-1.5 text-xs ${gaEnabled ? 'text-green-600' : 'text-ink-3'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${gaEnabled ? 'bg-green-500' : 'bg-slate-300 dark:bg-white/10'}`} />
             {gaEnabled ? 'Tracking active' : 'Tracking disabled'}
           </div>
           <div className="flex items-center gap-3">
             {msg && <span className="text-xs text-green-600">{msg}</span>}
             <button onClick={save} disabled={saving}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-[#33363c] dark:hover:bg-[#3e4148] text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
               {saving && <Loader2 size={13} className="animate-spin" />}
               {saving ? 'Saving…' : 'Save'}
             </button>
@@ -716,9 +716,9 @@ function SettingsPanel() {
         </div>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-ink-3">
         Changes take effect within ~5 minutes (cached). Get your Measurement ID from{' '}
-        <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600">Google Analytics</a>.
+        <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink-2">Google Analytics</a>.
       </p>
 
       {/* Team */}
@@ -778,28 +778,28 @@ function BrandsPanel() {
 
   return (
     <>
-      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 mb-8 w-fit mx-auto">
+      <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 mb-8 w-fit mx-auto">
         {TABS.map(t => (
           <button key={t.key} onClick={() => setStatusFilter(t.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${statusFilter === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${statusFilter === t.key ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
             {t.icon}{t.label}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
+        <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
       ) : subs.length === 0 ? (
-        <p className="text-slate-400 text-sm py-16 text-center">No {statusFilter} brand suggestions.</p>
+        <p className="text-ink-3 text-sm py-16 text-center">No {statusFilter} brand suggestions.</p>
       ) : (
         <div className="space-y-3">
           {subs.map(s => {
             const entries = Object.entries(s.data ?? {}).filter(([, v]) => v != null && v !== '')
             return (
-              <div key={s.id} className="bg-white border border-slate-200 rounded-xl p-4">
+              <div key={s.id} className="bg-panel border border-line rounded-xl p-4">
                 <div className="flex items-baseline justify-between gap-3 mb-3">
-                  <h3 className="font-semibold text-slate-900">{s.brand_name}</h3>
-                  <span className="text-xs text-slate-400 shrink-0">
+                  <h3 className="font-semibold text-ink">{s.brand_name}</h3>
+                  <span className="text-xs text-ink-3 shrink-0">
                     {s.profiles?.nickname ? `@${s.profiles.nickname} · ` : ''}{new Date(s.created_at).toLocaleDateString()}
                   </span>
                 </div>
@@ -807,15 +807,15 @@ function BrandsPanel() {
                 <div className="space-y-2 text-sm">
                   {entries.map(([k, v]) => (
                     <div key={k} className="grid grid-cols-[120px_1fr] gap-3">
-                      <span className="text-xs text-slate-400 pt-0.5">{BRAND_FIELD_LABELS[k] ?? k}</span>
+                      <span className="text-xs text-ink-3 pt-0.5">{BRAND_FIELD_LABELS[k] ?? k}</span>
                       {k === 'about'
-                        ? <div className="text-slate-700"><MarkdownContent>{String(v)}</MarkdownContent></div>
-                        : <span className="text-slate-800 break-words">{String(v)}</span>}
+                        ? <div className="text-ink-2"><MarkdownContent>{String(v)}</MarkdownContent></div>
+                        : <span className="text-ink break-words">{String(v)}</span>}
                     </div>
                   ))}
                 </div>
 
-                {s.reviewer_note && <p className="mt-2 text-xs text-slate-400">Note: {s.reviewer_note}</p>}
+                {s.reviewer_note && <p className="mt-2 text-xs text-ink-3">Note: {s.reviewer_note}</p>}
 
                 {statusFilter === 'pending' && (
                   <div className="flex gap-2 mt-4">
@@ -888,28 +888,28 @@ export default function AdminDashboard() {
 
         {/* Top bar: section switcher (centered) + force clear (right) */}
         <div className="relative flex justify-center mb-8">
-        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit flex-wrap justify-center">
+        <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 w-fit flex-wrap justify-center">
           <button onClick={() => setSection('submissions')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'submissions' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'submissions' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
             <Layers size={14} /> Submissions
           </button>
           <button onClick={() => setSection('brands')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'brands' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'brands' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
             <Tag size={14} /> Brands
           </button>
           <button onClick={() => setSection('reports')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'reports' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'reports' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
             <Bug size={14} /> Reports
           </button>
           {isAdmin && (
             <button onClick={() => setSection('users')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'users' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'users' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
               <Users size={14} /> Users
             </button>
           )}
           {isAdmin && (
             <button onClick={() => setSection('settings')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'settings' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${section === 'settings' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
               <Settings size={14} /> Settings
             </button>
           )}
@@ -919,7 +919,7 @@ export default function AdminDashboard() {
             <div className="hidden md:flex items-center gap-3 absolute right-0 top-1/2 -translate-y-1/2">
               {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
               <button onClick={forceClearCache} disabled={clearing}
-                className="flex items-center gap-2 text-xs border border-[#e7e7e1] rounded-xl px-3 py-2 text-[#6c6c66] hover:bg-gray-100 disabled:opacity-50 bg-white">
+                className="flex items-center gap-2 text-xs border border-line rounded-xl px-3 py-2 text-ink-2 hover:bg-gray-100 disabled:opacity-50 bg-panel">
                 {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
                 {clearing ? 'Clearing…' : 'Force clear cache'}
               </button>
@@ -931,7 +931,7 @@ export default function AdminDashboard() {
           <div className="md:hidden flex items-center justify-center gap-3 mb-8 -mt-4">
             {clearMsg && <span className="text-xs text-green-600">{clearMsg}</span>}
             <button onClick={forceClearCache} disabled={clearing}
-              className="flex items-center gap-2 text-xs border border-[#e7e7e1] rounded-xl px-3 py-2 text-[#6c6c66] hover:bg-gray-100 disabled:opacity-50 bg-white">
+              className="flex items-center gap-2 text-xs border border-line rounded-xl px-3 py-2 text-ink-2 hover:bg-gray-100 disabled:opacity-50 bg-panel">
               {clearing ? <Loader2 size={12} className="animate-spin" /> : null}
               {clearing ? 'Clearing…' : 'Force clear cache'}
             </button>
@@ -948,19 +948,19 @@ export default function AdminDashboard() {
           <BrandsPanel />
         ) : (
           <>
-            <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 mb-8 w-fit mx-auto">
+            <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 mb-8 w-fit mx-auto">
               {SUB_TABS.map(t => (
                 <button key={t.key} onClick={() => setSubTab(t.key)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${subTab === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${subTab === t.key ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
                   {t.icon}{t.label}
                 </button>
               ))}
             </div>
 
             {loading ? (
-              <div className="flex justify-center py-16 text-slate-400"><Loader2 size={20} className="animate-spin" /></div>
+              <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
             ) : submissions.length === 0 ? (
-              <p className="text-slate-400 text-sm py-16 text-center">No {subTab} submissions.</p>
+              <p className="text-ink-3 text-sm py-16 text-center">No {subTab} submissions.</p>
             ) : (
               <div className="space-y-3">
                 {submissions.map(s => <SubmissionCard key={s.id} sub={s} onAction={loadSubs} />)}

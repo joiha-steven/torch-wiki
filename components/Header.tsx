@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import UserMenu from './UserMenu'
+import ThemeToggle from './ThemeToggle'
 
 const NAV = [
   { href: '/',        label: 'Browse' },
@@ -77,6 +78,7 @@ export default function Header() {
           >
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
+          <ThemeToggle />
           <UserMenu />
         </div>
       </div>

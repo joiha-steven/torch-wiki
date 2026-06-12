@@ -18,8 +18,8 @@ export const metadata: Metadata = {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="pt-6 mt-6 border-t border-[#e7e7e1] first:pt-0 first:mt-0 first:border-0">
-      <h2 className="font-semibold text-slate-900 mb-2">{title}</h2>
+    <section className="pt-6 mt-6 border-t border-line first:pt-0 first:mt-0 first:border-0">
+      <h2 className="font-semibold text-ink mb-2">{title}</h2>
       <div className="space-y-2 text-[13px] leading-relaxed text-[#4c4c47]">{children}</div>
     </section>
   )
@@ -32,21 +32,21 @@ export default function PrivacyPage() {
 
       <div className="max-w-[1280px] mx-auto px-7 py-8">
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Privacy &amp; Cookies</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">torch.EDC.wiki is a non-commercial reference project, not affiliated with any brand.</p>
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Privacy &amp; Cookies</h1>
+          <p className="mt-2 text-[13px] text-ink-2">torch.EDC.wiki is a non-commercial reference project, not affiliated with any brand.</p>
         </div>
 
-        <div className="max-w-3xl mx-auto bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-8">
+        <div className="max-w-3xl mx-auto bg-panel border border-line rounded-2xl p-6 sm:p-8">
           <Section title="Cookies we use">
             <p>
-              <span className="font-medium text-slate-700">Essential cookies</span> are always on:
+              <span className="font-medium text-ink-2">Essential cookies</span> are always on:
               they keep you signed in (Supabase auth session) and protect our forms from spam
               (Cloudflare Turnstile). The site can&apos;t work without them, so they don&apos;t require consent.
             </p>
             <p>
-              <span className="font-medium text-slate-700">Analytics cookies</span> are optional. We use
+              <span className="font-medium text-ink-2">Analytics cookies</span> are optional. We use
               Google Analytics to understand how the site is used; it sets a <code>_ga</code> cookie.
-              It only loads <span className="font-medium text-slate-700">after you click Accept</span> on
+              It only loads <span className="font-medium text-ink-2">after you click Accept</span> on
               the cookie banner. Click Decline and no analytics cookie is ever set. You can change your
               mind by clearing site data in your browser.
             </p>
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
           <Section title="Cookieless analytics">
             <p>
               We also use Vercel Analytics and Speed Insights to measure traffic and performance.
-              These are <span className="font-medium text-slate-700">cookieless</span> and don&apos;t track
+              These are <span className="font-medium text-ink-2">cookieless</span> and don&apos;t track
               you across sites, so they run regardless of your cookie choice.
             </p>
           </Section>

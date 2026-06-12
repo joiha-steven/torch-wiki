@@ -185,10 +185,10 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={closeAuthModal} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
-        <button onClick={closeAuthModal} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"><X size={18} /></button>
+      <div className="relative bg-panel rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+        <button onClick={closeAuthModal} className="absolute top-4 right-4 text-ink-3 hover:text-ink-2"><X size={18} /></button>
 
-        <h2 className="text-lg font-bold text-slate-900 mb-5">
+        <h2 className="text-lg font-bold text-ink mb-5">
           {tab === 'signin' ? 'Sign in'
             : tab === 'signup' ? 'Create account'
             : tab === 'forgot' ? 'Reset password'
@@ -198,13 +198,13 @@ export default function AuthModal() {
 
         {/* Signin / Signup tabs */}
         {(tab === 'signin' || tab === 'signup') && (
-          <div className="flex gap-1 bg-slate-100 rounded-lg p-1 mb-5">
+          <div className="flex gap-1 bg-slate-100 dark:bg-white/[0.05] rounded-lg p-1 mb-5">
             <button onClick={() => reset('signin')}
-              className={`flex-1 text-sm py-1.5 rounded-md font-medium transition-colors ${tab === 'signin' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+              className={`flex-1 text-sm py-1.5 rounded-md font-medium transition-colors ${tab === 'signin' ? 'bg-panel text-ink shadow-sm' : 'text-ink-3 hover:text-ink-2'}`}>
               Sign in
             </button>
             <button onClick={() => reset('signup')}
-              className={`flex-1 text-sm py-1.5 rounded-md font-medium transition-colors ${tab === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+              className={`flex-1 text-sm py-1.5 rounded-md font-medium transition-colors ${tab === 'signup' ? 'bg-panel text-ink shadow-sm' : 'text-ink-3 hover:text-ink-2'}`}>
               Sign up
             </button>
           </div>
@@ -215,10 +215,10 @@ export default function AuthModal() {
           {/* ── MFA step ── */}
           {tab === 'mfa' && (
             <>
-              <p className="text-sm text-slate-500">Enter the 6-digit code from your authenticator app.</p>
+              <p className="text-sm text-ink-3">Enter the 6-digit code from your authenticator app.</p>
               <input type="text" inputMode="numeric" maxLength={6} value={totpCode}
                 onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 text-center tracking-widest text-lg font-mono"
+                className="w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 text-center tracking-widest text-lg font-mono"
                 placeholder="000000" autoFocus />
             </>
           )}
@@ -226,9 +226,9 @@ export default function AuthModal() {
           {/* ── Recovery step ── */}
           {tab === 'recovery' && (
             <>
-              <p className="text-sm text-slate-500">Enter one of your saved recovery codes to regain access. The code will be marked as used and your 2FA will be removed.</p>
+              <p className="text-sm text-ink-3">Enter one of your saved recovery codes to regain access. The code will be marked as used and your 2FA will be removed.</p>
               <input type="text" value={recoveryCode} onChange={e => setRecoveryCode(e.target.value.toUpperCase())}
-                className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 font-mono"
+                className="w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 font-mono"
                 placeholder="XXXXX-XXXXX" autoFocus />
             </>
           )}
@@ -237,22 +237,22 @@ export default function AuthModal() {
           {(tab === 'signin' || tab === 'signup' || tab === 'forgot') && (
             <>
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
+                <label className="block text-xs font-medium text-ink-2 mb-1">Email</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                  className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                  className="w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
                   placeholder="you@example.com" />
               </div>
               {tab !== 'forgot' && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Password</label>
+                  <label className="block text-xs font-medium text-ink-2 mb-1">Password</label>
                   <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
-                    className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                    className="w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
                     placeholder="••••••" />
                 </div>
               )}
               {tab === 'signin' && (
                 <div className="text-right">
-                  <button type="button" onClick={() => reset('forgot')} className="text-xs text-slate-400 hover:text-slate-600">
+                  <button type="button" onClick={() => reset('forgot')} className="text-xs text-ink-3 hover:text-ink-2">
                     Forgot password?
                   </button>
                 </div>
@@ -295,18 +295,18 @@ export default function AuthModal() {
           {/* Footer links */}
           {tab === 'mfa' && (
             <button type="button" onClick={() => { setTab('recovery'); setError('') }}
-              className="w-full text-xs text-slate-400 hover:text-slate-600 pt-1">
+              className="w-full text-xs text-ink-3 hover:text-ink-2 pt-1">
               Lost your authenticator? Use a recovery code →
             </button>
           )}
           {tab === 'recovery' && (
             <button type="button" onClick={() => { setTab('mfa'); setError('') }}
-              className="w-full text-xs text-slate-400 hover:text-slate-600 pt-1">
+              className="w-full text-xs text-ink-3 hover:text-ink-2 pt-1">
               ← Back to authenticator code
             </button>
           )}
           {tab === 'forgot' && (
-            <button type="button" onClick={() => reset('signin')} className="w-full text-xs text-slate-400 hover:text-slate-600 pt-1">
+            <button type="button" onClick={() => reset('signin')} className="w-full text-xs text-ink-3 hover:text-ink-2 pt-1">
               Back to sign in
             </button>
           )}

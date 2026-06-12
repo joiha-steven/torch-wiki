@@ -25,29 +25,29 @@ function ItemRow({ item }: { item: ProfileItem }) {
   return (
     <Link
       href={`/${item.slug}`}
-      className="flex items-center gap-4 bg-white border border-slate-200 hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors"
+      className="flex items-center gap-4 bg-panel border border-line hover:border-brand-400 hover:bg-brand-50 rounded-xl px-4 py-3 transition-colors"
     >
-      <div className="relative w-12 h-10 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+      <div className="relative w-12 h-10 bg-slate-100 dark:bg-white/[0.05] rounded-lg overflow-hidden shrink-0">
         {item.imgUrl
           ? <Image src={item.imgUrl} alt="" fill className="object-contain p-1" />
           : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
         }
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-slate-400">{item.brand}</p>
-        <p className="text-sm font-medium text-slate-900 truncate">{item.model}</p>
+        <p className="text-xs text-ink-3">{item.brand}</p>
+        <p className="text-sm font-medium text-ink truncate">{item.model}</p>
       </div>
       {item.quantity != null && item.quantity > 1 && (
-        <span className="text-xs font-mono text-slate-500 bg-slate-100 rounded px-2 py-0.5 shrink-0">
+        <span className="text-xs font-mono text-ink-3 bg-slate-100 dark:bg-white/[0.05] rounded px-2 py-0.5 shrink-0">
           ×{item.quantity}
         </span>
       )}
-      {item.date && <p className="text-xs text-slate-400 shrink-0">{item.date}</p>}
+      {item.date && <p className="text-xs text-ink-3 shrink-0">{item.date}</p>}
     </Link>
   )
 }
 
-const sectionTitle = 'text-xs font-semibold text-slate-400 tracking-wide mb-3'
+const sectionTitle = 'text-xs font-semibold text-ink-3 tracking-wide mb-3'
 
 export default function ProfileTabs({ added, edits, collection, showCollection }: Props) {
   const [tab, setTab] = useState<'contribute' | 'collection'>('contribute')
@@ -66,13 +66,13 @@ export default function ProfileTabs({ added, edits, collection, showCollection }
 
   return (
     <div>
-      <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto mb-8">
+      <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 w-fit mx-auto mb-8">
         {TABS.map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
-              tab === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'
+              tab === t.key ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'
             }`}
           >
             {t.label}
@@ -91,8 +91,8 @@ export default function ProfileTabs({ added, edits, collection, showCollection }
 function ContributeView({ added, edits, hasContributions }: { added: ProfileItem[]; edits: ProfileItem[]; hasContributions: boolean }) {
   if (!hasContributions) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 px-6 py-12 text-center">
-        <p className="text-slate-400 text-sm">No approved contributions yet.</p>
+      <div className="bg-panel rounded-xl border border-line px-6 py-12 text-center">
+        <p className="text-ink-3 text-sm">No approved contributions yet.</p>
       </div>
     )
   }
@@ -121,8 +121,8 @@ function ContributeView({ added, edits, hasContributions }: { added: ProfileItem
 function CollectionView({ collection }: { collection: ProfileItem[] }) {
   if (collection.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 px-6 py-12 text-center">
-        <p className="text-slate-400 text-sm">No flashlights in collection yet.</p>
+      <div className="bg-panel rounded-xl border border-line px-6 py-12 text-center">
+        <p className="text-ink-3 text-sm">No flashlights in collection yet.</p>
       </div>
     )
   }

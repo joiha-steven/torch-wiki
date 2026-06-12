@@ -127,16 +127,16 @@ export default async function BrandPage({ params }: Props) {
 
         {/* Brand hero */}
         <div className="max-w-[760px]">
-          <p className="text-[13px] font-medium text-[#9b9b94] mb-1">
+          <p className="text-[13px] font-medium text-ink-3 mb-1">
             {info?.country ? `${info.country} · ` : ''}Flashlight maker
           </p>
-          <h1 className="text-[34px] font-bold text-[#17171a] tracking-[-0.025em] leading-[1.05]">{name}</h1>
+          <h1 className="text-[34px] font-bold text-ink tracking-[-0.025em] leading-[1.05]">{name}</h1>
 
           {(meta.length > 0 || info?.website) && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-[13px] text-[#6c6c66]">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-[13px] text-ink-2">
               {meta.map((m, i) => (
                 <span key={i} className="inline-flex items-center gap-1.5">
-                  <m.icon size={14} className="text-[#9b9b94]" /> {m.label}
+                  <m.icon size={14} className="text-ink-3" /> {m.label}
                 </span>
               ))}
               {info?.website && (
@@ -149,24 +149,24 @@ export default async function BrandPage({ params }: Props) {
           )}
 
           {info?.about && (
-            <div className="mt-5 bg-white border border-[#e7e7e1] rounded-2xl p-6 sm:p-7">
-              <MarkdownContent className="text-[15px] leading-[1.7] text-[#6c6c66]">{info.about}</MarkdownContent>
+            <div className="mt-5 bg-panel border border-line rounded-2xl p-6 sm:p-7">
+              <MarkdownContent className="text-[15px] leading-[1.7] text-ink-2">{info.about}</MarkdownContent>
             </div>
           )}
 
           <div className="mt-5 flex items-center gap-4">
-            <p className="text-[13px] text-[#6c6c66]">
-              <b className="text-[#17171a] font-semibold">{lights.length}</b> model{lights.length !== 1 ? 's' : ''} in the database
+            <p className="text-[13px] text-ink-2">
+              <b className="text-ink font-semibold">{lights.length}</b> model{lights.length !== 1 ? 's' : ''} in the database
             </p>
-            <span className="text-[#d3d3cb]">·</span>
+            <span className="text-line-strong">·</span>
             <BrandEditButton name={name} initial={info} />
           </div>
         </div>
 
         {/* Flashlights by year */}
-        <div className="mt-10 pt-8 border-t border-[#e7e7e1]">
+        <div className="mt-10 pt-8 border-t border-line">
           {lights.length === 0 ? (
-            <p className="text-[#9b9b94] text-sm">No flashlights yet.</p>
+            <p className="text-ink-3 text-sm">No flashlights yet.</p>
           ) : (
             <BrandFlashlights items={lights} />
           )}
@@ -174,14 +174,14 @@ export default async function BrandPage({ params }: Props) {
 
         {/* Attribution timeline */}
         {(info?.created_at || info?.updated_by) && (
-          <div className="mt-8 pt-4 border-t border-[#e7e7e1] space-y-1 text-xs text-slate-400">
+          <div className="mt-8 pt-4 border-t border-line space-y-1 text-xs text-ink-3">
             {editedByUser && (
               <div className="flex items-center gap-2">
                 <span className="text-slate-300">–</span>
                 <span>
                   Updated by{' '}
                   {updatedByNickname
-                    ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                    ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
                     : 'user'}
                   {info?.updated_at ? `${' · '}${fmtDate(info.updated_at)}` : ''}
                 </span>
@@ -192,7 +192,7 @@ export default async function BrandPage({ params }: Props) {
               <span>
                 Added by{' '}
                 {addedByUser && updatedByNickname
-                  ? <Link href={`/u/${updatedByNickname}`} className="text-slate-500 font-medium hover:text-slate-700">{updatedByNickname}</Link>
+                  ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
                   : 'system'}
                 {info?.created_at ? `${' · '}${fmtDate(info.created_at)}` : ''}
               </span>

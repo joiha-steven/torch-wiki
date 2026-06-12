@@ -41,40 +41,40 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 bg-white rounded-xl shadow-lg border border-slate-100 py-1 w-48 z-50 text-sm">
+        <div className="absolute right-0 top-11 bg-panel rounded-xl shadow-lg border border-line py-1 w-48 z-50 text-sm">
           {nickname ? (
             <Link
               href={`/u/${nickname}`}
               onClick={() => setOpen(false)}
-              className="block px-4 py-2.5 text-slate-900 text-[15px] font-semibold truncate hover:bg-slate-50"
+              className="block px-4 py-2.5 text-ink text-[15px] font-semibold truncate hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5"
             >
               {nickname}
             </Link>
           ) : (
-            <p className="px-4 py-2.5 text-slate-500 text-xs truncate font-medium">{user.email}</p>
+            <p className="px-4 py-2.5 text-ink-3 text-xs truncate font-medium">{user.email}</p>
           )}
-          <div className="border-t border-slate-100 my-1" />
-          <Link href="/account" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
+          <div className="border-t border-line my-1" />
+          <Link href="/account" onClick={() => setOpen(false)} className="block px-4 py-2 text-ink-2 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
             My Account
           </Link>
-          <Link href="/my" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
+          <Link href="/my" onClick={() => setOpen(false)} className="block px-4 py-2 text-ink-2 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
             My Library
           </Link>
-          <Link href="/contribute" onClick={() => setOpen(false)} className="block px-4 py-2 text-slate-700 hover:bg-slate-50">
+          <Link href="/contribute" onClick={() => setOpen(false)} className="block px-4 py-2 text-ink-2 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
             My Contribute
           </Link>
           {(isAdmin || isModerator) && (
             <>
-              <div className="border-t border-slate-100 my-1" />
+              <div className="border-t border-line my-1" />
               <Link href="/admin" onClick={() => setOpen(false)} className="block px-4 py-2 text-brand-600 hover:bg-brand-50 font-medium">
                 {isAdmin ? 'Admin panel' : 'Review queue'}
               </Link>
             </>
           )}
-          <div className="border-t border-slate-100 my-1" />
+          <div className="border-t border-line my-1" />
           <button
             onClick={() => { setOpen(false); signOut() }}
-            className="w-full text-left px-4 py-2 text-red-500 hover:bg-slate-50"
+            className="w-full text-left px-4 py-2 text-red-500 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5"
           >
             Sign out
           </button>

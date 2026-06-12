@@ -25,7 +25,7 @@ export default function WishlistButtons({ flashlightId }: Props) {
       {/* Secondary — Wishlist (glass ghost) */}
       <button
         onClick={() => toggleWishlist(flashlightId)}
-        className="glass flex items-center gap-2 h-11 px-5 rounded-full text-sm font-semibold text-[#17171a] hover:border-white transition-colors"
+        className="glass flex items-center gap-2 h-11 px-5 rounded-full text-sm font-semibold text-ink hover:border-white transition-colors"
       >
         <Heart size={16} className={inWishlist ? 'text-brand-500' : ''} fill={inWishlist ? 'currentColor' : 'none'} />
         {inWishlist ? 'In Wishlist' : 'Wishlist'}

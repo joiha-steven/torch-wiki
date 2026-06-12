@@ -53,14 +53,14 @@ const CHARGING_OPTIONS = [
 ]
 
 // Shared section title — sentence case, no caps
-const sectionTitle = 'text-[12px] font-semibold text-[#6c6c66] mb-2'
+const sectionTitle = 'text-[12px] font-semibold text-ink-2 mb-2'
 
 // Shared label wrapper
 function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
     <label className="flex items-center gap-2.5 cursor-pointer group leading-[1.4]">
       <input type="checkbox" checked={checked} onChange={onChange} className="cb" />
-      <span className={`text-[13px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
+      <span className={`text-[13px] transition-colors ${checked ? 'text-ink font-medium' : 'text-ink-2 group-hover:text-ink'}`}>
         {label}
       </span>
     </label>
@@ -71,7 +71,7 @@ function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: ()
   return (
     <label className="flex items-center gap-2.5 cursor-pointer group leading-[1.4]">
       <input type="radio" checked={checked} onChange={onChange} className="rb" />
-      <span className={`text-[13px] transition-colors ${checked ? 'text-[#17171a] font-medium' : 'text-[#6c6c66] group-hover:text-[#17171a]'}`}>
+      <span className={`text-[13px] transition-colors ${checked ? 'text-ink font-medium' : 'text-ink-2 group-hover:text-ink'}`}>
         {label}
       </span>
     </label>
@@ -141,9 +141,9 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Rail head */}
       <div className="flex items-baseline justify-between pb-4">
-        <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-[#17171a]">Filters</h2>
+        <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-ink">Filters</h2>
         {hasActiveFilters && (
-          <button onClick={clearAll} className="text-[12px] text-[#9b9b94] hover:text-brand-500 transition-colors">Clear all</button>
+          <button onClick={clearAll} className="text-[12px] text-ink-3 hover:text-brand-500 transition-colors">Clear all</button>
         )}
       </div>
 
@@ -153,7 +153,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         <select
           value={filters.sortBy}
           onChange={e => onChange({ ...filters, sortBy: e.target.value })}
-          className="mini-select w-full text-[13.5px] text-[#17171a] py-1.5 cursor-pointer"
+          className="mini-select w-full text-[13.5px] text-ink py-1.5 cursor-pointer"
         >
           {SORT_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -268,14 +268,14 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         </div>
       </div>
 
-      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-[#e7e7e1]">
+      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-line">
         © 2026 torch.edc.wiki — a non-commercial reference project, not affiliated with any brand.{' '}
         Original content &amp; data compilation:{' '}
-        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">CC BY 4.0</a>
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
         {' '}· Code:{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">MIT</a>
+        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">MIT</a>
         {' '}·{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-slate-500 underline underline-offset-2">GitHub</a>.{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">GitHub</a>.{' '}
         Product specs are factual data; product images belong to their respective manufacturers.
         {siteStats && (
           <> {siteStats.flashlights.toLocaleString()} flashlights · {siteStats.brands} brands · {siteStats.users} users.</>

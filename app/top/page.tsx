@@ -99,16 +99,16 @@ export default async function TopPage() {
       <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Top lists</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">Curated flashlight rankings</p>
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Top lists</h1>
+          <p className="mt-2 text-[13px] text-ink-2">Curated flashlight rankings</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
           {lists.map(list => (
-            <div key={list.title} className="bg-white rounded-xl border border-[#e7e7e1] overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100">
-                <h2 className="font-semibold text-slate-900">{list.title}</h2>
-                <p className="text-xs text-slate-400 mt-0.5">{list.subtitle}</p>
+            <div key={list.title} className="bg-panel rounded-xl border border-line overflow-hidden">
+              <div className="px-5 py-4 border-b border-line">
+                <h2 className="font-semibold text-ink">{list.title}</h2>
+                <p className="text-xs text-ink-3 mt-0.5">{list.subtitle}</p>
               </div>
 
               <ol className="divide-y divide-slate-50">
@@ -118,26 +118,26 @@ export default async function TopPage() {
                     <li key={f.id}>
                       <Link
                         href={`/${f.slug}`}
-                        className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors group"
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5 transition-colors group"
                       >
                         {/* Rank */}
                         <span className={`
                           shrink-0 w-6 text-center text-sm font-bold
-                          ${i === 0 ? 'text-brand-500' : i === 1 ? 'text-slate-400' : i === 2 ? 'text-amber-700' : 'text-slate-300'}
+                          ${i === 0 ? 'text-brand-500' : i === 1 ? 'text-ink-3' : i === 2 ? 'text-amber-700' : 'text-slate-300'}
                         `}>
                           {i + 1}
                         </span>
 
                         {/* Name */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-800 group-hover:text-slate-900 truncate">
+                          <p className="text-sm font-medium text-ink group-hover:text-ink truncate">
                             {f.brand} {f.model}
                           </p>
                         </div>
 
                         {/* Stat */}
                         {stat && (
-                          <span className="shrink-0 text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                          <span className="shrink-0 text-xs font-medium text-ink-3 bg-slate-100 dark:bg-white/[0.05] px-2 py-0.5 rounded">
                             {stat}
                           </span>
                         )}
@@ -147,7 +147,7 @@ export default async function TopPage() {
                 })}
 
                 {list.items.length === 0 && (
-                  <li className="px-5 py-8 text-sm text-slate-400 text-center">No data yet.</li>
+                  <li className="px-5 py-8 text-sm text-ink-3 text-center">No data yet.</li>
                 )}
               </ol>
             </div>

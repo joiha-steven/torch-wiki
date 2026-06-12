@@ -23,10 +23,10 @@ export default function CookieConsent() {
     <div
       role="dialog"
       aria-label="Cookie consent"
-      className="fixed bottom-8 left-8 z-50 w-[19rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-[#e7e7e1] bg-white p-4 animate-[consentIn_200ms_ease-out]"
+      className="fixed bottom-8 left-8 z-50 w-[19rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-line bg-panel p-4 animate-[consentIn_200ms_ease-out]"
     >
-      <p className="text-[12px] leading-relaxed text-slate-600">
-        We use a <span className="font-medium text-slate-700">Google Analytics</span> cookie to
+      <p className="text-[12px] leading-relaxed text-ink-2">
+        We use a <span className="font-medium text-ink-2">Google Analytics</span> cookie to
         see how the site is used. Essential cookies (sign-in) are always on, and our Vercel
         analytics are cookieless.{' '}
         <Link href="/privacy" className="text-brand-500 underline underline-offset-2 hover:text-brand-400">
@@ -43,7 +43,7 @@ export default function CookieConsent() {
         </button>
         <button
           onClick={() => setConsent('declined')}
-          className="flex-1 rounded-lg border border-[#e7e7e1] py-1.5 text-[12px] text-slate-600 hover:border-[#c8c8c0]"
+          className="flex-1 rounded-lg border border-line py-1.5 text-[12px] text-ink-2 hover:border-line-strong"
         >
           Decline
         </button>

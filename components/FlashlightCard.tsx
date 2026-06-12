@@ -36,7 +36,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
 
       {/* Thumbnail — translucent glass fill, fixed ratio so cards stay even */}
       <Link href={`/${flashlight.slug}`} className="block">
-        <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden mb-3.5 bg-white">
+        <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden mb-3.5 bg-plate">
           {flashlight.image_url ? (
             <Image
               src={flashlight.image_url}
@@ -68,7 +68,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
       {/* Category label */}
       <div className="min-h-[16px] mb-1.5">
         {flashlight.category && (
-          <span className="text-[11px] font-medium text-[#9b9b94]">
+          <span className="text-[11px] font-medium text-ink-3">
             {flashlight.category}
           </span>
         )}
@@ -78,32 +78,32 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
       <div className="flex-1">
         <Link
           href={`/brand/${brandSlug(flashlight.brand)}`}
-          className="text-[12.5px] text-[#6c6c66] leading-none mb-0.5 inline-block hover:text-brand-600 transition-colors"
+          className="text-[12.5px] text-ink-2 leading-none mb-0.5 inline-block hover:text-brand-600 transition-colors"
         >
           {flashlight.brand}
         </Link>
         <Link href={`/${flashlight.slug}`} className="block">
-          <h3 className="text-[15px] font-semibold text-[#17171a] leading-snug tracking-[-0.01em]">{flashlight.model}</h3>
+          <h3 className="text-[15px] font-semibold text-ink leading-snug tracking-[-0.01em]">{flashlight.model}</h3>
         </Link>
       </div>
 
       {/* Monochrome spec line — fixed height so missing-spec cards don't shrink */}
-      <p className="mt-2.5 font-mono text-[11.5px] text-[#6c6c66] tracking-[-0.01em] min-h-4 truncate">
+      <p className="mt-2.5 font-mono text-[11.5px] text-ink-2 tracking-[-0.01em] min-h-4 truncate">
         {specParts.length ? (
           specParts.map((part, i) => (
             <span key={i}>
-              {i > 0 && <span className="text-[#d3d3cb] mx-[5px]">·</span>}
+              {i > 0 && <span className="text-line-strong mx-[5px]">·</span>}
               {part}
             </span>
           ))
         ) : (
-          <span className="text-[#9b9b94]">No specs yet</span>
+          <span className="text-ink-3">No specs yet</span>
         )}
       </p>
 
       {/* Foot — price + actions */}
-      <div className="mt-3 pt-3 border-t border-[#e7e7e1] flex items-center justify-between">
-        <span className="font-mono text-[14px] font-semibold text-[#17171a]">
+      <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
+        <span className="font-mono text-[14px] font-semibold text-ink">
           {flashlight.price_usd ? `$${flashlight.price_usd.toLocaleString()}` : ''}
         </span>
 
@@ -113,7 +113,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
             title={isSelected ? 'Remove from compare' : 'Add to compare'}
             aria-label={`${isSelected ? 'Remove' : 'Add'} ${flashlight.brand} ${flashlight.model} ${isSelected ? 'from' : 'to'} compare`}
             aria-pressed={isSelected}
-            className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
+            className="w-7 h-7 grid place-items-center rounded-md text-ink-3 hover:bg-black/5 dark:hover:bg-white/10 hover:text-ink transition-colors"
           >
             <GitCompare size={16} className={isSelected ? 'text-brand-500' : ''} />
           </button>
@@ -122,7 +122,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
             title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
             aria-label={`${inWishlist ? 'Remove' : 'Add'} ${flashlight.brand} ${flashlight.model} ${inWishlist ? 'from' : 'to'} wishlist`}
             aria-pressed={inWishlist}
-            className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
+            className="w-7 h-7 grid place-items-center rounded-md text-ink-3 hover:bg-black/5 dark:hover:bg-white/10 hover:text-ink transition-colors"
           >
             <Heart
               size={16}
@@ -135,7 +135,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
             title={inCollection ? 'Remove from collection' : 'Add to collection'}
             aria-label={`${inCollection ? 'Remove' : 'Add'} ${flashlight.brand} ${flashlight.model} ${inCollection ? 'from' : 'to'} collection`}
             aria-pressed={inCollection}
-            className="w-7 h-7 grid place-items-center rounded-md text-[#9b9b94] hover:bg-white/60 hover:text-[#17171a] transition-colors"
+            className="w-7 h-7 grid place-items-center rounded-md text-ink-3 hover:bg-black/5 dark:hover:bg-white/10 hover:text-ink transition-colors"
           >
             <Bookmark
               size={16}

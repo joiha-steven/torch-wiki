@@ -46,9 +46,9 @@ export default async function BrandsPage() {
       <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Brands &amp; makers</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">
-            <b className="text-[#17171a] font-semibold">{brands.length}</b> brands · <b className="text-[#17171a] font-semibold">{rows?.length ?? 0}</b> flashlights
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Brands &amp; makers</h1>
+          <p className="mt-2 text-[13px] text-ink-2">
+            <b className="text-ink font-semibold">{brands.length}</b> brands · <b className="text-ink font-semibold">{rows?.length ?? 0}</b> flashlights
           </p>
         </div>
 
@@ -59,11 +59,11 @@ export default async function BrandsPage() {
               href={`/brand/${brandSlug(name)}`}
               className="glass-card rounded-[18px] p-4 flex flex-col"
             >
-              <h2 className="text-[15px] font-semibold text-[#17171a] tracking-[-0.01em] leading-snug">{name}</h2>
-              <p className="mt-0.5 text-[12px] text-[#9b9b94]">
+              <h2 className="text-[15px] font-semibold text-ink tracking-[-0.01em] leading-snug">{name}</h2>
+              <p className="mt-0.5 text-[12px] text-ink-3">
                 {[info?.country, info?.founded_year ? `est. ${info.founded_year}` : null].filter(Boolean).join(' · ') || ' '}
               </p>
-              <p className="mt-3 font-mono text-[12px] text-[#6c6c66]">
+              <p className="mt-3 font-mono text-[12px] text-ink-2">
                 {count} model{count !== 1 ? 's' : ''}
               </p>
             </Link>

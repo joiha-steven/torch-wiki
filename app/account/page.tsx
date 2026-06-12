@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase'
 type Tab = 'profile' | 'security'
 type MfaStep = 'idle' | 'qr' | 'verify' | 'codes' | 'disabling'
 
-const inp = 'w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white'
+const inp = 'w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel'
 
 // Nickname: letters, numbers, - and _ only, 3–20 chars
 function nickError(v: string) {
@@ -61,29 +61,29 @@ function ChangePassword({ email }: { email: string }) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-slate-700">Change Password</h3>
+      <h3 className="text-sm font-semibold text-ink-2">Change Password</h3>
       {ok && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">Password updated.</p>}
       <form onSubmit={submit} className="space-y-3 max-w-sm">
         <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Current password</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Current password</label>
           <div className="relative">
             <input type={showCur ? 'text' : 'password'} value={cur} onChange={e => setCur(e.target.value)} required className={inp + ' pr-9'} placeholder="••••••" />
-            <button type="button" onClick={() => setShowCur(v => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+            <button type="button" onClick={() => setShowCur(v => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3">
               {showCur ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">New password</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">New password</label>
           <div className="relative">
             <input type={showNew ? 'text' : 'password'} value={next} onChange={e => setNext(e.target.value)} required minLength={6} className={inp + ' pr-9'} placeholder="••••••" />
-            <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+            <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3">
               {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Confirm new password</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Confirm new password</label>
           <input type="password" value={conf} onChange={e => setConf(e.target.value)} required minLength={6} className={inp} placeholder="••••••" />
         </div>
         {err && <p className="text-xs text-red-500">{err}</p>}
@@ -189,13 +189,13 @@ function TwoFactor({ email }: { email: string }) {
     setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
-  if (status === 'loading') return <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 size={14} className="animate-spin" />Loading…</div>
+  if (status === 'loading') return <div className="flex items-center gap-2 text-ink-3 text-sm"><Loader2 size={14} className="animate-spin" />Loading…</div>
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-700">Two-Factor Authentication</h3>
-        <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${status === 'on' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+        <h3 className="text-sm font-semibold text-ink-2">Two-Factor Authentication</h3>
+        <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${status === 'on' ? 'bg-green-100 text-green-700' : 'bg-slate-100 dark:bg-white/[0.05] text-ink-3'}`}>
           {status === 'on' ? <><ShieldCheck size={12} /> Enabled</> : <><Shield size={12} /> Disabled</>}
         </span>
       </div>
@@ -203,8 +203,8 @@ function TwoFactor({ email }: { email: string }) {
       {/* Off → enable */}
       {status === 'off' && step === 'idle' && (
         <div className="space-y-3">
-          <p className="text-sm text-slate-500">Add an extra layer of security to your account using an authenticator app (Google Authenticator, Authy, etc.).</p>
-          <button onClick={startEnable} disabled={loading} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
+          <p className="text-sm text-ink-3">Add an extra layer of security to your account using an authenticator app (Google Authenticator, Authy, etc.).</p>
+          <button onClick={startEnable} disabled={loading} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-[#33363c] dark:hover:bg-[#3e4148] text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
             {loading && <Loader2 size={13} className="animate-spin" />}
             Enable 2FA
           </button>
@@ -214,12 +214,12 @@ function TwoFactor({ email }: { email: string }) {
       {/* Step: QR code */}
       {step === 'qr' && (
         <div className="space-y-4 max-w-sm">
-          <p className="text-sm text-slate-600">Scan this QR code with your authenticator app:</p>
-          <div className="bg-white border border-slate-200 rounded-xl p-4 w-fit"
+          <p className="text-sm text-ink-2">Scan this QR code with your authenticator app:</p>
+          <div className="bg-panel border border-line rounded-xl p-4 w-fit"
             dangerouslySetInnerHTML={{ __html: qrSvg }} />
-          <details className="text-xs text-slate-400 cursor-pointer">
+          <details className="text-xs text-ink-3 cursor-pointer">
             <summary>Can't scan? Enter code manually</summary>
-            <code className="block mt-2 bg-slate-100 rounded px-3 py-2 font-mono text-slate-700 break-all select-all">{secret}</code>
+            <code className="block mt-2 bg-slate-100 dark:bg-white/[0.05] rounded px-3 py-2 font-mono text-ink-2 break-all select-all">{secret}</code>
           </details>
           <button onClick={() => setStep('verify')} className="bg-brand-500 hover:bg-brand-400 text-black text-sm font-medium px-5 py-2 rounded-lg">
             Next →
@@ -230,14 +230,14 @@ function TwoFactor({ email }: { email: string }) {
       {/* Step: verify TOTP */}
       {step === 'verify' && (
         <div className="space-y-3 max-w-sm">
-          <p className="text-sm text-slate-600">Enter the 6-digit code from your authenticator app to confirm:</p>
+          <p className="text-sm text-ink-2">Enter the 6-digit code from your authenticator app to confirm:</p>
           <input type="text" inputMode="numeric" maxLength={6} value={totpCode} onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
             className={inp} placeholder="000000" autoFocus />
           {verifyErr && <p className="text-xs text-red-500">{verifyErr}</p>}
           <div className="flex gap-2">
-            <button onClick={() => setStep('qr')} className="text-sm text-slate-400 hover:text-slate-700 px-3 py-2">← Back</button>
+            <button onClick={() => setStep('qr')} className="text-sm text-ink-3 hover:text-ink-2 px-3 py-2">← Back</button>
             <button onClick={verifyTotp} disabled={totpCode.length !== 6 || loading}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg">
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-[#33363c] dark:hover:bg-[#3e4148] disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg">
               {loading && <Loader2 size={13} className="animate-spin" />}
               Verify & enable
             </button>
@@ -252,10 +252,10 @@ function TwoFactor({ email }: { email: string }) {
             <p className="text-sm font-semibold text-amber-800 mb-1">Save these recovery codes</p>
             <p className="text-xs text-amber-700">Each code can only be used once. If you lose your authenticator, these are the only way to access your account.</p>
           </div>
-          <div className="bg-slate-900 rounded-xl p-4 font-mono text-sm text-slate-200 grid grid-cols-2 gap-1.5">
+          <div className="bg-slate-900 dark:bg-[#33363c] rounded-xl p-4 font-mono text-sm text-slate-200 grid grid-cols-2 gap-1.5">
             {codes.map(c => <span key={c}>{c}</span>)}
           </div>
-          <button onClick={copyAll} className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-2 bg-white">
+          <button onClick={copyAll} className="flex items-center gap-2 text-sm text-ink-2 hover:text-ink border border-line rounded-lg px-3 py-2 bg-panel">
             {copied ? <Check size={13} className="text-green-500" /> : <Copy size={13} />}
             {copied ? 'Copied!' : 'Copy all'}
           </button>
@@ -268,15 +268,15 @@ function TwoFactor({ email }: { email: string }) {
       {/* On → manage */}
       {status === 'on' && (step === 'idle' || step === 'disabling') && (
         <div className="space-y-4">
-          <p className="text-sm text-slate-500">Your account is protected with an authenticator app.</p>
+          <p className="text-sm text-ink-3">Your account is protected with an authenticator app.</p>
 
-          <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
+          <div className="flex items-center gap-3 bg-slate-50 dark:bg-white/[0.04] rounded-xl px-4 py-3">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600">Recovery codes</p>
-              <p className="text-xs text-slate-400">{unusedCount} unused codes remaining</p>
+              <p className="text-xs font-medium text-ink-2">Recovery codes</p>
+              <p className="text-xs text-ink-3">{unusedCount} unused codes remaining</p>
             </div>
             <button onClick={generateNewCodes} disabled={loading}
-              className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 bg-white disabled:opacity-50">
+              className="flex items-center gap-1.5 text-xs text-ink-2 hover:text-ink border border-line rounded-lg px-3 py-1.5 bg-panel disabled:opacity-50">
               {loading ? <Loader2 size={12} className="animate-spin" /> : null}
               Regenerate
             </button>
@@ -295,7 +295,7 @@ function TwoFactor({ email }: { email: string }) {
                 className={inp} placeholder="Current password" />
               {disableErr && <p className="text-xs text-red-500">{disableErr}</p>}
               <div className="flex gap-2">
-                <button type="button" onClick={() => setStep('idle')} className="text-sm text-slate-400 hover:text-slate-700 px-3 py-2">Cancel</button>
+                <button type="button" onClick={() => setStep('idle')} className="text-sm text-ink-3 hover:text-ink-2 px-3 py-2">Cancel</button>
                 <button type="button" onClick={disable} disabled={!disablePwd || loading}
                   className="flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
                   {loading && <Loader2 size={13} className="animate-spin" />}
@@ -392,7 +392,7 @@ export default function AccountPage() {
   if (loading) return (
     <div className="min-h-screen">
       <Header />
-      <div className="flex justify-center pt-24"><Loader2 size={18} className="animate-spin text-slate-400" /></div>
+      <div className="flex justify-center pt-24"><Loader2 size={18} className="animate-spin text-ink-3" /></div>
     </div>
   )
 
@@ -400,7 +400,7 @@ export default function AccountPage() {
     <div className="min-h-screen">
       <Header />
       <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
-        <p className="text-slate-500 text-sm">Sign in to view your account.</p>
+        <p className="text-ink-3 text-sm">Sign in to view your account.</p>
       </div>
     </div>
   )
@@ -416,28 +416,28 @@ export default function AccountPage() {
       <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">My Account</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">Manage your profile and security settings.</p>
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">My Account</h1>
+          <p className="mt-2 text-[13px] text-ink-2">Manage your profile and security settings.</p>
         </div>
 
-        <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto mb-8">
+        <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 w-fit mx-auto mb-8">
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === t.key ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>
+              className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${tab === t.key ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>
               {t.label}
             </button>
           ))}
         </div>
 
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7 space-y-6">
+        <div className="max-w-2xl mx-auto bg-panel rounded-2xl border border-line p-6 sm:p-7 space-y-6">
 
           {tab === 'profile' && (
             <>
               {/* Email */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-slate-500">Email</label>
+                <label className="block text-xs font-medium text-ink-3">Email</label>
                 <div className="flex items-center gap-3">
-                  <p className="text-sm text-slate-800">{user.email}</p>
+                  <p className="text-sm text-ink">{user.email}</p>
                   {!showEmailForm && (
                     <button type="button" onClick={() => { setShowEmailForm(true); setEmailMsg('') }}
                       className="text-xs text-brand-600 hover:underline">
@@ -451,12 +451,12 @@ export default function AccountPage() {
                     <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)}
                       className={inp} placeholder="New email address" autoFocus required />
                     {emailErr && <p className="text-xs text-red-500">{emailErr}</p>}
-                    <p className="text-xs text-slate-400">A verification link will be sent to the new address.</p>
+                    <p className="text-xs text-ink-3">A verification link will be sent to the new address.</p>
                     <div className="flex gap-2 pt-1">
                       <button type="button" onClick={() => { setShowEmailForm(false); setEmailErr('') }}
-                        className="text-xs text-slate-400 hover:text-slate-700 px-3 py-2">Cancel</button>
+                        className="text-xs text-ink-3 hover:text-ink-2 px-3 py-2">Cancel</button>
                       <button type="submit" disabled={emailSaving}
-                        className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-medium px-4 py-2 rounded-lg">
+                        className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-[#33363c] dark:hover:bg-[#3e4148] disabled:opacity-50 text-white text-xs font-medium px-4 py-2 rounded-lg">
                         {emailSaving && <Loader2 size={12} className="animate-spin" />}
                         Send verification link
                       </button>
@@ -465,18 +465,18 @@ export default function AccountPage() {
                 )}
               </div>
 
-              <div className="border-t border-slate-100" />
+              <div className="border-t border-line" />
 
               {/* Nickname */}
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Nickname</label>
+                  <label className="block text-xs font-medium text-ink-3 mb-1">Nickname</label>
 
                   {savedNickname ? (
                     /* Already set — locked */
                     <div className="flex items-center gap-3">
-                      <p className="text-sm font-medium text-slate-900">{savedNickname}</p>
-                      <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Permanent</span>
+                      <p className="text-sm font-medium text-ink">{savedNickname}</p>
+                      <span className="text-xs text-ink-3 bg-slate-100 dark:bg-white/[0.05] px-2 py-0.5 rounded">Permanent</span>
                     </div>
                   ) : (
                     /* Not set yet — allow choosing */
@@ -491,7 +491,7 @@ export default function AccountPage() {
                           autoComplete="off"
                         />
                         {nickAvail === 'checking' && (
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 flex items-center gap-1">
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-3 flex items-center gap-1">
                             <Loader2 size={11} className="animate-spin" /> Checking…
                           </span>
                         )}
@@ -506,7 +506,7 @@ export default function AccountPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-400">Letters, numbers, - and _ only. No spaces.</p>
+                      <p className="text-xs text-ink-3">Letters, numbers, - and _ only. No spaces.</p>
                       {nickErr && <p className="text-xs text-red-500">{nickErr}</p>}
 
                       {/* Warning — shown only when nickname is valid & available */}
@@ -528,13 +528,13 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-100" />
+              <div className="border-t border-line" />
 
               {/* Public collection toggle */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-slate-500">Public collection</label>
+                <label className="block text-xs font-medium text-ink-3">Public collection</label>
                 <div className="flex items-center justify-between gap-4 max-w-sm">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-ink-2">
                     Show your collection on your public profile. Only the flashlight and quantity are shown — never purchase price or date.
                   </p>
                   <button
@@ -543,9 +543,9 @@ export default function AccountPage() {
                     aria-checked={showCollection}
                     onClick={toggleCollection}
                     disabled={collSaving}
-                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors disabled:opacity-50 ${showCollection ? 'bg-brand-500' : 'bg-slate-200'}`}
+                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors disabled:opacity-50 ${showCollection ? 'bg-brand-500' : 'bg-slate-200 dark:bg-white/[0.07]'}`}
                   >
-                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${showCollection ? 'translate-x-5' : ''}`} />
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-panel rounded-full shadow-sm transition-transform ${showCollection ? 'translate-x-5' : ''}`} />
                   </button>
                 </div>
                 {!savedNickname && (
@@ -558,7 +558,7 @@ export default function AccountPage() {
           {tab === 'security' && (
             <>
               <ChangePassword email={user.email!} />
-              <div className="border-t border-slate-100 pt-6">
+              <div className="border-t border-line pt-6">
                 <TwoFactor email={user.email!} />
               </div>
             </>

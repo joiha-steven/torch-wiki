@@ -61,15 +61,15 @@ export default function MyListsPage() {
       <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">My Lists</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">Your wishlist and collection.</p>
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">My Lists</h1>
+          <p className="mt-2 text-[13px] text-ink-2">Your wishlist and collection.</p>
         </div>
 
         {loading ? (
-          <div className="text-slate-400 text-sm">Loading…</div>
+          <div className="text-ink-3 text-sm">Loading…</div>
         ) : !user ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <p className="text-slate-500">Sign in to see your wishlist and collection.</p>
+            <p className="text-ink-3">Sign in to see your wishlist and collection.</p>
             <button
               onClick={openAuthModal}
               className="bg-brand-500 hover:bg-brand-400 text-white text-sm font-medium px-5 py-2 rounded-lg"
@@ -81,17 +81,17 @@ export default function MyListsPage() {
           <>
             {/* Tabs + controls */}
             <div className="relative flex flex-col sm:block items-center mb-8">
-              <div className="flex gap-1 bg-white border border-[#e7e7e1] rounded-2xl p-1 w-fit mx-auto flex-wrap justify-center">
+              <div className="flex gap-1 bg-panel border border-line rounded-2xl p-1 w-fit mx-auto flex-wrap justify-center">
                 <button
                   onClick={() => setTab('wishlist')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
-                    tab === 'wishlist' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'
+                    tab === 'wishlist' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'
                   }`}
                 >
                   <Heart size={14} fill={tab === 'wishlist' ? 'currentColor' : 'none'} />
                   Wishlist
                   {wishlist.length > 0 && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'wishlist' ? 'bg-white/20' : 'bg-slate-100'}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'wishlist' ? 'bg-white/20' : 'bg-slate-100 dark:bg-white/[0.05]'}`}>
                       {wishlist.length}
                     </span>
                   )}
@@ -99,13 +99,13 @@ export default function MyListsPage() {
                 <button
                   onClick={() => setTab('collection')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
-                    tab === 'collection' ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'
+                    tab === 'collection' ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'
                   }`}
                 >
                   <Bookmark size={14} fill={tab === 'collection' ? 'currentColor' : 'none'} />
                   Collection
                   {collection.length > 0 && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'collection' ? 'bg-white/20' : 'bg-slate-100'}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'collection' ? 'bg-white/20' : 'bg-slate-100 dark:bg-white/[0.05]'}`}>
                       {collection.length}
                     </span>
                   )}
@@ -115,21 +115,21 @@ export default function MyListsPage() {
               {tab === 'collection' && collection.length > 0 && (
                 <div className="mt-3 sm:mt-0 flex items-center gap-3 sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
                   {totalValue > 0 && (
-                    <span className="text-sm text-slate-500">
-                      Total: <span className="font-semibold text-slate-800">${totalValue.toLocaleString()}</span>
+                    <span className="text-sm text-ink-3">
+                      Total: <span className="font-semibold text-ink">${totalValue.toLocaleString()}</span>
                     </span>
                   )}
-                  <div className="flex bg-white border border-[#e7e7e1] rounded-lg p-0.5">
+                  <div className="flex bg-panel border border-line rounded-lg p-0.5">
                     <button
                       onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-[#17171a] text-white' : 'text-slate-400 hover:text-slate-700'}`}
+                      className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-ink text-surface' : 'text-ink-3 hover:text-ink-2'}`}
                       title="Grid view"
                     >
                       <LayoutGrid size={15} />
                     </button>
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-[#17171a] text-white' : 'text-slate-400 hover:text-slate-700'}`}
+                      className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-ink text-surface' : 'text-ink-3 hover:text-ink-2'}`}
                       title="List view"
                     >
                       <List size={15} />
@@ -140,7 +140,7 @@ export default function MyListsPage() {
             </div>
 
             {fetching ? (
-              <div className="text-slate-400 text-sm">Loading…</div>
+              <div className="text-ink-3 text-sm">Loading…</div>
             ) : tab === 'wishlist' ? (
               wishlist.length === 0 ? (
                 <EmptyState type="wishlist" />
@@ -187,14 +187,14 @@ function EmptyState({ type }: { type: 'wishlist' | 'collection' }) {
       {type === 'wishlist' ? (
         <>
           <Heart size={40} className="text-slate-200" />
-          <p className="text-slate-500">Your wishlist is empty.</p>
-          <p className="text-slate-400 text-sm">Click the ♥ icon on any flashlight to add it.</p>
+          <p className="text-ink-3">Your wishlist is empty.</p>
+          <p className="text-ink-3 text-sm">Click the ♥ icon on any flashlight to add it.</p>
         </>
       ) : (
         <>
           <Bookmark size={40} className="text-slate-200" />
-          <p className="text-slate-500">Your collection is empty.</p>
-          <p className="text-slate-400 text-sm">Click the bookmark icon on any flashlight to add it.</p>
+          <p className="text-ink-3">Your collection is empty.</p>
+          <p className="text-ink-3 text-sm">Click the bookmark icon on any flashlight to add it.</p>
         </>
       )}
       <Link href="/" className="mt-2 text-sm text-brand-600 hover:underline">Browse flashlights →</Link>
@@ -207,9 +207,9 @@ function WishlistCard({ item }: { item: WishlistItem }) {
   return (
     <Link
       href={`/${f.slug}`}
-      className="bg-white rounded-xl border border-[#e7e7e1] hover:border-[#c8c8c0] transition-colors overflow-hidden"
+      className="bg-panel rounded-xl border border-line hover:border-line-strong transition-colors overflow-hidden"
     >
-      <div className="relative h-36 bg-white flex items-center justify-center">
+      <div className="relative h-36 bg-panel flex items-center justify-center">
         {f.image_url ? (
           <Image src={f.image_url} alt={`${f.brand} ${f.model}`} fill className="object-contain p-3" />
         ) : (
@@ -217,8 +217,8 @@ function WishlistCard({ item }: { item: WishlistItem }) {
         )}
       </div>
       <div className="p-3">
-        <p className="text-xs text-slate-400">{f.brand}</p>
-        <p className="text-sm font-semibold text-slate-900 leading-tight">{f.model}</p>
+        <p className="text-xs text-ink-3">{f.brand}</p>
+        <p className="text-sm font-semibold text-ink leading-tight">{f.model}</p>
         {f.price_usd && <p className="text-xs text-brand-600 font-medium mt-1">${f.price_usd}</p>}
       </div>
     </Link>
@@ -228,9 +228,9 @@ function WishlistCard({ item }: { item: WishlistItem }) {
 function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => void }) {
   const f = item.flashlights
   return (
-    <div className="group relative bg-white rounded-xl border border-[#e7e7e1] hover:border-[#c8c8c0] transition-colors overflow-hidden">
+    <div className="group relative bg-panel rounded-xl border border-line hover:border-line-strong transition-colors overflow-hidden">
       <Link href={`/${f.slug}`}>
-        <div className="relative h-36 bg-white flex items-center justify-center">
+        <div className="relative h-36 bg-plate flex items-center justify-center">
           {f.image_url ? (
             <Image src={f.image_url} alt={`${f.brand} ${f.model}`} fill className="object-contain p-3" />
           ) : (
@@ -238,33 +238,33 @@ function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => 
           )}
         </div>
         <div className="p-3">
-          <p className="text-xs text-slate-400">{f.brand}</p>
-          <p className="text-sm font-semibold text-slate-900 leading-tight">{f.model}</p>
+          <p className="text-xs text-ink-3">{f.brand}</p>
+          <p className="text-sm font-semibold text-ink leading-tight">{f.model}</p>
           <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5">
             {item.purchase_price && (
               <span className="text-xs text-brand-600 font-medium">${item.purchase_price}</span>
             )}
             {(item.quantity ?? 1) > 1 && (
-              <span className="text-xs text-slate-500">×{item.quantity}</span>
+              <span className="text-xs text-ink-3">×{item.quantity}</span>
             )}
             {item.material && (
-              <span className="text-xs text-slate-400 truncate">{item.material}</span>
+              <span className="text-xs text-ink-3 truncate">{item.material}</span>
             )}
             {item.color && (
-              <span className="text-xs text-slate-400 truncate">{item.color}</span>
+              <span className="text-xs text-ink-3 truncate">{item.color}</span>
             )}
             {item.purchase_date && (
-              <span className="text-xs text-slate-400">{formatDate(item.purchase_date)}</span>
+              <span className="text-xs text-ink-3">{formatDate(item.purchase_date)}</span>
             )}
           </div>
         </div>
       </Link>
       <button
         onClick={(e) => { e.preventDefault(); onEdit() }}
-        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white border border-[#e7e7e1] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-panel border border-line rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
         title="Edit"
       >
-        <Pencil size={12} className="text-slate-600" />
+        <Pencil size={12} className="text-ink-2" />
       </button>
     </div>
   )
@@ -273,8 +273,8 @@ function CollectionCard({ item, onEdit }: { item: CollectionItem; onEdit: () => 
 function MetaCell({ label, value, accent }: { label: string; value: string | null; accent?: boolean }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] text-slate-400 leading-none mb-0.5">{label}</p>
-      <p className={`text-xs truncate ${value ? (accent ? 'text-brand-600 font-medium' : 'text-slate-700') : 'text-slate-300'}`}>
+      <p className="text-[10px] text-ink-3 leading-none mb-0.5">{label}</p>
+      <p className={`text-xs truncate ${value ? (accent ? 'text-brand-600 font-medium' : 'text-ink-2') : 'text-slate-300'}`}>
         {value ?? '—'}
       </p>
     </div>
@@ -285,8 +285,8 @@ function MetaCell({ label, value, accent }: { label: string; value: string | nul
 function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => void }) {
   const f = item.flashlights
   return (
-    <div className="flex items-center gap-3 bg-white rounded-xl border border-[#e7e7e1] px-3 py-3 hover:border-[#c8c8c0] transition-colors">
-      <div className="relative w-16 h-12 shrink-0 bg-slate-50 rounded-lg overflow-hidden">
+    <div className="flex items-center gap-3 bg-panel rounded-xl border border-line px-3 py-3 hover:border-line-strong transition-colors">
+      <div className="relative w-16 h-12 shrink-0 bg-plate rounded-lg overflow-hidden">
         {f.image_url ? (
           <Image src={f.image_url} alt={`${f.brand} ${f.model}`} fill className="object-contain p-1" />
         ) : (
@@ -296,10 +296,10 @@ function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => v
 
       <div className="w-36 shrink-0 min-w-0">
         <Link href={`/${f.slug}`} className="hover:text-brand-600 block">
-          <p className="text-[10px] text-slate-400">{f.brand}</p>
-          <p className="text-sm font-semibold text-slate-900 truncate leading-tight">{f.model}</p>
+          <p className="text-[10px] text-ink-3">{f.brand}</p>
+          <p className="text-sm font-semibold text-ink truncate leading-tight">{f.model}</p>
         </Link>
-        <span className="text-xs text-slate-400">×{item.quantity ?? 1}</span>
+        <span className="text-xs text-ink-3">×{item.quantity ?? 1}</span>
       </div>
 
       <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-1 flex-1 min-w-0">
@@ -319,7 +319,7 @@ function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => v
 
       <button
         onClick={onEdit}
-        className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
+        className="p-2 text-ink-3 hover:text-ink-2 hover:bg-slate-100 dark:bg-white/[0.05] rounded-lg transition-colors shrink-0"
         title="Edit"
       >
         <Pencil size={15} />

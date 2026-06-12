@@ -13,7 +13,7 @@ function ToolbarButton({ onClick, title, disabled, children }: { onClick: () => 
       onClick={onClick}
       title={title}
       disabled={disabled}
-      className="w-7 h-7 grid place-items-center rounded text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:opacity-40 transition-colors"
+      className="w-7 h-7 grid place-items-center rounded text-ink-3 hover:bg-slate-100 dark:bg-white/[0.05] hover:text-ink disabled:opacity-40 transition-colors"
     >
       {children}
     </button>
@@ -110,30 +110,30 @@ export default function MarkdownEditor({ value, onChange, label = 'Description',
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <label className="text-xs font-medium text-slate-600">{label}</label>
-        <div className="flex text-xs rounded-md overflow-hidden border border-slate-200">
+        <label className="text-xs font-medium text-ink-2">{label}</label>
+        <div className="flex text-xs rounded-md overflow-hidden border border-line">
           <button type="button" onClick={() => setPreview(false)}
-            className={`px-2.5 py-0.5 transition-colors ${!preview ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>Write</button>
+            className={`px-2.5 py-0.5 transition-colors ${!preview ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>Write</button>
           <button type="button" onClick={() => setPreview(true)}
-            className={`px-2.5 py-0.5 transition-colors ${preview ? 'bg-[#17171a] text-white' : 'text-[#6c6c66] hover:text-[#17171a]'}`}>Preview</button>
+            className={`px-2.5 py-0.5 transition-colors ${preview ? 'bg-ink text-surface' : 'text-ink-2 hover:text-ink'}`}>Preview</button>
         </div>
       </div>
 
       {preview ? (
-        <div className="min-h-[140px] text-sm border border-slate-200 rounded-lg px-3.5 py-3 bg-white">
+        <div className="min-h-[140px] text-sm border border-line rounded-lg px-3.5 py-3 bg-panel">
           {value
             ? <MarkdownContent>{value}</MarkdownContent>
             : <span className="text-slate-300">Nothing to preview</span>}
         </div>
       ) : (
-        <div className="border border-slate-200 rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-brand-300">
-          <div className="flex items-center gap-0.5 px-1.5 py-1 border-b border-slate-100">
+        <div className="border border-line rounded-lg bg-panel overflow-hidden focus-within:ring-2 focus-within:ring-brand-300">
+          <div className="flex items-center gap-0.5 px-1.5 py-1 border-b border-line">
             <ToolbarButton onClick={() => wrap('**', '**', 'bold text')} title="Bold"><Bold size={15} /></ToolbarButton>
             <ToolbarButton onClick={() => wrap('_', '_', 'italic text')} title="Italic"><Italic size={15} /></ToolbarButton>
             <ToolbarButton onClick={() => linePrefix('## ')} title="Heading"><Heading2 size={15} /></ToolbarButton>
             <ToolbarButton onClick={() => linePrefix('- ')} title="List"><List size={15} /></ToolbarButton>
             <ToolbarButton onClick={insertLink} title="Link"><Link2 size={15} /></ToolbarButton>
-            <span className="w-px h-4 bg-slate-200 mx-1" />
+            <span className="w-px h-4 bg-slate-200 dark:bg-white/[0.07] mx-1" />
             <ToolbarButton onClick={() => fileRef.current?.click()} title="Insert image" disabled={uploading}>
               {uploading ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
             </ToolbarButton>

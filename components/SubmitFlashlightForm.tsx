@@ -48,7 +48,7 @@ type Props = {
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-slate-600 mb-1">
+      <label className="block text-xs font-medium text-ink-2 mb-1">
         {label}{required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}
@@ -56,7 +56,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
   )
 }
 
-const input = "w-full h-10 text-sm border border-slate-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
+const input = "w-full h-10 text-sm border border-line rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
 
 
 export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onSuccess, onCancel }: Props) {
@@ -382,7 +382,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Lumens & beam */}
       <div>
-        <p className="text-[13px] font-semibold text-slate-600 mb-3">Output & Beam</p>
+        <p className="text-[13px] font-semibold text-ink-2 mb-3">Output & Beam</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field label="Max Lumens">
             <input className={input} type="number" value={data.max_lumens ?? ''} onChange={e => set('max_lumens', num(e.target.value))} placeholder="e.g. 1000" />
@@ -409,16 +409,16 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Battery */}
       <div>
-        <p className="text-[13px] font-semibold text-slate-600 mb-3">Battery & Charging</p>
+        <p className="text-[13px] font-semibold text-ink-2 mb-3">Battery & Charging</p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Battery options</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Battery options</label>
             <div className="space-y-2">
               {batteryRows.map((row, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input type="number" min={1} aria-label="Count" className={input + ' w-16 shrink-0'}
                     value={row.count} onChange={e => updateBatteryRow(i, { count: Number(e.target.value) || 1 })} />
-                  <span className="text-slate-400 text-sm shrink-0">×</span>
+                  <span className="text-ink-3 text-sm shrink-0">×</span>
                   <select className={input + ' flex-1'} value={row.type} onChange={e => updateBatteryRow(i, { type: e.target.value })}>
                     <option value="">— Select —</option>
                     {BATTERY_TYPES.map(b => <option key={b}>{b}</option>)}
@@ -436,7 +436,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
                 <Plus size={13} /> Add battery option
               </button>
             )}
-            <p className="mt-1 text-xs text-slate-400">Add more than one if the light accepts alternatives — e.g. 2× 18350 or 1× 18650.</p>
+            <p className="mt-1 text-xs text-ink-3">Add more than one if the light accepts alternatives — e.g. 2× 18350 or 1× 18650.</p>
           </div>
           <Field label="Charging">
             <select className={input} value={data.charging_type ?? ''} onChange={e => set('charging_type', e.target.value || null)}>
@@ -449,7 +449,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {/* Dimensions */}
       <div>
-        <p className="text-[13px] font-semibold text-slate-600 mb-3">Size & Weight</p>
+        <p className="text-[13px] font-semibold text-ink-2 mb-3">Size & Weight</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field label="Length (mm)">
             <input className={input} type="number" value={data.length_mm ?? ''} onChange={e => set('length_mm', num(e.target.value))} />
@@ -488,10 +488,10 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       <Field label="User Manual (PDF)">
         <div className="space-y-2">
           {pdfFiles.map((f, i) => (
-            <div key={f.url} className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
+            <div key={f.url} className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-white/[0.04] border border-line rounded-lg text-sm text-ink-2">
               <FileText size={14} className="text-brand-500 shrink-0" />
               <span className="truncate flex-1">{f.name}</span>
-              <button type="button" onClick={() => removePdf(i)} className="text-slate-400 hover:text-red-500 shrink-0">
+              <button type="button" onClick={() => removePdf(i)} className="text-ink-3 hover:text-red-500 shrink-0">
                 <X size={14} />
               </button>
             </div>
@@ -500,7 +500,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
             type="button"
             onClick={() => pdfRef.current?.click()}
             disabled={pdfUploading}
-            className="flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 border border-dashed border-line-strong rounded-lg text-sm text-ink-3 hover:border-brand-400 hover:text-brand-600 transition-colors"
           >
             {pdfUploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
             {pdfUploading ? 'Uploading…' : pdfFiles.length ? 'Add another PDF' : 'Upload PDF'}
@@ -516,10 +516,10 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       </Field>
 
       <Field label="Reviews">
-        <p className="text-xs text-slate-400 mb-2">Paste a review link — the title and post date are filled in automatically (you can edit them). Add as many as you like.</p>
+        <p className="text-xs text-ink-3 mb-2">Paste a review link — the title and post date are filled in automatically (you can edit them). Add as many as you like.</p>
         <div className="space-y-3">
           {reviewRows.map((r, i) => (
-            <div key={i} className="border border-slate-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
+            <div key={i} className="border border-line rounded-lg p-3 space-y-2 bg-slate-50 dark:bg-white/[0.04]/50">
               <div className="flex items-center gap-2">
                 <input
                   type="url"
@@ -530,11 +530,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
                   className={input + ' flex-1'}
                 />
                 <button type="button" onClick={() => fetchReviewMeta(i)} disabled={r.fetching || !r.url.trim()}
-                  className="h-10 px-3 shrink-0 text-xs font-medium border border-slate-200 rounded-lg text-slate-600 hover:bg-white disabled:opacity-50 flex items-center gap-1.5">
+                  className="h-10 px-3 shrink-0 text-xs font-medium border border-line rounded-lg text-ink-2 hover:bg-panel disabled:opacity-50 flex items-center gap-1.5">
                   {r.fetching ? <Loader2 size={13} className="animate-spin" /> : null}
                   {r.fetching ? 'Fetching' : 'Fetch'}
                 </button>
-                <button type="button" onClick={() => removeReviewRow(i)} className="text-slate-400 hover:text-red-500 shrink-0">
+                <button type="button" onClick={() => removeReviewRow(i)} className="text-ink-3 hover:text-red-500 shrink-0">
                   <X size={16} />
                 </button>
               </div>
@@ -556,25 +556,25 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
             </div>
           ))}
           <button type="button" onClick={addReviewRow}
-            className="flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition-colors">
+            className="flex items-center gap-2 px-3 py-2 border border-dashed border-line-strong rounded-lg text-sm text-ink-3 hover:border-brand-400 hover:text-brand-600 transition-colors">
             <Plus size={14} /> Add review link
           </button>
         </div>
       </Field>
 
-      <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+      <label className="flex items-center gap-2 text-sm text-ink-2 cursor-pointer">
         <input type="checkbox" checked={data.is_discontinued ?? false} onChange={e => set('is_discontinued', e.target.checked)} className="accent-brand-500" />
         Discontinued
       </label>
 
       {/* Images */}
       <div>
-        <p className="text-[13px] font-semibold text-slate-600 mb-3">Images</p>
+        <p className="text-[13px] font-semibold text-ink-2 mb-3">Images</p>
         {images.length > 0 && (
           <div className="flex flex-wrap gap-3 mb-3">
             {images.map((img) => (
               <div key={img.id} className="relative group">
-                <div className={`w-24 h-24 rounded-lg border-2 overflow-hidden bg-white relative ${img.isPrimary ? 'border-brand-500' : 'border-slate-200'}`}>
+                <div className={`w-24 h-24 rounded-lg border-2 overflow-hidden bg-plate relative ${img.isPrimary ? 'border-brand-500' : 'border-line'}`}>
                   <Image src={img.url} alt="" fill className="object-contain p-1" unoptimized={img.url.startsWith('blob:')} />
                   {img.uploading && (
                     <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
@@ -585,12 +585,12 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100">
                     {!img.isPrimary && (
                       <button type="button" onClick={() => setPrimary(img.id)}
-                        className="bg-white rounded-full p-1 hover:bg-brand-50" title="Set as primary">
+                        className="bg-panel rounded-full p-1 hover:bg-brand-50" title="Set as primary">
                         <Star size={11} className="text-brand-600" />
                       </button>
                     )}
                     <button type="button" onClick={() => removeImage(img.id)}
-                      className="bg-white rounded-full p-1 hover:bg-red-50" title="Remove">
+                      className="bg-panel rounded-full p-1 hover:bg-red-50" title="Remove">
                       <X size={11} className="text-red-500" />
                     </button>
                   </div>
@@ -604,11 +604,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         )}
         <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => e.target.files && handleImageFiles(e.target.files)} />
         <button type="button" onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 text-sm text-slate-600 border border-dashed border-slate-300 rounded-lg px-4 py-2.5 hover:border-brand-400 hover:text-brand-600 transition-colors">
+          className="flex items-center gap-2 text-sm text-ink-2 border border-dashed border-line-strong rounded-lg px-4 py-2.5 hover:border-brand-400 hover:text-brand-600 transition-colors">
           <Upload size={14} />
           Add images
         </button>
-        <p className="text-xs text-slate-400 mt-1.5 inline-flex items-center gap-1">
+        <p className="text-xs text-ink-3 mt-1.5 inline-flex items-center gap-1">
           Hover an image to remove it or set it as primary
           (<Star size={11} className="text-brand-500 inline" />).
         </p>
@@ -626,13 +626,13 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
-      <p className="text-[11px] text-slate-400 leading-relaxed">
+      <p className="text-[11px] text-ink-3 leading-relaxed">
         By submitting, you agree your contribution is factual data from legitimate sources, and any original text you write is licensed under{' '}
-        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-slate-600">CC BY 4.0</a>.
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-2">CC BY 4.0</a>.
       </p>
 
       <div className="flex gap-3 pt-2">
-        <button type="button" onClick={onCancel} className="flex-1 text-sm text-slate-600 border border-slate-200 rounded-lg py-2.5 hover:bg-slate-50">
+        <button type="button" onClick={onCancel} className="flex-1 text-sm text-ink-2 border border-line rounded-lg py-2.5 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
           Cancel
         </button>
         <button type="submit" disabled={submitting || (!isAdmin && !captchaToken)}

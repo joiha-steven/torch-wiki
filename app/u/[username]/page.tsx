@@ -142,24 +142,24 @@ export default async function UserProfilePage({ params }: Props) {
         {/* Profile header */}
         <div className="flex items-center gap-4 mb-8">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">{username}</h1>
-            <p className="text-xs text-slate-400 mt-0.5">Member since {formatDate(memberSince)}</p>
+            <h1 className="text-xl font-bold text-ink">{username}</h1>
+            <p className="text-xs text-ink-3 mt-0.5">Member since {formatDate(memberSince)}</p>
           </div>
           {/* Stats chips */}
           <div className="ml-auto flex gap-3 text-xs">
             {newSubs.length > 0 && (
-              <span className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">
-                <span className="font-semibold text-slate-900">{newSubs.length}</span> added
+              <span className="bg-panel border border-line rounded-full px-3 py-1 text-ink-2">
+                <span className="font-semibold text-ink">{newSubs.length}</span> added
               </span>
             )}
             {editSubs.length > 0 && (
-              <span className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">
-                <span className="font-semibold text-slate-900">{editSubs.length}</span> edits
+              <span className="bg-panel border border-line rounded-full px-3 py-1 text-ink-2">
+                <span className="font-semibold text-ink">{editSubs.length}</span> edits
               </span>
             )}
             {collectionItems.length > 0 && (
-              <span className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600">
-                <span className="font-semibold text-slate-900">{collectionItems.length}</span> owned
+              <span className="bg-panel border border-line rounded-full px-3 py-1 text-ink-2">
+                <span className="font-semibold text-ink">{collectionItems.length}</span> owned
               </span>
             )}
           </div>

@@ -112,8 +112,22 @@ function safeJson(obj: unknown): string {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* Anti-FOUC: resolve the theme before first paint. Default = light. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{
+  var m = localStorage.getItem('theme-mode') || 'light';
+  var dark = m==='dark'
+    || (m==='system' && matchMedia('(prefers-color-scheme: dark)').matches)
+    || (m==='time' && (function(){var h=new Date().getHours();return h>=18||h<6;})());
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+}catch(e){ document.documentElement.dataset.theme='light'; }})();`,
+          }}
+        />
+        <meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#17181b" media="(prefers-color-scheme: dark)" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJson(siteJsonLd) }}

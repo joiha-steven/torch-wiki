@@ -22,7 +22,7 @@ const TOPICS = [
   'Other',
 ]
 
-const inp = 'w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white'
+const inp = 'w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel'
 
 export default function ReportPage() {
   const { user } = useAuth()
@@ -122,18 +122,18 @@ export default function ReportPage() {
       <div className="max-w-[1280px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
-          <h1 className="text-[28px] font-bold text-[#17171a] tracking-[-0.02em]">Report an issue</h1>
-          <p className="mt-2 text-[13px] text-[#6c6c66]">Spot a problem or have a suggestion? Let us know.</p>
+          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Report an issue</h1>
+          <p className="mt-2 text-[13px] text-ink-2">Spot a problem or have a suggestion? Let us know.</p>
         </div>
 
-        <div className="max-w-xl mx-auto bg-white rounded-2xl border border-[#e7e7e1] p-6 sm:p-7">
+        <div className="max-w-xl mx-auto bg-panel rounded-2xl border border-line p-6 sm:p-7">
           {done ? (
             <div className="py-10 text-center space-y-3">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <Check size={22} className="text-green-600" />
               </div>
-              <p className="font-semibold text-slate-900">Report submitted</p>
-              <p className="text-sm text-slate-500">Thanks — we&apos;ll look into it.</p>
+              <p className="font-semibold text-ink">Report submitted</p>
+              <p className="text-sm text-ink-3">Thanks — we&apos;ll look into it.</p>
             </div>
           ) : (
             <>
@@ -142,7 +142,7 @@ export default function ReportPage() {
                 {/* Anonymous email */}
                 {!user && (
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Your email</label>
+                    <label className="block text-xs font-medium text-ink-3 mb-1">Your email</label>
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                       className={inp} placeholder="so we can follow up if needed" required />
                   </div>
@@ -150,7 +150,7 @@ export default function ReportPage() {
 
                 {/* Topic */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Topic</label>
+                  <label className="block text-xs font-medium text-ink-3 mb-1">Topic</label>
                   <select value={topic} onChange={e => setTopic(e.target.value)} className={inp} required>
                     <option value="">— Select a topic —</option>
                     {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
@@ -159,17 +159,17 @@ export default function ReportPage() {
 
                 {/* Body */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Description</label>
+                  <label className="block text-xs font-medium text-ink-3 mb-1">Description</label>
                   <textarea value={body} onChange={e => setBody(e.target.value)} required
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white resize-none"
+                    className="w-full border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel resize-none"
                     rows={5} placeholder="Describe the issue in detail. Include the flashlight name or page URL if relevant." />
                 </div>
 
                 {/* Attachment */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Attachment <span className="text-slate-400 font-normal">(optional screenshot)</span></label>
+                  <label className="block text-xs font-medium text-ink-3 mb-1">Attachment <span className="text-ink-3 font-normal">(optional screenshot)</span></label>
                   {preview ? (
-                    <div className="relative w-32 h-24 rounded-lg overflow-hidden border border-slate-200 group">
+                    <div className="relative w-32 h-24 rounded-lg overflow-hidden border border-line group">
                       <Image src={preview} alt="attachment" fill className="object-cover" />
                       <button type="button" onClick={removeFile}
                         className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -181,7 +181,7 @@ export default function ReportPage() {
                       <input ref={fileRef} type="file" accept="image/*" className="hidden"
                         onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
                       <button type="button" onClick={() => fileRef.current?.click()}
-                        className="flex items-center gap-2 text-sm text-slate-500 border border-dashed border-slate-300 rounded-lg px-4 py-2.5 hover:border-brand-400 hover:text-brand-600 transition-colors">
+                        className="flex items-center gap-2 text-sm text-ink-3 border border-dashed border-line-strong rounded-lg px-4 py-2.5 hover:border-brand-400 hover:text-brand-600 transition-colors">
                         <Upload size={14} /> Upload image
                       </button>
                     </>

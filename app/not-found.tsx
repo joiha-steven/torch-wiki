@@ -39,10 +39,10 @@ export default function NotFound() {
           }}
         />
         {/* faint dust specks in the beam */}
-        <span className="absolute left-[52%] top-[18%] h-1 w-1 rounded-full bg-[#f4ecd6]/40" />
-        <span className="absolute left-[49%] top-[26%] h-[3px] w-[3px] rounded-full bg-[#f4ecd6]/30" />
-        <span className="absolute left-[55%] top-[24%] h-[2px] w-[2px] rounded-full bg-[#f4ecd6]/30" />
-        <span className="absolute left-[46%] top-[40%] h-[2px] w-[2px] rounded-full bg-[#f4ecd6]/25" />
+        <span className="absolute left-[52%] top-[18%] h-1 w-1 rounded-full bg-[#f4ecd6] dark:bg-brand-500/15/40" />
+        <span className="absolute left-[49%] top-[26%] h-[3px] w-[3px] rounded-full bg-[#f4ecd6] dark:bg-brand-500/15/30" />
+        <span className="absolute left-[55%] top-[24%] h-[2px] w-[2px] rounded-full bg-[#f4ecd6] dark:bg-brand-500/15/30" />
+        <span className="absolute left-[46%] top-[40%] h-[2px] w-[2px] rounded-full bg-[#f4ecd6] dark:bg-brand-500/15/25" />
       </div>
 
       {/* Foreground */}

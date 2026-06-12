@@ -58,7 +58,7 @@ export default function ComparePage() {
   if (loading) return (
     <div className="min-h-screen">
       <Header />
-      <div className="flex items-center justify-center pt-24 text-slate-400 text-sm">Loading…</div>
+      <div className="flex items-center justify-center pt-24 text-ink-3 text-sm">Loading…</div>
     </div>
   )
 
@@ -67,9 +67,9 @@ export default function ComparePage() {
       <div className="min-h-screen">
         <Header />
         <div className="flex items-center justify-center px-4 pt-24">
-          <div className="bg-white border border-[#e7e7e1] rounded-xl w-full max-w-sm p-8 text-center space-y-4">
-            <h2 className="text-base font-semibold text-slate-900">Compare flashlights</h2>
-            <p className="text-sm text-slate-500 leading-relaxed">
+          <div className="bg-panel border border-line rounded-xl w-full max-w-sm p-8 text-center space-y-4">
+            <h2 className="text-base font-semibold text-ink">Compare flashlights</h2>
+            <p className="text-sm text-ink-3 leading-relaxed">
               Browse the catalog and tick the compare box on up to 4 flashlights, then come back here.
             </p>
             <Link href="/"
@@ -88,16 +88,16 @@ export default function ComparePage() {
 
       <div className="max-w-[1280px] mx-auto px-7 py-8">
 
-        <div className="bg-white border border-[#e7e7e1] rounded-xl overflow-x-auto">
+        <div className="bg-panel border border-line rounded-xl overflow-x-auto">
           <table className="w-full text-sm">
             <caption className="sr-only">Side-by-side specification comparison of the selected flashlights</caption>
             <thead>
-              <tr className="border-b border-[#e7e7e1]">
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6c6c66] w-36 sticky left-0 bg-white">
+              <tr className="border-b border-line">
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-ink-2 w-36 sticky left-0 bg-panel">
                   Spec
                 </th>
                 {flashlights.map(f => (
-                  <th key={f.id} className="px-4 py-3 text-center min-w-44 border-l border-[#e7e7e1]">
+                  <th key={f.id} className="px-4 py-3 text-center min-w-44 border-l border-line">
                     <div className="relative">
                       <button
                         onClick={() => remove(f.id)}
@@ -106,17 +106,17 @@ export default function ComparePage() {
                       >
                         <X size={13} />
                       </button>
-                      <div className="h-16 flex items-center justify-center mb-2">
+                      <div className="h-16 flex items-center justify-center mb-2 bg-plate rounded-lg p-1">
                         {f.image_url
                           ? <Image src={f.image_url} alt={f.model} width={80} height={56} className="object-contain max-h-16" />
                           : <div className="text-[#d4d4cc] text-xs">—</div>
                         }
                       </div>
-                      <Link href={`/${f.slug}`} className="text-xs font-semibold text-slate-900 hover:text-brand-600 block leading-snug">
+                      <Link href={`/${f.slug}`} className="text-xs font-semibold text-ink hover:text-brand-600 block leading-snug">
                         {f.brand} {f.model}
                       </Link>
                       {f.price_usd && (
-                        <p className="text-sm font-mono font-bold text-slate-900 mt-0.5">${f.price_usd.toLocaleString()}</p>
+                        <p className="text-sm font-mono font-bold text-ink mt-0.5">${f.price_usd.toLocaleString()}</p>
                       )}
                     </div>
                   </th>
@@ -139,15 +139,15 @@ export default function ComparePage() {
                 const maxVal = hasHighlight ? Math.max(...numericVals.filter(v => !isNaN(v))) : null
 
                 return (
-                  <tr key={row.key} className="border-t border-[#e7e7e1]">
-                    <td className="px-4 py-2.5 text-xs text-[#a8a89e] font-medium sticky left-0 bg-white">{row.label}</td>
+                  <tr key={row.key} className="border-t border-line">
+                    <td className="px-4 py-2.5 text-xs text-[#a8a89e] font-medium sticky left-0 bg-panel">{row.label}</td>
                     {flashlights.map((f, fi) => {
                       const val = values[fi]
                       const numVal = Number(f[row.key as keyof Flashlight])
                       const isBest = hasHighlight && maxVal !== null && numVal === maxVal && !isNaN(numVal)
                       return (
-                        <td key={f.id} className={`px-4 py-2.5 text-center font-mono text-xs border-l border-[#e7e7e1] ${
-                          isBest ? 'text-brand-600 font-bold' : 'text-slate-700'
+                        <td key={f.id} className={`px-4 py-2.5 text-center font-mono text-xs border-l border-line ${
+                          isBest ? 'text-brand-600 font-bold' : 'text-ink-2'
                         }`}>
                           {val == null ? (
                             <span className="text-slate-200">—</span>
@@ -169,7 +169,7 @@ export default function ComparePage() {
         </div>
 
         {flashlights.length < 4 && (
-          <p className="mt-4 text-center text-sm text-slate-400">
+          <p className="mt-4 text-center text-sm text-ink-3">
             <Link href="/" className="hover:text-brand-600 underline underline-offset-2">
               + Add more to compare
             </Link>

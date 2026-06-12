@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { Search, X, Menu } from 'lucide-react'
 import UserMenu from '@/components/UserMenu'
+import ThemeToggle from '@/components/ThemeToggle'
 
 const NAV = [
   { href: '/',        label: 'Browse' },
@@ -92,6 +93,7 @@ export default function BrowseHeader({
           >
             {navOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
+          <ThemeToggle />
           <UserMenu />
         </div>
       </div>
