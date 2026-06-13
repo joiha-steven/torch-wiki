@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { Globe, MapPin, Calendar, Factory } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { BROWSE_COLS } from '@/lib/browse'
 import { brandSlug } from '@/lib/brand'
 import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
 import type { Flashlight, Brand } from '@/lib/types'
@@ -29,7 +30,9 @@ const resolveBrand = cache(async (slug: string) => {
     supabase.from('brands').select('*').eq('name', name).maybeSingle(),
     supabase
       .from('flashlights')
-      .select('*')
+      // Cards only — same columns the browse grid renders, plus `year` (used to
+      // group the list). Was `select('*')` (full rows incl. description/notes).
+      .select(`${BROWSE_COLS},year`)
       .eq('brand', name)
       .order('year', { ascending: false, nullsFirst: false })
       .order('model', { ascending: true }),

@@ -6,15 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import UserMenu from './UserMenu'
 import ThemeToggle from './ThemeToggle'
-
-const NAV = [
-  { href: '/',        label: 'Browse' },
-  { href: '/brands',  label: 'Brands' },
-  { href: '/top',     label: 'Top' },
-  { href: '/compare', label: 'Compare' },
-  { href: '/updates', label: 'Updates' },
-  { href: '/report',  label: 'Report' },
-]
+import { NAV } from '@/lib/nav'
 
 export default function Header() {
   const [open, setOpen] = useState(false)

@@ -5,15 +5,7 @@ import Link from 'next/link'
 import { Search, X, Menu } from 'lucide-react'
 import UserMenu from '@/components/UserMenu'
 import ThemeToggle from '@/components/ThemeToggle'
-
-const NAV = [
-  { href: '/',        label: 'Browse' },
-  { href: '/brands',  label: 'Brands' },
-  { href: '/top',     label: 'Top' },
-  { href: '/compare', label: 'Compare' },
-  { href: '/updates', label: 'Updates' },
-  { href: '/report',  label: 'Report' },
-]
+import { NAV } from '@/lib/nav'
 
 // The browse page keeps its own floating header (separate from components/Header
 // for the search field). Self-contained: owns nav-open + pointer-glow state, only

@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
 import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
-import type { Brand } from '@/lib/types'
 import Header from '@/components/Header'
 
 export const revalidate = false
@@ -25,7 +24,9 @@ export const metadata: Metadata = {
 export default async function BrandsPage() {
   const [{ data: rows }, { data: meta }] = await Promise.all([
     supabase.from('flashlights').select('brand'),
-    supabase.from('brands').select('*'),
+    // Index only shows name + country + founded year — skip the markdown `about`
+    // bio and other columns that would otherwise bloat the static HTML.
+    supabase.from('brands').select('name, country, founded_year'),
   ])
 
   // Tally models per brand
@@ -33,7 +34,7 @@ export default async function BrandsPage() {
   for (const r of (rows ?? []) as { brand: string }[]) {
     if (r.brand) counts.set(r.brand, (counts.get(r.brand) ?? 0) + 1)
   }
-  const metaByName = new Map((meta ?? []).map((b: Brand) => [b.name, b]))
+  const metaByName = new Map((meta ?? []).map(b => [b.name, b] as const))
 
   const brands = [...counts.entries()]
     .map(([name, count]) => ({ name, count, info: metaByName.get(name) ?? null }))

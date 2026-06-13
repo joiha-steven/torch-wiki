@@ -21,9 +21,15 @@ export const revalidate = false
 
 // Deduplicate DB query between generateMetadata and page component
 const getFlashlight = cache(async (slug: string) => {
+  // Explicit columns the detail page + its children actually render (the spec
+  // table, gallery, manuals, reviews, attribution + formatBatteries). Drops the
+  // dead `notes` field and unused legacy/browse-only columns (buy_url,
+  // has_usb_charging, emitter, battery_types, sort_seed) that `select('*')` pulled.
+  // Single string literal (not concatenated) so Supabase can infer the column
+  // types — which also makes tsc flag any field the page reads but didn't select.
   const { data } = await supabase
     .from('flashlights')
-    .select('*, reviews(*), flashlight_images(*)')
+    .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,beam_type,emitters,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
     .eq('slug', slug)
     .single()
   return data
