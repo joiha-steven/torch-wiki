@@ -33,6 +33,7 @@ const UPDATES: UpdateEntry[] = [
       'Lighter page — each flashlight in the grid now sends only what the card needs, cutting the amount downloaded on first load by roughly two-thirds',
       'Product photos in the first screenful now appear the moment they load instead of waiting on the page to finish setting up — the main image shows up much sooner',
       'The sign-in window and a couple of background scripts now load only when needed, so they no longer add weight to every page',
+      'Brand pages load lighter too — they now send only what each flashlight card needs',
       'Trimmed wasted requests and made the page settings load instantly from cache',
     ],
   },
