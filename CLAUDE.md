@@ -232,8 +232,8 @@ repo) so we don't publish an attack map. High-level posture:
   `Referrer-Policy`, `Permissions-Policy` on every response (no CSP by choice).
 - **JSON-LD** — `safeJson()` escapes `<` to prevent `<script>` breakout.
 
-(Exact auth/token flow, the recovery-code brute-force surface, and the Vercel
-Firewall rate-limit checklist live in the private notes above.)
+(Exact auth/token internals and the edge hardening checklist live in the private
+notes above.)
 
 ## Image Optimization & Cost
 
