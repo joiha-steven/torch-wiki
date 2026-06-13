@@ -61,6 +61,7 @@ export default function BrowseGrid({
             isSelected={compareSet.has(f.id)}
             onToggleCompare={onToggleCompare}
             priority={i < 4}
+            eager={i < 12}
           />
         ))}
       </div>

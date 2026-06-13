@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { memo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Bookmark, GitCompare } from 'lucide-react'
@@ -14,12 +14,15 @@ type Props = {
   isSelected: boolean
   onToggleCompare: (id: string) => void
   priority?: boolean
+  // Near-fold cards load eagerly (not lazy). Random sort makes the LCP card
+  // unpredictable, so the whole initial viewport must be eager — otherwise
+  // whichever card becomes LCP loads late (lazy resource-load delay).
+  eager?: boolean
 }
 
 // Memoised: with a boolean `isSelected` (instead of the whole compareIds array)
 // only the cards whose selection actually changed re-render on a compare toggle.
-function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = false }: Props) {
-  const [imgLoaded, setImgLoaded] = useState(false)
+function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = false, eager = false }: Props) {
   const { wishlistIds, collectionIds, toggleWishlist, toggleCollection } = useAuth()
   const inWishlist = wishlistIds.has(flashlight.id)
   const inCollection = collectionIds.has(flashlight.id)
@@ -47,12 +50,12 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
               // This Next build doesn't derive fetchpriority from `priority`, so
               // set it explicitly — flags the LCP image to the browser as urgent.
               fetchPriority={priority ? 'high' : undefined}
-              onLoad={() => setImgLoaded(true)}
-              // Above-the-fold (priority) images skip the JS-driven opacity fade —
-              // otherwise the LCP image stays invisible until React hydrates and
-              // fires onLoad, adding ~2.3s of LCP "render delay". They paint as
-              // soon as the bytes decode, straight from the server HTML.
-              className={`object-contain p-1 ${priority ? '' : `img-load ${imgLoaded ? 'is-loaded' : ''}`}`}
+              // Eager (or priority) cards aren't lazy-loaded, so the LCP image —
+              // wherever random sort places it in the initial viewport — fetches
+              // immediately. No JS opacity fade anymore: it kept the image
+              // invisible until hydration/onLoad, which was the LCP render delay.
+              loading={priority ? undefined : eager ? 'eager' : 'lazy'}
+              className="object-contain p-1"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
