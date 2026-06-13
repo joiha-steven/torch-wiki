@@ -215,14 +215,25 @@ UPDATE flashlights SET manual_urls = ARRAY[manual_url] WHERE manual_url IS NOT N
 
 ## Security
 
-- **Admin auth helper** — `lib/verify-admin.ts` → `getAdminUser(request)` authenticates the bearer token and returns `{ id, email, isAdmin, isModerator }`. Each route applies its own level: **content** routes (`brand`, `brand-submissions`, `flashlight`, `submissions`, `revalidate`) accept `isAdmin || isModerator`; **role-management** routes (`users`, `set-role`, `list-moderators`) require `isAdmin`. The bootstrap admin email is checked **inside the helper, server-side only** — it is no longer read by client code, so it never ships in the client bundle (`app/admin/page.tsx` + `lib/use-is-admin.ts` rely on `profiles` flags). `list-admins` (cookie/session auth) and `upload-image` (clientPayload token) keep their own auth on purpose.
-- **`/api/upload`** — does not mint Vercel Blob tokens for anyone. `onBeforeGenerateToken` requires a `clientPayload` JSON of `{ session }` (a Supabase access token, validated via `getUser`) **or** `{ turnstile }` (verified via Turnstile siteverify). Callers: MarkdownEditor + SubmitFlashlightForm send the session token; the report page sends the session token when logged in, else the Turnstile token (anonymous attachments). The report page only runs the standalone captcha-verify when there's **no** attachment (the upload consumes the single-use token otherwise).
-- **`/api/upload-manual`** — admin/mod only; validates the slug shape (path-traversal) and checks the real `%PDF-` magic bytes (not just the declared Content-Type).
-- **`/api/fetch-review-meta`** — SSRF-guarded: follows redirects manually and re-validates each hop's host; blocklist covers IPv4 private/loopback/link-local + CGNAT 100.64/10, IPv6 ULA/link-local/mapped, `.lan`/`.internal`, and the cloud-metadata host.
-- **`/api/recover-account`** — protect against recovery-code brute-force with a Vercel Firewall rate-limit rule (edge); an AAL1 (password-only) session could otherwise brute the codes to drop 2FA.
-- **Security headers** — `next.config.ts` `headers()` sets HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN`, `Permissions-Policy` on every response (no CSP — would need to allow Supabase/Blob/GA/Turnstile/video embeds).
-- **JSON-LD** — `safeJson()` escapes `<` in `app/layout.tsx` and `app/[slug]/page.tsx`.
-- **Recommended (Vercel dashboard)** — Firewall → Custom Rules: rate-limit `/api/upload`, `/api/recover-account`, `/api/fetch-review-meta`, `/api/admin/`, `/api/revalidate`. Keep **AI Bots = Off** (we want crawlers + `llms.txt`). The WAF OWASP managed ruleset is Enterprise-only.
+Hardened defensively. **Operational specifics and the hardening checklist are kept
+in private workspace notes** (`06_Wiki/security-internals.md`, not in this public
+repo) so we don't publish an attack map. High-level posture:
+
+- **API auth** — routes are bearer-token authenticated via `lib/verify-admin.ts`
+  (`getAdminUser`): content routes allow admin **or** moderator, role-management
+  routes require admin. The bootstrap admin email is checked server-side only and
+  never ships in the client bundle.
+- **Uploads** — Vercel Blob tokens are never minted unauthenticated; uploads are
+  gated by a validated Supabase session **or** a Turnstile captcha token. PDF
+  uploads are admin/mod-only and verified by magic bytes.
+- **SSRF** — server-side link fetching (`/api/fetch-review-meta`) re-validates
+  every redirect hop against a private/loopback/cloud-metadata blocklist.
+- **Headers** — `next.config.ts` sets HSTS, `nosniff`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy` on every response (no CSP by choice).
+- **JSON-LD** — `safeJson()` escapes `<` to prevent `<script>` breakout.
+
+(Exact auth/token flow, the recovery-code brute-force surface, and the Vercel
+Firewall rate-limit checklist live in the private notes above.)
 
 ## Image Optimization & Cost
 
