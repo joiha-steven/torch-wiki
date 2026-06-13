@@ -35,7 +35,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
     <div className={`glass-card rounded-[18px] p-3.5 flex flex-col ${isSelected ? 'is-selected' : ''}`}>
 
       {/* Thumbnail — translucent glass fill, fixed ratio so cards stay even */}
-      <Link href={`/${flashlight.slug}`} className="block">
+      <Link href={`/${flashlight.slug}`} className="block" prefetch={false}>
         <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden mb-3.5 bg-plate">
           {flashlight.image_url ? (
             <Image
@@ -45,7 +45,11 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
               sizes="(max-width: 819px) calc(50vw - 24px), (max-width: 1100px) calc(33vw - 24px), calc(25vw - 24px)"
               priority={priority}
               onLoad={() => setImgLoaded(true)}
-              className={`object-contain p-1 img-load ${imgLoaded ? 'is-loaded' : ''}`}
+              // Above-the-fold (priority) images skip the JS-driven opacity fade —
+              // otherwise the LCP image stays invisible until React hydrates and
+              // fires onLoad, adding ~2.3s of LCP "render delay". They paint as
+              // soon as the bytes decode, straight from the server HTML.
+              className={`object-contain p-1 ${priority ? '' : `img-load ${imgLoaded ? 'is-loaded' : ''}`}`}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -78,11 +82,12 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
       <div className="flex-1">
         <Link
           href={`/brand/${brandSlug(flashlight.brand)}`}
+          prefetch={false}
           className="text-[12.5px] text-ink-2 leading-none mb-0.5 inline-block hover:text-brand-600 transition-colors"
         >
           {flashlight.brand}
         </Link>
-        <Link href={`/${flashlight.slug}`} className="block">
+        <Link href={`/${flashlight.slug}`} className="block" prefetch={false}>
           <h3 className="text-[15px] font-semibold text-ink leading-snug tracking-[-0.01em]">{flashlight.model}</h3>
         </Link>
       </div>
