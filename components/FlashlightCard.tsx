@@ -44,6 +44,9 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
               fill
               sizes="(max-width: 819px) calc(50vw - 24px), (max-width: 1100px) calc(33vw - 24px), calc(25vw - 24px)"
               priority={priority}
+              // This Next build doesn't derive fetchpriority from `priority`, so
+              // set it explicitly — flags the LCP image to the browser as urgent.
+              fetchPriority={priority ? 'high' : undefined}
               onLoad={() => setImgLoaded(true)}
               // Above-the-fold (priority) images skip the JS-driven opacity fade —
               // otherwise the LCP image stays invisible until React hydrates and
