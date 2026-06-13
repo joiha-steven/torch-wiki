@@ -129,8 +129,7 @@ export default function ComparePage() {
                   if (row.render) return row.render(f)
                   const raw = f[row.key as keyof Flashlight]
                   if (raw == null) return null
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  return row.format ? (row.format as (v: any) => string)(raw) : String(raw)
+                  return row.format ? (row.format as (v: unknown) => string)(raw) : String(raw)
                 })
                 if (values.every(v => v == null)) return null
 

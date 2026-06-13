@@ -33,6 +33,37 @@ REVALIDATE_SECRET=...   # shared secret for /api/revalidate from scripts/curl (a
 
 **After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
 
+## Rules (MUST follow for every change)
+
+Enforced partly by tooling: `.husky/pre-commit` runs `lint-staged` (eslint --fix on
+staged `*.ts/*.tsx`) then `npm run typecheck` (`tsc --noEmit`) — a commit is blocked
+if either fails. `npm run smoke` checks prod endpoints; `npm run health` is the daily summary.
+
+### Type Safety
+1. No `any` type. Use a proper type, or `unknown` + a type guard. (Codebase is at 0 — keep it there.)
+2. Function parameters and API route handlers have explicit request/response types.
+
+### Input Validation
+3. Every API route validates input before processing: required fields exist, types/ranges/lengths checked, UUID/email format where relevant. Return `400` with a clear message on failure.
+4. Never trust client data — validate server-side. (Admin routes: `verify-admin.ts` first, before anything else.)
+
+### Security
+5. Service-role key never appears in client-side code. Queries go through the Supabase client (parameterized) — never string-concatenated SQL.
+6. User-uploaded / user-authored content is sanitized before storage.
+
+### Code Quality
+7. Prefer files under ~400 lines; split oversized files into components. **Known tech-debt exceptions** (do not grow these; split when next touched): `app/admin/AdminDashboard.tsx` (~974), `components/SubmitFlashlightForm.tsx` (~650), `app/account/page.tsx` (~570).
+8. Every mutation (INSERT/UPDATE/DELETE) is in try/catch with a user-friendly error message.
+9. No dead code — delete instead of commenting out (git history preserves it).
+10. New user-facing pages/endpoints get a URL added to `scripts/smoke.mjs`.
+
+### Commit Discipline
+11. Keep commits focused (≈5 source files). Don't mix a DB schema change + API route + frontend in one commit — schema changes get their own commit with the migration SQL in the message.
+12. Commit messages say WHAT changed and WHY (not "update"/"fix").
+
+### Documentation
+13. New table/column → update **Database Schema** below. New env var → update **Environment Variables** above. New gotcha → `06_Wiki/gotchas.md` in the workspace repo.
+
 ## Database Schema (Supabase)
 
 Key tables:
