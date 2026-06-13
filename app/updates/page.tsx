@@ -31,7 +31,9 @@ const UPDATES: UpdateEntry[] = [
       'The browse page now arrives ready — the first set of flashlights and the filter lists are rendered on our servers and sent with the page, instead of loading in after it opens',
       'Noticeably quicker first view, especially on slower connections and far from the US — the grid no longer waits on a round-trip to the database before it appears',
       'Lighter page — each flashlight in the grid now sends only what the card needs, cutting the amount downloaded on first load by roughly two-thirds',
-      'The sign-in window now loads only when you open it, so it no longer adds weight to every page',
+      'Product photos in the first screenful now appear the moment they load instead of waiting on the page to finish setting up — the main image shows up much sooner',
+      'The sign-in window and a couple of background scripts now load only when needed, so they no longer add weight to every page',
+      'Trimmed wasted requests and made the page settings load instantly from cache',
     ],
   },
   {

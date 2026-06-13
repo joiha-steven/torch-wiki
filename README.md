@@ -87,6 +87,9 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Browse page server-renders its first batch + filter lists (ISR, hourly) next to the database, so the grid arrives in the HTML — no client round-trip to the DB on first paint
 - Browse grid fetches only the columns each card renders (not whole rows), cutting first-load payload by ~⅔; counts use estimated mode to avoid full table scans
 - Sign-in modal (and its captcha) is lazy-loaded only when opened, off the first-paint bundle
+- Browse-card images in the initial viewport load eagerly with no JS fade-gate, so the LCP image paints on decode instead of waiting on hydration; the top row is preloaded with `fetchpriority=high`
+- Dense browse grid skips eager route prefetching (`prefetch={false}`) so it doesn't pull unused detail-page chunks into the first load
+- GA on/off lookup (`/api/ga-settings`) is edge-cached so it isn't a cold function call on every page
 - On-demand cache invalidation when admin approves changes — no stale data
 - User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
 - Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency
