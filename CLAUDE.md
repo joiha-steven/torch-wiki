@@ -52,7 +52,7 @@ if either fails. `npm run smoke` checks prod endpoints; `npm run health` is the 
 6. User-uploaded / user-authored content is sanitized before storage.
 
 ### Code Quality
-7. Prefer files under ~400 lines; split oversized files into components. **Known tech-debt exceptions** (do not grow these; split when next touched): `app/admin/AdminDashboard.tsx` (~974), `components/SubmitFlashlightForm.tsx` (~650), `app/account/page.tsx` (~570).
+7. Prefer files under ~400 lines; split oversized files into components. `app/admin/AdminDashboard.tsx` was split into `components/admin/*` (2026-06-14). **Known tech-debt exceptions** (do not grow these; split when next touched): `components/SubmitFlashlightForm.tsx` (~650), `app/account/page.tsx` (~570).
 8. Every mutation (INSERT/UPDATE/DELETE) is in try/catch with a user-friendly error message.
 9. No dead code — delete instead of commenting out (git history preserves it).
 10. New user-facing pages/endpoints get a URL added to `scripts/smoke.mjs`.
