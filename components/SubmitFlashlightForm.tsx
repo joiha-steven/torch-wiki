@@ -5,37 +5,20 @@ import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { Flashlight, BatteryOption } from '@/lib/types'
-import { X, Upload, Loader2, FileText, Star, Plus } from 'lucide-react'
-import Image from 'next/image'
 import MarkdownEditor from '@/components/MarkdownEditor'
 import { useIsAdmin } from '@/lib/use-is-admin'
 import { batteryOptions } from '@/lib/battery'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
+import { Field, input, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
+import BasicFields from '@/components/submit/BasicFields'
+import { OutputBeamFields, DimensionFields } from '@/components/submit/SpecFields'
+import BatterySection from '@/components/submit/BatterySection'
+import PdfSection from '@/components/submit/PdfSection'
+import ReviewsSection from '@/components/submit/ReviewsSection'
+import ImagesSection from '@/components/submit/ImagesSection'
+import FormFooter from '@/components/submit/FormFooter'
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
-
-const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Diving', 'Work', 'Custom']
-const BATTERY_TYPES = ['CR123A', 'D-cell', 'AA', 'AAA', '10440', '14500', '16340', '18350', '18650', '21700', '26650', 'Built-in']
-const BEAM_TYPES = ['Spot', 'Flood', 'Spot+Flood', 'Thrower']
-const CHARGING_TYPES = ['usb', 'magnetic', 'none']
-
-type ImageEntry = {
-  id: string           // 'existing-primary' | 'existing-{dbId}' | uuid for new
-  url: string          // Vercel Blob URL for existing, object URL for new
-  file?: File          // only for new images
-  isPrimary: boolean
-  uploading: boolean
-  isExisting: boolean  // already stored in DB
-  existingDbId?: string // flashlight_images.id (for extras)
-}
-
-type ReviewRow = {
-  url: string
-  title: string
-  published_at: string | null   // ISO date
-  type: string | null           // 'video' | 'article'
-  fetching?: boolean
-}
 
 type Props = {
   mode: 'new' | 'edit'
@@ -44,20 +27,6 @@ type Props = {
   onSuccess: (slug?: string) => void
   onCancel: () => void
 }
-
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="block text-xs font-medium text-ink-2 mb-1">
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
-      </label>
-      {children}
-    </div>
-  )
-}
-
-const input = "w-full h-10 text-sm border border-line rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
-
 
 export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onSuccess, onCancel }: Props) {
   const isAdmin = useIsAdmin()
@@ -361,258 +330,57 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
 
-      {/* Basic info */}
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Brand" required>
-          <input className={input} value={data.brand ?? ''} onChange={e => set('brand', e.target.value)} placeholder="e.g. Surefire" />
-        </Field>
-        <Field label="Model" required>
-          <input className={input} value={data.model ?? ''} onChange={e => set('model', e.target.value)} placeholder="e.g. M600DF Scout" />
-        </Field>
-        <Field label="Category">
-          <select className={input} value={data.category ?? ''} onChange={e => set('category', e.target.value || null)}>
-            <option value="">— Select —</option>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
-        </Field>
-        <Field label="Year">
-          <input className={input} type="number" value={data.year ?? ''} onChange={e => set('year', num(e.target.value))} placeholder="e.g. 2023" />
-        </Field>
-      </div>
+      <BasicFields data={data} set={set} num={num} />
 
-      {/* Lumens & beam */}
-      <div>
-        <p className="text-[13px] font-semibold text-ink-2 mb-3">Output & Beam</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Field label="Max Lumens">
-            <input className={input} type="number" value={data.max_lumens ?? ''} onChange={e => set('max_lumens', num(e.target.value))} placeholder="e.g. 1000" />
-          </Field>
-          <Field label="Min Lumens">
-            <input className={input} type="number" value={data.min_lumens ?? ''} onChange={e => set('min_lumens', num(e.target.value))} placeholder="e.g. 5" />
-          </Field>
-          <Field label="Beam Distance (m)">
-            <input className={input} type="number" value={data.beam_distance_m ?? ''} onChange={e => set('beam_distance_m', num(e.target.value))} placeholder="e.g. 300" />
-          </Field>
-          <Field label="Beam Type">
-            <select className={input} value={data.beam_type ?? ''} onChange={e => set('beam_type', e.target.value || null)}>
-              <option value="">— Select —</option>
-              {BEAM_TYPES.map(b => <option key={b}>{b}</option>)}
-            </select>
-          </Field>
-        </div>
-      </div>
+      <OutputBeamFields data={data} set={set} num={num} />
 
-      {/* LED */}
       <Field label="LED / Emitters (comma-separated if multiple)">
         <input className={input} value={emitterInput} onChange={e => setEmitterInput(e.target.value)} placeholder="e.g. Cree XHP50.2, Luminus SBT90.3" />
       </Field>
 
-      {/* Battery */}
-      <div>
-        <p className="text-[13px] font-semibold text-ink-2 mb-3">Battery & Charging</p>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-ink-3 mb-1">Battery options</label>
-            <div className="space-y-2">
-              {batteryRows.map((row, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input type="number" min={1} aria-label="Count" className={input + ' w-16 shrink-0'}
-                    value={row.count} onChange={e => updateBatteryRow(i, { count: Number(e.target.value) || 1 })} />
-                  <span className="text-ink-3 text-sm shrink-0">×</span>
-                  <select className={input + ' flex-1'} value={row.type} onChange={e => updateBatteryRow(i, { type: e.target.value })}>
-                    <option value="">— Select —</option>
-                    {BATTERY_TYPES.map(b => <option key={b}>{b}</option>)}
-                  </select>
-                  {batteryRows.length > 1 && (
-                    <button type="button" onClick={() => removeBatteryRow(i)} title="Remove"
-                      className="text-slate-300 hover:text-red-400 shrink-0"><X size={15} /></button>
-                  )}
-                </div>
-              ))}
-            </div>
-            {batteryRows.length < 4 && (
-              <button type="button" onClick={addBatteryRow}
-                className="mt-2 inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700">
-                <Plus size={13} /> Add battery option
-              </button>
-            )}
-            <p className="mt-1 text-xs text-ink-3">Add more than one if the light accepts alternatives — e.g. 2× 18350 or 1× 18650.</p>
-          </div>
-          <Field label="Charging">
-            <select className={input} value={data.charging_type ?? ''} onChange={e => set('charging_type', e.target.value || null)}>
-              <option value="">— Select —</option>
-              {CHARGING_TYPES.map(c => <option key={c} value={c}>{c === 'usb' ? 'USB' : c === 'magnetic' ? 'Magnetic' : 'None'}</option>)}
-            </select>
-          </Field>
-        </div>
-      </div>
+      <BatterySection
+        rows={batteryRows}
+        updateRow={updateBatteryRow}
+        addRow={addBatteryRow}
+        removeRow={removeBatteryRow}
+        chargingType={data.charging_type ?? null}
+        onChargingChange={v => set('charging_type', v)}
+      />
 
-      {/* Dimensions */}
-      <div>
-        <p className="text-[13px] font-semibold text-ink-2 mb-3">Size & Weight</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Field label="Length (mm)">
-            <input className={input} type="number" value={data.length_mm ?? ''} onChange={e => set('length_mm', num(e.target.value))} />
-          </Field>
-          <Field label="Head Diameter (mm)">
-            <input className={input} type="number" value={data.head_diameter_mm ?? ''} onChange={e => set('head_diameter_mm', num(e.target.value))} />
-          </Field>
-          <Field label="Body Diameter (mm)">
-            <input className={input} type="number" value={data.body_diameter_mm ?? ''} onChange={e => set('body_diameter_mm', num(e.target.value))} />
-          </Field>
-          <Field label="Weight (g)">
-            <input className={input} type="number" value={data.weight_g ?? ''} onChange={e => set('weight_g', num(e.target.value))} />
-          </Field>
-        </div>
-      </div>
-
-      {/* Material & specs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Field label="Material">
-          <input className={input} value={data.material ?? ''} onChange={e => set('material', e.target.value || null)} placeholder="e.g. Aluminum" />
-        </Field>
-        <Field label="IP Rating">
-          <input className={input} value={data.ip_rating ?? ''} onChange={e => set('ip_rating', e.target.value || null)} placeholder="e.g. IPX8" />
-        </Field>
-        <Field label="Impact Resistance (m)">
-          <input className={input} type="number" value={data.impact_resistance_m ?? ''} onChange={e => set('impact_resistance_m', num(e.target.value))} />
-        </Field>
-        <Field label="Est. Retail Price (USD)">
-          <input className={input} type="number" value={data.price_usd ?? ''} onChange={e => set('price_usd', num(e.target.value))} placeholder="e.g. 349" />
-        </Field>
-      </div>
+      <DimensionFields data={data} set={set} num={num} />
 
       {/* Text fields */}
       <MarkdownEditor label="Description" value={data.description ?? ''} onChange={v => set('description', v || null)} />
 
-      <Field label="User Manual (PDF)">
-        <div className="space-y-2">
-          {pdfFiles.map((f, i) => (
-            <div key={f.url} className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-white/[0.04] border border-line rounded-lg text-sm text-ink-2">
-              <FileText size={14} className="text-brand-500 shrink-0" />
-              <span className="truncate flex-1">{f.name}</span>
-              <button type="button" onClick={() => removePdf(i)} className="text-ink-3 hover:text-red-500 shrink-0">
-                <X size={14} />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => pdfRef.current?.click()}
-            disabled={pdfUploading}
-            className="flex items-center gap-2 px-3 py-2 border border-dashed border-line-strong rounded-lg text-sm text-ink-3 hover:border-brand-400 hover:text-brand-600 transition-colors"
-          >
-            {pdfUploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-            {pdfUploading ? 'Uploading…' : pdfFiles.length ? 'Add another PDF' : 'Upload PDF'}
-          </button>
-          <input
-            ref={pdfRef}
-            type="file"
-            accept="application/pdf"
-            className="hidden"
-            onChange={e => { const f = e.target.files?.[0]; if (f) handlePdfFile(f) }}
-          />
-        </div>
-      </Field>
+      <PdfSection
+        files={pdfFiles}
+        uploading={pdfUploading}
+        pdfRef={pdfRef}
+        onPick={() => pdfRef.current?.click()}
+        onRemove={removePdf}
+        onFileChange={handlePdfFile}
+      />
 
-      <Field label="Reviews">
-        <p className="text-xs text-ink-3 mb-2">Paste a review link — the title and post date are filled in automatically (you can edit them). Add as many as you like.</p>
-        <div className="space-y-3">
-          {reviewRows.map((r, i) => (
-            <div key={i} className="border border-line rounded-lg p-3 space-y-2 bg-slate-50 dark:bg-white/[0.04]/50">
-              <div className="flex items-center gap-2">
-                <input
-                  type="url"
-                  value={r.url}
-                  onChange={e => updateReview(i, { url: e.target.value })}
-                  onBlur={() => { if (r.url.trim() && !r.title.trim()) fetchReviewMeta(i) }}
-                  placeholder="https://…  (review article or video URL)"
-                  className={input + ' flex-1'}
-                />
-                <button type="button" onClick={() => fetchReviewMeta(i)} disabled={r.fetching || !r.url.trim()}
-                  className="h-10 px-3 shrink-0 text-xs font-medium border border-line rounded-lg text-ink-2 hover:bg-panel disabled:opacity-50 flex items-center gap-1.5">
-                  {r.fetching ? <Loader2 size={13} className="animate-spin" /> : null}
-                  {r.fetching ? 'Fetching' : 'Fetch'}
-                </button>
-                <button type="button" onClick={() => removeReviewRow(i)} className="text-ink-3 hover:text-red-500 shrink-0">
-                  <X size={16} />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-                <input
-                  type="text"
-                  value={r.title}
-                  onChange={e => updateReview(i, { title: e.target.value })}
-                  placeholder="Title (auto-filled)"
-                  className={input}
-                />
-                <input
-                  type="date"
-                  value={r.published_at ? r.published_at.slice(0, 10) : ''}
-                  onChange={e => updateReview(i, { published_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                  className={input + ' sm:w-44'}
-                />
-              </div>
-            </div>
-          ))}
-          <button type="button" onClick={addReviewRow}
-            className="flex items-center gap-2 px-3 py-2 border border-dashed border-line-strong rounded-lg text-sm text-ink-3 hover:border-brand-400 hover:text-brand-600 transition-colors">
-            <Plus size={14} /> Add review link
-          </button>
-        </div>
-      </Field>
+      <ReviewsSection
+        rows={reviewRows}
+        updateReview={updateReview}
+        addReviewRow={addReviewRow}
+        removeReviewRow={removeReviewRow}
+        fetchReviewMeta={fetchReviewMeta}
+      />
 
       <label className="flex items-center gap-2 text-sm text-ink-2 cursor-pointer">
         <input type="checkbox" checked={data.is_discontinued ?? false} onChange={e => set('is_discontinued', e.target.checked)} className="accent-brand-500" />
         Discontinued
       </label>
 
-      {/* Images */}
-      <div>
-        <p className="text-[13px] font-semibold text-ink-2 mb-3">Images</p>
-        {images.length > 0 && (
-          <div className="flex flex-wrap gap-3 mb-3">
-            {images.map((img) => (
-              <div key={img.id} className="relative group">
-                <div className={`w-24 h-24 rounded-lg border-2 overflow-hidden bg-plate relative ${img.isPrimary ? 'border-brand-500' : 'border-line'}`}>
-                  <Image src={img.url} alt="" fill className="object-contain p-1" unoptimized={img.url.startsWith('blob:')} />
-                  {img.uploading && (
-                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                      <Loader2 size={16} className="animate-spin text-brand-500" />
-                    </div>
-                  )}
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100">
-                    {!img.isPrimary && (
-                      <button type="button" onClick={() => setPrimary(img.id)}
-                        className="bg-panel rounded-full p-1 hover:bg-brand-50" title="Set as primary">
-                        <Star size={11} className="text-brand-600" />
-                      </button>
-                    )}
-                    <button type="button" onClick={() => removeImage(img.id)}
-                      className="bg-panel rounded-full p-1 hover:bg-red-50" title="Remove">
-                      <X size={11} className="text-red-500" />
-                    </button>
-                  </div>
-                </div>
-                {img.isPrimary
-                  ? <p className="mt-1 text-[10px] text-brand-600 text-center font-medium">Primary</p>
-                  : <p className="mt-1 text-[10px] text-slate-300 text-center">&nbsp;</p>}
-              </div>
-            ))}
-          </div>
-        )}
-        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => e.target.files && handleImageFiles(e.target.files)} />
-        <button type="button" onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 text-sm text-ink-2 border border-dashed border-line-strong rounded-lg px-4 py-2.5 hover:border-brand-400 hover:text-brand-600 transition-colors">
-          <Upload size={14} />
-          Add images
-        </button>
-        <p className="text-xs text-ink-3 mt-1.5 inline-flex items-center gap-1">
-          Hover an image to remove it or set it as primary
-          (<Star size={11} className="text-brand-500 inline" />).
-        </p>
-      </div>
+      <ImagesSection
+        images={images}
+        fileRef={fileRef}
+        onAddFiles={handleImageFiles}
+        onRemove={removeImage}
+        onSetPrimary={setPrimary}
+      />
 
       {!isAdmin && (
         <Turnstile
@@ -626,25 +394,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
       {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
-      <p className="text-[11px] text-ink-3 leading-relaxed">
-        By submitting, you agree your contribution is factual data from legitimate sources, and any original text you write is licensed under{' '}
-        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-2">CC BY 4.0</a>.
-      </p>
-
-      <div className="flex gap-3 pt-2">
-        <button type="button" onClick={onCancel} className="flex-1 text-sm text-ink-2 border border-line rounded-lg py-2.5 hover:bg-slate-50 dark:bg-white/[0.04] dark:hover:bg-white/5">
-          Cancel
-        </button>
-        <button type="submit" disabled={submitting || (!isAdmin && !captchaToken)}
-          className="flex-1 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-black text-sm font-medium rounded-lg py-2.5 flex items-center justify-center gap-2">
-          {submitting && <Loader2 size={14} className="animate-spin" />}
-          {submitting
-            ? (isAdmin ? 'Saving…' : 'Submitting…')
-            : isAdmin
-              ? (mode === 'new' ? 'Add flashlight' : 'Save changes')
-              : (mode === 'new' ? 'Submit for review' : 'Submit edit')}
-        </button>
-      </div>
+      <FormFooter isAdmin={isAdmin} mode={mode} submitting={submitting} captchaToken={captchaToken} onCancel={onCancel} />
     </form>
   )
 }
