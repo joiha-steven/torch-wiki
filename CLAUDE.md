@@ -37,7 +37,9 @@ REVALIDATE_SECRET=...   # shared secret for /api/revalidate from scripts/curl (a
 
 Enforced partly by tooling: `.husky/pre-commit` runs `lint-staged` (eslint --fix on
 staged `*.ts/*.tsx`) then `npm run typecheck` (`tsc --noEmit`) — a commit is blocked
-if either fails. `npm run smoke` checks prod endpoints; `npm run health` is the daily summary.
+if either fails. `npm run smoke` checks prod endpoints; `npm run health` is the daily summary;
+`npm run audit-rls` is a weekly Supabase RLS check (one-time setup: run `scripts/audit-rls.sql`).
+API routes validate input via the shared helpers in `lib/validate.ts` (`readJson`/`isUuid`/`isEmail`/`isStr`/`bad`…).
 
 ### Type Safety
 1. No `any` type. Use a proper type, or `unknown` + a type guard. (Codebase is at 0 — keep it there.)
@@ -52,7 +54,7 @@ if either fails. `npm run smoke` checks prod endpoints; `npm run health` is the 
 6. User-uploaded / user-authored content is sanitized before storage.
 
 ### Code Quality
-7. Prefer files under ~400 lines; split oversized files into components. `app/admin/AdminDashboard.tsx` was split into `components/admin/*` (2026-06-14). **Known tech-debt exceptions** (do not grow these; split when next touched): `components/SubmitFlashlightForm.tsx` (~650), `app/account/page.tsx` (~570).
+7. Prefer files under ~400 lines; split oversized files into components. As of 2026-06-14 every source file is ≤400 — the former offenders were split: `AdminDashboard`→`components/admin/*`, `SubmitFlashlightForm`→`components/submit/*`, `account/page`→`components/account/*`. Keep it that way.
 8. Every mutation (INSERT/UPDATE/DELETE) is in try/catch with a user-friendly error message.
 9. No dead code — delete instead of commenting out (git history preserves it).
 10. New user-facing pages/endpoints get a URL added to `scripts/smoke.mjs`.
