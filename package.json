@@ -18,6 +18,7 @@
     "typecheck": "tsc --noEmit",
     "smoke": "node scripts/smoke.mjs",
     "health": "node scripts/health-daily.mjs",
+    "audit-rls": "node scripts/audit-rls.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
