@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Loader2 } from 'lucide-react'
+import { X, Loader2, Check } from 'lucide-react'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
@@ -182,6 +182,9 @@ export default function AuthModal() {
   }
 
   const isLocked = lockSeconds > 0
+  // Signup / forgot succeeded — show a confirmation instead of the form so the
+  // lingering email field + captcha don't read as "not done yet".
+  const submitted = (tab === 'signup' || tab === 'forgot') && !!message
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
@@ -235,7 +238,7 @@ export default function AuthModal() {
           )}
 
           {/* ── Email + password ── */}
-          {(tab === 'signin' || tab === 'signup' || tab === 'forgot') && (
+          {(tab === 'signin' || tab === 'signup' || tab === 'forgot') && !submitted && (
             <>
               <div>
                 <label className="block text-xs font-medium text-ink-2 mb-1">Email</label>
@@ -266,6 +269,19 @@ export default function AuthModal() {
             </>
           )}
 
+          {/* ── Success confirmation (signup / forgot) ── */}
+          {submitted && (
+            <div className="text-center space-y-2 py-2">
+              <div className="mx-auto w-11 h-11 rounded-full bg-green-100 flex items-center justify-center">
+                <Check size={20} className="text-green-600" />
+              </div>
+              <p className="text-sm font-medium text-ink">{message}</p>
+              <p className="text-xs text-ink-3">
+                Didn&apos;t get it? Check your spam folder, or use a different email below.
+              </p>
+            </div>
+          )}
+
           {/* Lock countdown */}
           {isLocked && (
             <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
@@ -274,26 +290,35 @@ export default function AuthModal() {
           )}
 
           {error   && <p className="text-xs text-red-500">{error}</p>}
-          {message && <p className="text-xs text-green-600">{message}</p>}
+          {message && !submitted && <p className="text-xs text-green-600">{message}</p>}
 
-          <button type="submit"
-            disabled={
-              loading || isLocked ||
-              (tab === 'mfa' && totpCode.length !== 6) ||
-              (tab === 'recovery' && !recoveryCode.trim()) ||
-              ((tab === 'signup' || tab === 'forgot') && !captchaToken)
-            }
-            className="w-full bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-black font-medium text-sm py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
-            {loading && <Loader2 size={14} className="animate-spin" />}
-            {loading ? 'Please wait…'
-              : tab === 'signin'   ? 'Sign in'
-              : tab === 'signup'   ? 'Create account'
-              : tab === 'forgot'   ? 'Send reset link'
-              : tab === 'mfa'      ? 'Verify'
-              : 'Use recovery code'}
-          </button>
+          {!submitted && (
+            <button type="submit"
+              disabled={
+                loading || isLocked ||
+                (tab === 'mfa' && totpCode.length !== 6) ||
+                (tab === 'recovery' && !recoveryCode.trim()) ||
+                ((tab === 'signup' || tab === 'forgot') && !captchaToken)
+              }
+              className="w-full bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-black font-medium text-sm py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+              {loading && <Loader2 size={14} className="animate-spin" />}
+              {loading ? 'Please wait…'
+                : tab === 'signin'   ? 'Sign in'
+                : tab === 'signup'   ? 'Create account'
+                : tab === 'forgot'   ? 'Send reset link'
+                : tab === 'mfa'      ? 'Verify'
+                : 'Use recovery code'}
+            </button>
+          )}
 
           {/* Footer links */}
+          {submitted && (
+            <button type="button"
+              onClick={() => { setMessage(''); setCaptchaToken(null); turnstileRef.current?.reset() }}
+              className="w-full text-xs text-ink-3 hover:text-ink-2 pt-1">
+              ← Use a different email
+            </button>
+          )}
           {tab === 'mfa' && (
             <button type="button" onClick={() => { setTab('recovery'); setError('') }}
               className="w-full text-xs text-ink-3 hover:text-ink-2 pt-1">
