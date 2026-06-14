@@ -25,6 +25,16 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 14, 2026',
+    title: 'Reliability & security hardening',
+    items: [
+      'Stronger input checks on every contribution and admin action — malformed or oversized requests are now turned away cleanly instead of causing an error',
+      'Added a routine database access audit and ran it: every table holding personal data is confirmed locked to its owner, with no unintended public write access',
+      'Behind the scenes, automated safety checks now run before any change ships — type-safety plus a live ten-point health check of the site — so problems are caught before they reach you',
+      'Tidied the largest parts of the codebase into smaller, focused pieces, making future updates safer and quicker to ship',
+    ],
+  },
+  {
     date: 'June 13, 2026',
     title: 'Faster browse page',
     items: [
