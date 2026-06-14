@@ -6,6 +6,7 @@ import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
+import { SITE_URL } from '@/lib/seo'
 
 type Tab = 'signin' | 'signup' | 'forgot' | 'mfa' | 'recovery'
 
@@ -147,7 +148,7 @@ export default function AuthModal() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: SITE_URL },
     })
     if (error) setError(error.message)
     else { setMessage('Check your email for a confirmation link.'); trackEvent(AnalyticsEvent.Signup) }
@@ -163,7 +164,7 @@ export default function AuthModal() {
       setError('Captcha failed.'); turnstileRef.current?.reset(); setCaptchaToken(null); setLoading(false); return
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${SITE_URL}/reset-password`,
     })
     if (error) setError(error.message)
     else setMessage('Password reset link sent — check your email.')

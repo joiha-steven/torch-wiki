@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Confirm your new email</title>
+</head>
+<body style="margin:0; padding:0; background:#f6f6f3;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f3;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px; background:#ffffff; border:1px solid #e7e7e1; border-radius:18px;">
+          <tr>
+            <td style="padding:32px 32px 0; font:700 20px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; letter-spacing:-0.02em;">
+              <span style="color:#eba00b;">torch</span><span style="color:#171717;">.EDC.wiki</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px 8px; font:600 22px/1.3 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#171717;">
+              Confirm your new email
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px; font:400 15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#3f3f46;">
+              You asked to change your account email to <strong style="color:#171717;">{{ .NewEmail }}</strong>. Confirm the change by clicking below.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px 8px;">
+              <a href="{{ .ConfirmationURL }}" style="display:inline-block; background:#eba00b; color:#1d1604; font:600 15px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; text-decoration:none; padding:13px 22px; border-radius:12px;">
+                Confirm new email
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 32px 4px; font:400 13px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#71717a;">
+              If the button doesn't work, paste this link into your browser:
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 28px; font:400 12px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#a1a1aa; word-break:break-all;">
+              <a href="{{ .ConfirmationURL }}" style="color:#a1825a;">{{ .ConfirmationURL }}</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 32px; border-top:1px solid #e7e7e1; font:400 12px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#a1a1aa;">
+              A non-commercial flashlight reference. Not affiliated with any brand.<br>
+              If you didn't request this change, ignore this email — your email address won't be updated.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
