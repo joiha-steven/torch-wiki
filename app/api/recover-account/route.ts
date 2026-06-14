@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { isStr, bad, MAX } from '@/lib/validate'
 
 async function sha256(text: string): Promise<string> {
   const encoder = new TextEncoder()
@@ -19,8 +20,9 @@ export async function POST(request: Request) {
     const { data: { user }, error: userError } = await admin.auth.getUser(token)
     if (userError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { recoveryCode } = await request.json()
+    const { recoveryCode } = await request.json().catch(() => ({}))
     if (!recoveryCode) return NextResponse.json({ error: 'Missing code' }, { status: 400 })
+    if (!isStr(recoveryCode, MAX.code)) return bad('Invalid recovery code')
 
     const hash = await sha256(recoveryCode)
 

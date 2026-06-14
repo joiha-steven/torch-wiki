@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { MAX } from '@/lib/validate'
 
 // Reject obvious internal / private hosts to limit SSRF. (Best-effort: covers
 // the common literal-IP cases without doing DNS resolution — DNS-rebinding is
@@ -92,6 +93,9 @@ export async function POST(request: Request) {
 
   const { url } = (await request.json().catch(() => ({}))) as { url?: string }
   if (!url) return NextResponse.json({ error: 'Missing url' }, { status: 400 })
+  if (typeof url !== 'string' || url.length > MAX.url) {
+    return NextResponse.json({ error: 'Invalid url' }, { status: 400 })
+  }
 
   let parsed: URL
   try { parsed = new URL(url) } catch { return NextResponse.json({ error: 'Invalid URL' }, { status: 400 }) }

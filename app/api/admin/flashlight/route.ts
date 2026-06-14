@@ -3,12 +3,14 @@ import { revalidatePath } from 'next/cache'
 import { del } from '@vercel/blob'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { getAdminUser } from '@/lib/verify-admin'
+import { readJson, bad, isStr, isStringArray, isOptStr, MAX } from '@/lib/validate'
 
 export async function PATCH(request: Request) {
   const user = await getAdminUser(request)
   if (!user || (!user.isAdmin && !user.isModerator)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await request.json()
+  const body = await readJson(request)
+  if (!body) return bad('Invalid request body')
   const { id, data, removeImageIds, addExtraImages, newPrimaryUrl } = body as {
     id: string
     data: Record<string, unknown>
@@ -17,7 +19,11 @@ export async function PATCH(request: Request) {
     newPrimaryUrl?: string | null
   }
 
-  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  if (!isStr(id, MAX.name)) return bad('Missing or invalid id')
+  if (data != null && typeof data !== 'object') return bad('Invalid data')
+  if (removeImageIds != null && !isStringArray(removeImageIds)) return bad('Invalid removeImageIds')
+  if (addExtraImages != null && !isStringArray(addExtraImages)) return bad('Invalid addExtraImages')
+  if (!isOptStr(newPrimaryUrl, MAX.url)) return bad('Invalid newPrimaryUrl')
 
   const admin = getSupabaseAdmin()
 

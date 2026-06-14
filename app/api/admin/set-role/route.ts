@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { getAdminUser } from '@/lib/verify-admin'
+import { isEmail, bad } from '@/lib/validate'
 
 export async function POST(request: Request) {
   const caller = await getAdminUser(request)
@@ -12,6 +13,8 @@ export async function POST(request: Request) {
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   const { email, is_moderator } = body
   if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+  if (!isEmail(email)) return bad('Invalid email')
+  if (typeof is_moderator !== 'boolean') return bad('is_moderator must be a boolean')
 
   const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
   const target = users.find(u => u.email === email)

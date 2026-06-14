@@ -3,6 +3,9 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { getAdminUser } from '@/lib/verify-admin'
 import { supabase as anonClient } from '@/lib/supabase'
 import { SITE_URL } from '@/lib/seo'
+import { isUuid, bad } from '@/lib/validate'
+
+const USER_ACTIONS = new Set(['reset_password', 'ban', 'unban', 'delete'])
 
 // GET /api/admin/users?q=search&page=1
 export async function GET(request: Request) {
@@ -59,6 +62,8 @@ export async function POST(request: Request) {
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   const { targetId, action } = body
   if (!targetId || !action) return NextResponse.json({ error: 'Missing params' }, { status: 400 })
+  if (!isUuid(targetId)) return bad('Invalid targetId')
+  if (!USER_ACTIONS.has(action)) return bad('Unknown action')
 
   const { data: { user: target } } = await admin.auth.admin.getUserById(targetId)
   if (target?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {

@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { getAdminUser } from '@/lib/verify-admin'
 import { brandSlug } from '@/lib/brand'
+import { isUuid, isOptStr, bad, MAX } from '@/lib/validate'
 
 const ALLOWED = ['country', 'made_in', 'founded_year', 'headquarters', 'website', 'about', 'logo_url'] as const
 
@@ -30,6 +31,9 @@ export async function PATCH(request: Request) {
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   const { id, action, reviewerNote } = body
   if (!id || !action) return NextResponse.json({ error: 'Missing id or action' }, { status: 400 })
+  if (!isUuid(id)) return bad('Invalid id')
+  if (action !== 'approve' && action !== 'reject') return bad('Invalid action')
+  if (!isOptStr(reviewerNote, MAX.text)) return bad('Reviewer note too long')
 
   const admin = getSupabaseAdmin()
   const { data: sub } = await admin.from('brand_submissions').select('*').eq('id', id).single()
