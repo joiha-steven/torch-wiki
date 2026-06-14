@@ -329,7 +329,6 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-
       <BasicFields data={data} set={set} num={num} />
 
       <OutputBeamFields data={data} set={set} num={num} />
