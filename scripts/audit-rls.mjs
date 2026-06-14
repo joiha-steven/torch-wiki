@@ -49,20 +49,22 @@ async function looksLikeUserData(table) {
 
 console.log('🔒 Supabase RLS audit — public schema\n')
 const pad = s => String(s).padEnd(26)
-console.log(`${pad('table')} rls  policies  anon-read  anon-write`)
+console.log(`${pad('table')} rls  policies  anon-read  open-write`)
 console.log('─'.repeat(64))
 
 const warnings = []
 for (const t of data) {
   const rls = t.rls_enabled ? ' on' : 'OFF'
-  const line = `${pad(t.table_name)} ${rls}  ${String(t.policy_count).padStart(8)}  ${t.has_anon_read ? '   yes   ' : '   no    '}  ${t.has_anon_write ? '  yes' : '  no'}`
+  const line = `${pad(t.table_name)} ${rls}  ${String(t.policy_count).padStart(8)}  ${t.has_anon_read ? '   yes   ' : '   no    '}  ${t.has_open_write ? '  yes' : '  no'}`
   console.log(line)
 
   if (!t.rls_enabled && await looksLikeUserData(t.table_name)) {
     warnings.push(`${t.table_name}: RLS is OFF but it looks like user data.`)
   }
-  if (t.has_anon_write) {
-    warnings.push(`${t.table_name}: a policy grants INSERT/UPDATE/DELETE to anon/public.`)
+  // Only flag genuinely-open writes (no USING/WITH CHECK restriction). The
+  // standard `auth.uid() = user_id` owner pattern is not reported.
+  if (t.has_open_write) {
+    warnings.push(`${t.table_name}: a write policy is open to anon/public with no row restriction — confirm this is intentional.`)
   }
   if (t.rls_enabled && t.policy_count === 0) {
     warnings.push(`${t.table_name}: RLS is ON but there are 0 policies — table is fully locked (no access).`)
