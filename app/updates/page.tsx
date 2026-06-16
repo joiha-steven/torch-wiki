@@ -26,6 +26,15 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 16, 2026',
+    title: 'Lumintop LEP throwers added',
+    items: [
+      'Added Lumintop\'s full LEP ("white laser") flashlight line — 13 models including the Thor series (Thor I, II, II V2, 3, 4, 5, Mini), the Thanos 2.0 and Thanos 23 high-power throwers, the Petal, the pocket W1/W3 lasers and the tiny Ant Man',
+      'As a wiki we keep the record complete: discontinued and out-of-stock models are included too',
+      'Metal variants (e.g. aluminum vs titanium) are kept as one entry with the materials noted in the description',
+    ],
+  },
+  {
+    date: 'June 16, 2026',
     title: 'Add it to your home screen like an app',
     items: [
       'torch.EDC.wiki now installs as a proper app — on iPhone tap Share → "Add to Home Screen", on Android use "Install app" — and opens full-screen with no browser bars',
