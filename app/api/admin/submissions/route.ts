@@ -9,7 +9,7 @@ const ALLOWED_ACTIONS = new Set(['approved', 'rejected'])
 const slugify = (brand: string, model: string) =>
   `${brand}-${model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
-// Server-side copy within Vercel Blob — no data transfer through function
+// Server-side copy within Vercel Blob - no data transfer through function
 async function moveBlob(oldUrl: string, newPath: string): Promise<string> {
   const { url } = await copy(oldUrl, newPath, { access: 'public', addRandomSuffix: false })
   await del(oldUrl).catch(() => {}) // best-effort delete
@@ -64,7 +64,7 @@ export async function PATCH(request: Request) {
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   const { id, action, reviewerNote, submissionData, targetId, submissionImages } = body
 
-  // Validate action — only allow known values
+  // Validate action - only allow known values
   if (!ALLOWED_ACTIONS.has(action)) {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
   }

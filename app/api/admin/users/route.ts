@@ -39,7 +39,7 @@ export async function GET(request: Request) {
 
   const result = paginated.map(u => ({
     id:           u.id,
-    email:        u.email ?? '—',
+    email:        u.email ?? '-',
     nickname:     profileMap[u.id]?.nickname ?? null,
     is_admin:     profileMap[u.id]?.is_admin ?? false,
     is_moderator: profileMap[u.id]?.is_moderator ?? false,

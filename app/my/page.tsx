@@ -27,6 +27,7 @@ export default function MyListsPage() {
 
   useEffect(() => {
     if (!user) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFetching(true)
     Promise.all([
       supabase
@@ -275,7 +276,7 @@ function MetaCell({ label, value, accent }: { label: string; value: string | nul
     <div className="min-w-0">
       <p className="text-[10px] text-ink-3 leading-none mb-0.5">{label}</p>
       <p className={`text-xs truncate ${value ? (accent ? 'text-brand-600 font-medium' : 'text-ink-2') : 'text-slate-300'}`}>
-        {value ?? '—'}
+        {value ?? '-'}
       </p>
     </div>
   )
@@ -290,7 +291,7 @@ function CollectionRow({ item, onEdit }: { item: CollectionItem; onEdit: () => v
         {f.image_url ? (
           <Image src={f.image_url} alt={`${f.brand} ${f.model}`} fill className="object-contain p-1" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
+          <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">-</div>
         )}
       </div>
 

@@ -61,7 +61,7 @@ export async function PATCH(request: Request) {
     )
   }
 
-  // Remove extra images — delete from DB and Vercel Blob
+  // Remove extra images - delete from DB and Vercel Blob
   if (removeImageIds?.length) {
     const { data: toDelete } = await admin
       .from('flashlight_images')

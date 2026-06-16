@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { MAX } from '@/lib/validate'
 
 // Reject obvious internal / private hosts to limit SSRF. (Best-effort: covers
-// the common literal-IP cases without doing DNS resolution — DNS-rebinding is
+// the common literal-IP cases without doing DNS resolution - DNS-rebinding is
 // out of scope here; the endpoint is auth-gated and rate-limited at the edge.)
 function isBlockedHost(hostname: string): boolean {
   const h = hostname.toLowerCase().replace(/^\[|\]$/g, '') // strip IPv6 brackets
@@ -84,7 +84,7 @@ function decodeEntities(s: string): string {
 }
 
 export async function POST(request: Request) {
-  // Require a logged-in user (any) — this proxies arbitrary external fetches.
+  // Require a logged-in user (any) - this proxies arbitrary external fetches.
   const token = (request.headers.get('authorization') ?? '').replace('Bearer ', '')
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const admin = getSupabaseAdmin()
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
   }
 
   // 2) Fetch the page HTML for anything still missing (date for YouTube,
-  //    everything for normal articles). Best-effort — never fatal.
+  //    everything for normal articles). Best-effort - never fatal.
   if (!title || !published_at) {
     try {
       const controller = new AbortController()
@@ -136,10 +136,10 @@ export async function POST(request: Request) {
       }).finally(() => clearTimeout(timer))
 
       if (res?.ok) {
-        // Read up to ~2MB — YouTube pushes og:title / uploadDate past 600KB.
+        // Read up to ~2MB - YouTube pushes og:title / uploadDate past 600KB.
         const html = (await res.text()).slice(0, 2 * 1024 * 1024)
 
-        // Content captured up to the matching quote (not [^"'] — that truncates
+        // Content captured up to the matching quote (not [^"'] - that truncates
         // titles containing an apostrophe inside a double-quoted attribute).
         if (!title) {
           const t = pickMeta(html, [
@@ -168,7 +168,7 @@ export async function POST(request: Request) {
         }
       }
     } catch {
-      // network error / timeout — fall through with whatever oEmbed gave us
+      // network error / timeout - fall through with whatever oEmbed gave us
     }
   }
 

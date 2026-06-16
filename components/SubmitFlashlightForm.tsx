@@ -43,7 +43,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     ...initial,
   })
   const [emitterInput, setEmitterInput] = useState((initial.emitters ?? []).join(', '))
-  // Battery configurations — each row is a { type, count } pair (e.g. 2×18350 OR 1×18650)
+  // Battery configurations - each row is a { type, count } pair (e.g. 2×18350 OR 1×18650)
   const [batteryRows, setBatteryRows] = useState<BatteryOption[]>(() => {
     const opts = batteryOptions(initial)
     return opts.length > 0 ? opts.map(o => ({ type: o.type, count: o.count })) : [{ type: '', count: 1 }]
@@ -74,7 +74,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       ?? (initial?.manual_url ? [initial.manual_url] : [])
     return urls.map((url, i) => ({ url, name: i === 0 ? 'manual.pdf' : `manual-${i}.pdf` }))
   })
-  // Review links — paste a URL, the system auto-fills title + post date (editable)
+  // Review links - paste a URL, the system auto-fills title + post date (editable)
   const [reviewRows, setReviewRows] = useState<ReviewRow[]>(() =>
     (initial?.reviews ?? []).map(r => ({
       url: r.url, title: r.title ?? '', published_at: r.published_at ?? null, type: r.type ?? null, fetching: false,
@@ -149,7 +149,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       })
       const meta = await res.json() as { title?: string | null; published_at?: string | null; type?: string | null }
       updateReview(i, {
-        // Only fill blanks — don't clobber what the user already typed/edited
+        // Only fill blanks - don't clobber what the user already typed/edited
         title: row.title?.trim() ? row.title : (meta.title ?? ''),
         published_at: row.published_at ?? meta.published_at ?? null,
         type: row.type ?? meta.type ?? null,
@@ -192,7 +192,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         })
         const { success } = await captchaRes.json()
         if (!success) {
-          setError('Captcha failed — please try again.')
+          setError('Captcha failed - please try again.')
           turnstileRef.current?.reset()
           setCaptchaToken(null)
           setSubmitting(false)
@@ -200,14 +200,14 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         }
       }
 
-      // 1. Create submission row — always 'pending'; admin PATCH promotes to 'approved'
+      // 1. Create submission row - always 'pending'; admin PATCH promotes to 'approved'
       const [{ data: { session } }, { data: { user } }] = await Promise.all([
         supabase.auth.getSession(),
         supabase.auth.getUser(),
       ])
       if (!user) throw new Error('Not signed in')
 
-      // Strip join fields (reviews, flashlight_images) — not DB columns, would cause update to fail
+      // Strip join fields (reviews, flashlight_images) - not DB columns, would cause update to fail
       const { reviews: _r, flashlight_images: _fi, ...cleanData } = data as Record<string, unknown>
       const battery_options = batteryRows
         .filter(r => r.type)
@@ -261,7 +261,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         }
       }
 
-      // Review links — keep only rows with a URL; trim + carry title/date/type
+      // Review links - keep only rows with a URL; trim + carry title/date/type
       const _reviews = reviewRows
         .filter(r => r.url.trim())
         .map(r => ({
@@ -288,7 +288,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       // this for _reviews; edit mode also for the image directives).
       await supabase.from('flashlight_submissions').update({ data: finalSubmissionData }).eq('id', sub.id)
 
-      // 3. Admin/mod: auto-approve — apply changes immediately
+      // 3. Admin/mod: auto-approve - apply changes immediately
       if (isAdmin) {
         const token = session?.access_token ?? ''
         const res = await fetch('/api/admin/submissions', {
@@ -310,7 +310,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
           : { all: true }
         await fetch('/api/revalidate', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(revalidateBody) })
         localStorage.removeItem('meta_cache')
-        // Hard navigate — bypasses Next.js client-side router cache to guarantee fresh page
+        // Hard navigate - bypasses Next.js client-side router cache to guarantee fresh page
         if (json.slug) {
           window.location.href = `/${json.slug}`
         } else {

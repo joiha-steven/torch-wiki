@@ -5,7 +5,7 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  /* Brand — amber #eba00b */
+  /* Brand - amber #eba00b */
   --color-brand-50:  #fef9ec;
   --color-brand-100: #fdedc8;
   --color-brand-200: #fbd991;
@@ -16,7 +16,7 @@
   --color-brand-700: #9a5f05;
   --color-brand-800: #7a4904;
 
-  /* Warm off-white page surface — overrides Tailwind's gray-100 */
+  /* Warm off-white page surface - overrides Tailwind's gray-100 */
   --color-gray-100: #f6f6f3;
 
   /* Single typeface site-wide. `font-mono` now maps to Inter too (numbers get
@@ -75,7 +75,7 @@
   --menu-text: #3a3a37;
   --menu-hover: #f5f5f2;
 
-  /* ---- Motion tokens — keep it subtle & fast ----
+  /* ---- Motion tokens - keep it subtle & fast ----
      One easing + three durations so every transition feels related.
      Only ever animate transform / opacity / color / border. */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -84,7 +84,7 @@
   --dur-slow: 240ms;   /* page fade, image fade-in */
 }
 
-/* ============ Dark theme — warm graphite, not pure black ============ */
+/* ============ Dark theme - warm graphite, not pure black ============ */
 :root[data-theme="dark"] {
   --bg: #17181b;
   --bg-top: #212327;
@@ -98,7 +98,7 @@
   --ink-2: #a6a69f;
   --ink-3: #74746d;
 
-  --accent: #f4a820;  /* brand-400 — one step brighter for dark backgrounds */
+  --accent: #f4a820;  /* brand-400 - one step brighter for dark backgrounds */
   --accent-ink: #1d1604;
 
   --card-plate: #e9e9e5;   /* soft light plate keeps product photos legible */
@@ -125,7 +125,7 @@
   color-scheme: dark;   /* native scrollbar / form controls follow dark */
 }
 
-/* Product-image plate in dark mode — keep a bright center (so white-background
+/* Product-image plate in dark mode - keep a bright center (so white-background
    photos still blend) but soften the edges with a vignette + a thin inner ring
    and inset shadow, so it reads as a recessed display panel rather than a
    glaring white sticker on the dark card. Light mode keeps the flat white plate. */
@@ -155,7 +155,7 @@ body {
   font-optical-sizing: auto;
   font-kerning: normal;
   font-feature-settings: 'kern', 'liga', 'calt';
-  /* NOTE: text-rendering:optimizeLegibility removed — it can cause uneven glyph
+  /* NOTE: text-rendering:optimizeLegibility removed - it can cause uneven glyph
      spacing/jank on body copy; kerning above gives the nice spacing without it. */
 }
 
@@ -166,7 +166,7 @@ h1, h2, h3 {
   text-rendering: optimizeLegibility;
 }
 
-/* Numeric displays (lumens, prices, dimensions) — Inter with aligned tabular figures */
+/* Numeric displays (lumens, prices, dimensions) - Inter with aligned tabular figures */
 .font-mono {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -174,7 +174,7 @@ h1, h2, h3 {
 
 /* ============ Liquid Glass surfaces ============ */
 
-/* Plain frosted surface — detail hero, ghost buttons */
+/* Plain frosted surface - detail hero, ghost buttons */
 .glass {
   background: var(--glass);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
@@ -183,7 +183,7 @@ h1, h2, h3 {
   box-shadow: var(--glass-shadow), var(--glass-inset);
 }
 
-/* Card — frosted surface with diagonal specular sheen.
+/* Card - frosted surface with diagonal specular sheen.
    No backdrop-filter: with 30+ cards in a scrolling grid, per-card backdrop
    blur repaints every frame and tanks scroll perf. A translucent white fill +
    sheen + inset highlight + soft shadow reads as glass without the cost. */
@@ -214,7 +214,7 @@ h1, h2, h3 {
   border-color: var(--accent);
 }
 
-/* Segmented filter pill — translucent white fill (no backdrop blur; cheap) */
+/* Segmented filter pill - translucent white fill (no backdrop blur; cheap) */
 .glass-pill {
   font-family: var(--font-mono);
   background: var(--pill-bg);
@@ -248,7 +248,7 @@ h1, h2, h3 {
     inset 0 0 0 0.5px rgba(255, 255, 255, 0.04);
 }
 
-/* Liquid-glass specular — a soft light blob that follows the cursor across a
+/* Liquid-glass specular - a soft light blob that follows the cursor across a
    glass surface (--gx/--gy are written in JS). No `position` here so it doesn't
    override a host's sticky/relative; hosts are already positioned. */
 .lg-surface::before {
@@ -265,7 +265,7 @@ h1, h2, h3 {
   transition: opacity var(--dur) var(--ease-out);
 }
 .lg-surface:hover::before { opacity: 1; }
-/* touch devices have no real hover — keep the highlight off */
+/* touch devices have no real hover - keep the highlight off */
 @media (hover: none) {
   .lg-surface:hover::before { opacity: 0; }
 }
@@ -284,7 +284,7 @@ h1, h2, h3 {
   border-color: rgba(255, 232, 200, 0.28);
 }
 
-/* Graceful fallback where backdrop-filter is unsupported — raise fills toward
+/* Graceful fallback where backdrop-filter is unsupported - raise fills toward
    opaque so text stays legible */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass,
@@ -300,7 +300,7 @@ h1, h2, h3 {
   :root[data-theme="dark"] .glass-dark { background: rgba(255, 255, 255, 0.08); }
 }
 
-/* Respect users who ask for less motion — near-instant everything, and make
+/* Respect users who ask for less motion - near-instant everything, and make
    any JS-gated fade-in (images) land visible rather than stuck transparent. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -324,7 +324,7 @@ h1, h2, h3 {
   }
 }
 
-/* Page fade-in on navigation — opacity only, no transform (transform breaks position:fixed) */
+/* Page fade-in on navigation - opacity only, no transform (transform breaks position:fixed) */
 .page-fade {
   animation: page-fade-in var(--dur-slow) var(--ease-out) both;
 }
@@ -339,7 +339,7 @@ h1, h2, h3 {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Image fade-in — softens the pop as product photos decode.
+/* Image fade-in - softens the pop as product photos decode.
    Element starts transparent and fades once JS adds `is-loaded` (onLoad). */
 .img-load {
   opacity: 0;
@@ -349,7 +349,7 @@ h1, h2, h3 {
   opacity: 1;
 }
 
-/* Minimal native select — no box, only a bottom hairline + custom chevron */
+/* Minimal native select - no box, only a bottom hairline + custom chevron */
 .mini-select {
   appearance: none;
   background-color: transparent;
@@ -365,7 +365,7 @@ h1, h2, h3 {
   border-bottom-color: var(--accent);
 }
 
-/* Custom checkbox / radio — flat */
+/* Custom checkbox / radio - flat */
 .cb {
   appearance: none;
   width: 15px;
@@ -387,7 +387,7 @@ h1, h2, h3 {
   background-position: center;
 }
 .cb:hover:not(:checked) { border-color: var(--ink); }
-/* In dark, --ink is near-white so the white tick vanishes — draw a dark tick. */
+/* In dark, --ink is near-white so the white tick vanishes - draw a dark tick. */
 :root[data-theme="dark"] .cb:checked {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 7L5.5 10L11.5 4' stroke='%2317181b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }

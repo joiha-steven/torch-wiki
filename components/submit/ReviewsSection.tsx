@@ -12,7 +12,7 @@ type Props = {
 export default function ReviewsSection({ rows, updateReview, addReviewRow, removeReviewRow, fetchReviewMeta }: Props) {
   return (
     <Field label="Reviews">
-      <p className="text-xs text-ink-3 mb-2">Paste a review link — the title and post date are filled in automatically (you can edit them). Add as many as you like.</p>
+      <p className="text-xs text-ink-3 mb-2">Paste a review link - the title and post date are filled in automatically (you can edit them). Add as many as you like.</p>
       <div className="space-y-3">
         {rows.map((r, i) => (
           <div key={i} className="border border-line rounded-lg p-3 space-y-2 bg-slate-50 dark:bg-white/[0.04]/50">

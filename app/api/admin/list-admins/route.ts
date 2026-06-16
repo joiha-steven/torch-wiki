@@ -45,7 +45,7 @@ export async function GET() {
 
   const admins = adminProfiles.map(p => ({
     id: p.id,
-    email: emailMap[p.id] ?? '—',
+    email: emailMap[p.id] ?? '-',
     nickname: p.nickname ?? null,
   }))
 

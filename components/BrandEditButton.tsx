@@ -25,7 +25,7 @@ export default function BrandEditButton({ name, initial }: { name: string; initi
   if (submitted) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-        <Check size={13} /> Suggestion submitted — thanks!
+        <Check size={13} /> Suggestion submitted - thanks!
       </span>
     )
   }

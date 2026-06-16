@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Report incorrect data, a missing flashlight, a broken image or a site bug on torch.EDC.wiki.',
   alternates: { canonical: `${SITE_URL}/report` },
   openGraph: {
-    title: 'Report an issue — torch.EDC.wiki',
+    title: 'Report an issue - torch.EDC.wiki',
     description: 'Report incorrect data, a missing flashlight or a site bug on torch.EDC.wiki.',
     url: `${SITE_URL}/report`,
     siteName: 'torch.EDC.wiki',

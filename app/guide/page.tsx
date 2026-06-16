@@ -3,18 +3,18 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import {
   Compass, SlidersHorizontal, GitCompare, Heart, ShieldCheck,
-  PencilLine, Eye, UserCheck, ShieldHalf, Crown, AlertTriangle, BookOpen,
+  PencilLine, Eye, UserCheck, ShieldHalf, AlertTriangle,
 } from 'lucide-react'
 import { SITE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Guide — How torch.EDC.wiki works',
+  title: 'Guide - How torch.EDC.wiki works',
   description:
-    'How to browse, contribute, and the rules of the community — plus what visitors, members, moderators and admins can each do.',
+    'How to browse, contribute, and the rules of the community - plus what visitors, members and moderators can each do.',
   alternates: { canonical: `${SITE_URL}/guide` },
 }
 
-// Static content page — no DB reads.
+// Static content page - no DB reads.
 export const dynamic = 'force-static'
 
 type Role = {
@@ -57,23 +57,10 @@ const ROLES: Role[] = [
     accent: 'text-brand-600',
     can: [
       'Everything a member can do',
-      'Review the queue — approve or reject submissions',
+      'Review the queue - approve or reject submissions',
       'Edit flashlights and brand info directly (changes go live immediately)',
       'Upload manuals straight to a light',
       'Their nickname shows in amber on entries they add or edit',
-    ],
-  },
-  {
-    icon: <Crown size={18} />,
-    name: 'Admin',
-    who: 'The site owner',
-    accent: 'text-brand-700',
-    can: [
-      'Everything a moderator can do',
-      'Manage users — reset passwords, ban, unban, delete',
-      'Grant or remove the moderator role',
-      'Change site settings and force-clear the cache',
-      'Two-factor authentication is required to open the admin panel',
     ],
   },
 ]
@@ -84,7 +71,7 @@ const USING: HowTo[] = [
   {
     icon: <Compass size={18} />,
     title: 'Browse',
-    body: 'The home page lists every light in a fresh random order each day. Scroll to load more — there is no pagination to click through.',
+    body: 'The home page lists every light in a fresh random order each day. Scroll to load more - there is no pagination to click through.',
   },
   {
     icon: <SlidersHorizontal size={18} />,
@@ -99,12 +86,12 @@ const USING: HowTo[] = [
   {
     icon: <Heart size={18} />,
     title: 'Lists & collection',
-    body: 'Sign in to keep a wishlist and log the lights you own (with price, material and date). You can choose to show your collection on your public profile — quantities only, never prices or dates.',
+    body: 'Sign in to keep a wishlist and log the lights you own (with price, material and date). You can choose to show your collection on your public profile - quantities only, never prices or dates.',
   },
   {
     icon: <ShieldCheck size={18} />,
     title: 'Secure your account',
-    body: 'Set a strong password and turn on two-factor authentication in My Account → Security. You will get recovery codes — keep them somewhere safe.',
+    body: 'Set a strong password and turn on two-factor authentication in My Account → Security. You will get recovery codes - keep them somewhere safe.',
   },
   {
     icon: <PencilLine size={18} />,
@@ -116,7 +103,7 @@ const USING: HowTo[] = [
 const RULES: { title: string; body: string }[] = [
   {
     title: 'Be accurate',
-    body: 'Only add specs you can verify — from the manufacturer, the manual, or a reliable review. Do not guess or pad numbers. When unsure, leave a field blank rather than filling it with something wrong.',
+    body: 'Only add specs you can verify - from the manufacturer, the manual, or a reliable review. Do not guess or pad numbers. When unsure, leave a field blank rather than filling it with something wrong.',
   },
   {
     title: 'No spam, no promotion',
@@ -125,10 +112,6 @@ const RULES: { title: string; body: string }[] = [
   {
     title: 'Respect ownership of images',
     body: 'Product images belong to their manufacturers and are used here only as non-commercial reference. Do not upload images you have no right to use.',
-  },
-  {
-    title: 'One person, one account',
-    body: 'Use a single account. Do not impersonate brands, other users or staff.',
   },
 ]
 
@@ -139,15 +122,14 @@ export default function GuidePage() {
       <div className="max-w-3xl mx-auto px-6 py-10 sm:py-14">
 
         {/* Hero */}
-        <div className="flex items-center gap-3 mb-3">
-          <BookOpen size={22} className="text-brand-600" />
+        <div className="text-center mb-12">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-[-0.02em]">How torch.EDC.wiki works</h1>
+          <p className="mt-3 text-ink-3 text-[15px] leading-relaxed max-w-2xl mx-auto">
+            A community-built reference for flashlights - including discontinued and
+            out-of-stock models, because it is a wiki. Anyone can read it, members help
+            grow it, and a small team keeps it accurate. Here is how it all fits together.
+          </p>
         </div>
-        <p className="text-ink-3 text-[15px] leading-relaxed mb-12">
-          A community-built reference for flashlights — including discontinued and
-          out-of-stock models, because it is a wiki. Anyone can read it, members help
-          grow it, and a small team keeps it accurate. Here is how it all fits together.
-        </p>
 
         {/* Using the site */}
         <section className="mb-14">
@@ -169,7 +151,7 @@ export default function GuidePage() {
         <section className="mb-14">
           <h2 className="text-lg font-bold text-ink mb-2">Who can do what</h2>
           <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
-            Permissions are layered — each level can do everything the one above it can, plus more.
+            Permissions are layered - each level can do everything the one above it can, plus more.
           </p>
           <div className="space-y-3">
             {ROLES.map(r => (
@@ -212,10 +194,22 @@ export default function GuidePage() {
               <p className="text-[13px] text-ink-3 leading-relaxed">
                 Inaccurate, spammy or low-effort submissions are rejected. Deliberately
                 adding false information, spamming, or repeated abuse will get your
-                account banned — losing access to contributing, your lists and your
+                account banned - losing access to contributing, your lists and your
                 collection. Honest mistakes are fine; just fix them or let us know.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Deleting your account */}
+        <section className="mb-14">
+          <h2 className="text-lg font-bold text-ink mb-5">Deleting your account</h2>
+          <div className="bg-panel border border-line rounded-xl p-5">
+            <p className="text-[13px] text-ink-3 leading-relaxed">
+              Want your account removed? Head to the{' '}
+              <Link href="/report" className="text-brand-600 font-medium hover:text-brand-500">Report</Link>{' '}
+              page and let us know - we will delete it for you, along with your lists and collection.
+            </p>
           </div>
         </section>
 

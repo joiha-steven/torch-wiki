@@ -109,7 +109,7 @@ export default function ComparePage() {
                       <div className="h-16 flex items-center justify-center mb-2 bg-plate rounded-lg p-1">
                         {f.image_url
                           ? <Image src={f.image_url} alt={f.model} width={80} height={56} className="object-contain max-h-16" />
-                          : <div className="text-[#d4d4cc] text-xs">—</div>
+                          : <div className="text-[#d4d4cc] text-xs">-</div>
                         }
                       </div>
                       <Link href={`/${f.slug}`} className="text-xs font-semibold text-ink hover:text-brand-600 block leading-snug">
@@ -149,11 +149,11 @@ export default function ComparePage() {
                           isBest ? 'text-brand-600 font-bold' : 'text-ink-2'
                         }`}>
                           {val == null ? (
-                            <span className="text-slate-200">—</span>
+                            <span className="text-slate-200">-</span>
                           ) : row.key === 'charging_type' ? (
                             val !== 'None'
                               ? <Check size={13} className="mx-auto text-brand-500" />
-                              : <span className="text-slate-300">—</span>
+                              : <span className="text-slate-300">-</span>
                           ) : (
                             val
                           )}

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
   const moderators = modProfiles.map(p => ({
     id: p.id,
-    email: emailMap[p.id] ?? '—',
+    email: emailMap[p.id] ?? '-',
     nickname: p.nickname ?? null,
   }))
 

@@ -30,7 +30,7 @@ function ItemRow({ item }: { item: ProfileItem }) {
       <div className="relative w-12 h-10 bg-slate-100 dark:bg-white/[0.05] rounded-lg overflow-hidden shrink-0">
         {item.imgUrl
           ? <Image src={item.imgUrl} alt="" fill className="object-contain p-1" />
-          : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
+          : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">-</div>
         }
       </div>
       <div className="flex-1 min-w-0">
@@ -54,7 +54,7 @@ export default function ProfileTabs({ added, edits, collection, showCollection }
 
   const hasContributions = added.length > 0 || edits.length > 0
 
-  // Without an opted-in collection, there is only one view — render it without the tab bar.
+  // Without an opted-in collection, there is only one view - render it without the tab bar.
   if (!showCollection) {
     return <ContributeView added={added} edits={edits} hasContributions={hasContributions} />
   }

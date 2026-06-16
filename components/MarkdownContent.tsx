@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm'
 import type { Components } from 'react-markdown'
 
 // Return an embeddable player URL for YouTube / Vimeo links, else null.
-// Whitelisted domains only — we never render arbitrary iframes.
+// Whitelisted domains only - we never render arbitrary iframes.
 function videoEmbed(raw: string): string | null {
   let url: URL
   try { url = new URL(raw.trim()) } catch { return null }

@@ -46,7 +46,7 @@ const CHARGING_OPTIONS = [
   { value: 'none',      label: 'None' },
 ]
 
-// Shared section title — sentence case, no caps
+// Shared section title - sentence case, no caps
 const sectionTitle = 'text-[12px] font-semibold text-ink-2 mb-2'
 
 // Shared label wrapper
@@ -153,7 +153,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         )}
       </div>
 
-      {/* Sort — minimal underline select */}
+      {/* Sort - minimal underline select */}
       <div>
         <p className={sectionTitle}>Sort by</p>
         <select
@@ -279,7 +279,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       </div>
 
       <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-line">
-        © 2026 torch.edc.wiki — a non-commercial reference project, not affiliated with any brand.{' '}
+        © 2026 torch.edc.wiki - a non-commercial reference project, not affiliated with any brand.{' '}
         Original content &amp; data compilation:{' '}
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
         {' '}· Code:{' '}

@@ -42,7 +42,7 @@ export default async function UserProfilePage({ params }: Props) {
   // Use service role to bypass RLS on flashlight_submissions / user_collections
   const adminDb = getSupabaseAdmin()
 
-  // Collection — only when the user has opted in. Public view shows flashlight + quantity only
+  // Collection - only when the user has opted in. Public view shows flashlight + quantity only
   // (never purchase price or date).
   type CollectionRow = {
     flashlight_id: string
@@ -100,7 +100,7 @@ export default async function UserProfilePage({ params }: Props) {
     (newFlashlights ?? []).map(f => [f.slug, f.image_url])
   )
 
-  // Member since — first submission or profile update_at
+  // Member since - first submission or profile update_at
   const memberSince = subs.length > 0
     ? subs[subs.length - 1].created_at
     : profile.updated_at

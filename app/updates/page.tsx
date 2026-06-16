@@ -4,10 +4,10 @@ import Header from '@/components/Header'
 import { UPDATES } from './updates-data'
 export const metadata: Metadata = {
   title: 'Updates',
-  description: 'Changelog and latest changes on torch.EDC.wiki — new flashlights, features and improvements.',
+  description: 'Changelog and latest changes on torch.EDC.wiki - new flashlights, features and improvements.',
   alternates: { canonical: `${SITE_URL}/updates` },
   openGraph: {
-    title: 'Updates — torch.EDC.wiki',
+    title: 'Updates - torch.EDC.wiki',
     description: 'Changelog and latest changes on torch.EDC.wiki.',
     url: `${SITE_URL}/updates`,
     siteName: 'torch.EDC.wiki',

@@ -16,7 +16,7 @@ import SuggestEditButton from '@/components/SuggestEditButton'
 import Header from '@/components/Header'
 
 // Pre-render all flashlight pages at build time
-// Cache forever — cleared on-demand when admin approves a submission
+// Cache forever - cleared on-demand when admin approves a submission
 export const revalidate = false
 
 // Deduplicate DB query between generateMetadata and page component
@@ -26,7 +26,7 @@ const getFlashlight = cache(async (slug: string) => {
   // dead `notes` field and unused legacy/browse-only columns (buy_url,
   // has_usb_charging, emitter, battery_types, sort_seed) that `select('*')` pulled.
   // Single string literal (not concatenated) so Supabase can infer the column
-  // types — which also makes tsc flag any field the page reads but didn't select.
+  // types - which also makes tsc flag any field the page reads but didn't select.
   const { data } = await supabase
     .from('flashlights')
     .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,beam_type,emitters,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!f) return { title: 'Flashlight' }
 
   const title = `${f.brand} ${f.model}`
-  const ogTitle = `${f.brand} ${f.model} — torch.EDC.wiki`
+  const ogTitle = `${f.brand} ${f.model} - torch.EDC.wiki`
 
   // Build a short spec summary for description
   const parts: string[] = []
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = f.description
     ? f.description.slice(0, 155)
-    : `${f.brand} ${f.model}${parts.length ? ' — ' + parts.join(', ') : ''}. Full specs, reviews and images on torch.EDC.wiki.`
+    : `${f.brand} ${f.model}${parts.length ? ' - ' + parts.join(', ') : ''}. Full specs, reviews and images on torch.EDC.wiki.`
 
   return {
     title,
@@ -88,7 +88,7 @@ export default async function FlashlightPage({ params }: Props) {
 
   if (!flashlight) notFound()
 
-  // Brand-level metadata (origin + manufacturing country) — looked up by brand name
+  // Brand-level metadata (origin + manufacturing country) - looked up by brand name
   const { data: brandInfo } = await supabase
     .from('brands')
     .select('country, made_in')
@@ -232,14 +232,14 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Description — boxed so text doesn't stretch full width */}
+        {/* Description - boxed so text doesn't stretch full width */}
         {flashlight.description && (
           <div className="mt-10 bg-panel border border-line rounded-2xl p-6 sm:p-7 max-w-[760px]">
             <MarkdownContent className="text-[15px] leading-[1.7] text-ink-2">{flashlight.description}</MarkdownContent>
           </div>
         )}
 
-        {/* Specifications — two-column grid of hairline rows, fills the width */}
+        {/* Specifications - two-column grid of hairline rows, fills the width */}
         <div className="mt-10 border-t border-line">
           <h2 className="text-[13px] font-semibold text-ink py-3.5">Specifications</h2>
           <div className="grid sm:grid-cols-2 gap-x-14">
@@ -261,7 +261,7 @@ export default async function FlashlightPage({ params }: Props) {
           ]))}
         />
 
-        {/* Reviews — below the manual; newest first */}
+        {/* Reviews - below the manual; newest first */}
         {flashlight.reviews && flashlight.reviews.length > 0 && (
           <div className="mt-8 border-t border-line">
             <h2 className="text-[13px] font-semibold text-ink py-4">Reviews</h2>

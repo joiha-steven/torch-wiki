@@ -4,10 +4,10 @@ import Header from '@/components/Header'
 
 export const metadata: Metadata = {
   title: 'Privacy & Cookies',
-  description: 'How torch.EDC.wiki uses cookies and handles data — a non-commercial reference project.',
+  description: 'How torch.EDC.wiki uses cookies and handles data - a non-commercial reference project.',
   alternates: { canonical: `${SITE_URL}/privacy` },
   openGraph: {
-    title: 'Privacy & Cookies — torch.EDC.wiki',
+    title: 'Privacy & Cookies - torch.EDC.wiki',
     description: 'How torch.EDC.wiki uses cookies and handles data.',
     url: `${SITE_URL}/privacy`,
     siteName: 'torch.EDC.wiki',
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
           <Section title="Account data">
             <p>
               If you create an account, we store your email and (optionally) a public nickname and your
-              wishlist/collection. We use this only to run your account and your contributions — we
+              wishlist/collection. We use this only to run your account and your contributions - we
               don&apos;t sell it or share it for advertising. You can delete your account at any time.
             </p>
           </Section>

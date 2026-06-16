@@ -32,7 +32,7 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
 
   return (
     <div className="flex flex-col gap-3.5">
-      {/* Main image — white hero so white-background product photos blend in */}
+      {/* Main image - white hero so white-background product photos blend in */}
       <div
         className="relative bg-plate border border-line rounded-[18px] overflow-hidden flex items-center justify-center aspect-[3/2]"
         style={{ boxShadow: 'var(--glass-shadow)' }}
@@ -49,7 +49,7 @@ export default function ImageGallery({ primaryUrl, extraImages, alt }: Props) {
         />
       </div>
 
-      {/* Thumbnails — glass tiles */}
+      {/* Thumbnails - glass tiles */}
       {allUrls.length > 1 && (
         <div className="flex gap-2.5 flex-wrap">
           {allUrls.map((url, i) => (

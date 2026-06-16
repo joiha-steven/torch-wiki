@@ -7,11 +7,11 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Top lists',
-  description: 'Curated flashlight rankings on torch.EDC.wiki — recently added, newest releases, most expensive and best value lights.',
+  description: 'Curated flashlight rankings on torch.EDC.wiki - recently added, newest releases, most expensive and best value lights.',
   alternates: { canonical: `${SITE_URL}/top` },
   openGraph: {
-    title: 'Top lists — torch.EDC.wiki',
-    description: 'Curated flashlight rankings — recently added, newest releases, most expensive and best value lights.',
+    title: 'Top lists - torch.EDC.wiki',
+    description: 'Curated flashlight rankings - recently added, newest releases, most expensive and best value lights.',
     url: `${SITE_URL}/top`,
     siteName: 'torch.EDC.wiki',
     type: 'website',

@@ -6,10 +6,10 @@ import { getAdminUser } from '@/lib/verify-admin'
 // Authorize either with a shared secret (server-side scripts / seed jobs via the
 // `x-revalidate-secret` header) or with an admin/moderator session bearer token
 // (the admin dashboard and auto-approve flow). Without this, anyone could spam
-// `{force:true}` and force-revalidate every page — a needless load/cost vector.
+// `{force:true}` and force-revalidate every page - a needless load/cost vector.
 //
 // `canForce` gates the heavy `{force:true}` "clear every page" path to **admins
-// and scripts only** — moderators may revalidate a single slug / the browse
+// and scripts only** - moderators may revalidate a single slug / the browse
 // layout as part of approving content (`{slug}` / `{all}`), but the site-wide
 // force-clear is an owner operation.
 async function authLevel(request: Request): Promise<{ ok: boolean; canForce: boolean }> {
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   }
 
   if (all) {
-    // New flashlight added — revalidate browse layout + sitemap
+    // New flashlight added - revalidate browse layout + sitemap
     revalidatePath('/', 'layout')
     revalidatePath('/sitemap.xml')
   } else if (slug) {

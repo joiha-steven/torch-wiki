@@ -62,7 +62,7 @@ export default function ReportPage() {
 
     try {
       // Verify captcha for anonymous users WITHOUT an attachment. When there IS
-      // an attachment the captcha is consumed by the upload endpoint instead —
+      // an attachment the captcha is consumed by the upload endpoint instead -
       // Turnstile tokens are single-use, so we must not verify it twice.
       if (!user && !file) {
         const res = await fetch('/api/captcha-verify', {
@@ -71,7 +71,7 @@ export default function ReportPage() {
         })
         const data = await res.json()
         if (!data.success) {
-          setError('Captcha failed — please try again.')
+          setError('Captcha failed - please try again.')
           turnstileRef.current?.reset(); setCaptchaToken(null)
           setSubmitting(false); return
         }
@@ -133,7 +133,7 @@ export default function ReportPage() {
                 <Check size={22} className="text-green-600" />
               </div>
               <p className="font-semibold text-ink">Report submitted</p>
-              <p className="text-sm text-ink-3">Thanks — we&apos;ll look into it.</p>
+              <p className="text-sm text-ink-3">Thanks - we&apos;ll look into it.</p>
             </div>
           ) : (
             <>
@@ -152,7 +152,7 @@ export default function ReportPage() {
                 <div>
                   <label className="block text-xs font-medium text-ink-3 mb-1">Topic</label>
                   <select value={topic} onChange={e => setTopic(e.target.value)} className={inp} required>
-                    <option value="">— Select a topic —</option>
+                    <option value="">- Select a topic -</option>
                     {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>

@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { Check, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { formatDate, authHeader } from './shared'
 
-// Diff two objects — returns keys that changed
+// Diff two objects - returns keys that changed
 function diffKeys(original: Partial<Flashlight>, updated: Partial<Flashlight>): string[] {
   return Object.keys(updated).filter(k => {
     const key = k as keyof Flashlight
@@ -19,7 +19,7 @@ function diffKeys(original: Partial<Flashlight>, updated: Partial<Flashlight>): 
 
 function DiffRow({ label, before, after, changed }: { label: string; before: unknown; after: unknown; changed: boolean }) {
   const fmt = (v: unknown) => {
-    if (v == null || v === '') return <span className="text-slate-300 italic">—</span>
+    if (v == null || v === '') return <span className="text-slate-300 italic">-</span>
     if (Array.isArray(v)) return v.join(', ')
     return String(v)
   }
@@ -74,7 +74,7 @@ export default function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmi
       })
 
       if (res.ok && action === 'approved') {
-        // Server returns slug — no extra DB round-trip needed
+        // Server returns slug - no extra DB round-trip needed
         const { slug } = await res.json() as { ok: boolean; slug: string | null }
         if (sub.type === 'new') {
           await fetch('/api/revalidate', { method: 'POST', headers: await authHeader(), body: JSON.stringify({ all: true }) })
@@ -167,7 +167,7 @@ export default function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmi
               <textarea
                 value={reviewerNote}
                 onChange={e => setReviewerNote(e.target.value)}
-                placeholder="Note to user (optional — shown if rejected)"
+                placeholder="Note to user (optional - shown if rejected)"
                 className="w-full text-sm border border-line rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-brand-300"
                 rows={2}
               />

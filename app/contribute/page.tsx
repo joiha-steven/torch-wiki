@@ -25,6 +25,7 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     const q = query.trim()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!q) { setResults([]); return }
     timerRef.current = setTimeout(async () => {
       setSearching(true)
@@ -70,7 +71,7 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
               <div className="relative w-12 h-10 shrink-0 bg-gray-100 rounded-lg overflow-hidden">
                 {f.image_url
                   ? <Image src={f.image_url} alt="" fill className="object-contain p-1" />
-                  : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">—</div>
+                  : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">-</div>
                 }
               </div>
               <div className="flex-1 min-w-0">
@@ -85,7 +86,7 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
       )}
 
       {query.trim() && !searching && results.length === 0 && (
-        <p className="text-sm text-ink-3 text-center py-6">No flashlights found for "{query}".</p>
+        <p className="text-sm text-ink-3 text-center py-6">No flashlights found for &quot;{query}&quot;.</p>
       )}
     </div>
   )
@@ -96,7 +97,7 @@ function SuccessScreen({ onAnother, onView }: { onAnother: () => void; onView: (
   return (
     <div className="bg-panel rounded-xl border border-line p-10 text-center space-y-4">
       <p className="text-3xl">✓</p>
-      <p className="font-semibold text-ink">Submitted! We'll review it soon.</p>
+      <p className="font-semibold text-ink">Submitted! We&apos;ll review it soon.</p>
       <div className="flex justify-center gap-4 pt-2">
         <button onClick={onAnother} className="text-sm text-brand-600 hover:underline">Submit another</button>
         <button onClick={onView} className="text-sm text-ink-3 hover:text-ink">View my submissions →</button>
@@ -112,7 +113,7 @@ export default function ContributePage() {
   const [tab, setTab] = useState<Tab>('add')
   const [submitted, setSubmitted] = useState(false)
 
-  // For "edit" tab — which flashlight is being edited
+  // For "edit" tab - which flashlight is being edited
   const [editTarget, setEditTarget] = useState<Flashlight | null>(null)
 
   // For ?suggest= deep-link from flashlight pages
@@ -130,6 +131,7 @@ export default function ContributePage() {
   const [loadingSubmissions, setLoadingSubmissions] = useState(false)
   useEffect(() => {
     if (!user || tab !== 'submissions') return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingSubmissions(true)
     supabase
       .from('flashlight_submissions')

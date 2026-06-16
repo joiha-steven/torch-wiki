@@ -71,7 +71,7 @@ export default function UsersPanel() {
   }
 
   function fmt(d: string | null) {
-    if (!d) return '—'
+    if (!d) return '-'
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
@@ -112,7 +112,7 @@ export default function UsersPanel() {
                   </p>
                 </div>
 
-                {/* Actions — skip if admin */}
+                {/* Actions - skip if admin */}
                 {!u.is_admin && (
                   <div className="flex items-center gap-1 shrink-0">
                     {/* Reset password */}

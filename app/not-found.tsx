@@ -65,10 +65,10 @@ export default function NotFound() {
             We couldn&apos;t light this one up.
           </h2>
           <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[#f3f3f0]/55">
-            This page could not be found — it may have been moved, renamed, or never existed in the catalog.
+            This page could not be found - it may have been moved, renamed, or never existed in the catalog.
           </p>
 
-          {/* Buttons — site's own design (amber primary + ghost) */}
+          {/* Buttons - site's own design (amber primary + ghost) */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/"

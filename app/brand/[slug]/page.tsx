@@ -30,7 +30,7 @@ const resolveBrand = cache(async (slug: string) => {
     supabase.from('brands').select('*').eq('name', name).maybeSingle(),
     supabase
       .from('flashlights')
-      // Cards only — same columns the browse grid renders, plus `year` (used to
+      // Cards only - same columns the browse grid renders, plus `year` (used to
       // group the list). Was `select('*')` (full rows incl. description/notes).
       .select(`${BROWSE_COLS},year`)
       .eq('brand', name)
@@ -54,10 +54,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!brand) return { title: 'Brand' }
 
   const title = `${brand.name} flashlights`
-  const ogTitle = `${brand.name} flashlights — torch.EDC.wiki`
+  const ogTitle = `${brand.name} flashlights - torch.EDC.wiki`
   const description = brand.info?.about
     ? brand.info.about.replace(/[#*_>`]/g, '').slice(0, 155)
-    : `All ${brand.name} flashlights on torch.EDC.wiki — ${brand.lights.length} models with full specs, organized by release year.`
+    : `All ${brand.name} flashlights on torch.EDC.wiki - ${brand.lights.length} models with full specs, organized by release year.`
 
   return {
     title,
@@ -80,7 +80,7 @@ export default async function BrandPage({ params }: Props) {
     info?.made_in ? { icon: Factory, label: `Made in ${info.made_in}` } : null,
   ].filter(Boolean) as { icon: typeof Calendar; label: string }[]
 
-  // Attribution — same logic as flashlight pages: updated_by set + timestamps
+  // Attribution - same logic as flashlight pages: updated_by set + timestamps
   // equal → added by that user; differ → also edited by them; null → system.
   const addedByUser  = !!info?.updated_by && info?.updated_at === info?.created_at
   const editedByUser = !!info?.updated_by && info?.updated_at !== info?.created_at

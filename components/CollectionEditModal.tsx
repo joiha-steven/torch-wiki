@@ -121,7 +121,7 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
               onChange={(e) => setSelectedMaterial(e.target.value)}
               className="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
             >
-              <option value="">— Select material —</option>
+              <option value="">- Select material -</option>
               {MATERIALS.map((m) => (
                 <option key={m} value={m}>{m}</option>
               ))}

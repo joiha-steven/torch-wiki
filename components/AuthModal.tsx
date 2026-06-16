@@ -132,7 +132,7 @@ export default function AuthModal() {
     })
     const data = await res.json()
     if (!data.success) { setError(data.error || 'Invalid recovery code.'); setLoading(false); return }
-    // MFA removed — refresh session
+    // MFA removed - refresh session
     await supabase.auth.refreshSession()
     setLoading(false)
     closeAuthModal()
@@ -167,7 +167,7 @@ export default function AuthModal() {
       redirectTo: `${SITE_URL}/reset-password`,
     })
     if (error) setError(error.message)
-    else setMessage('Password reset link sent — check your email.')
+    else setMessage('Password reset link sent - check your email.')
     turnstileRef.current?.reset(); setCaptchaToken(null)
     setLoading(false)
   }
@@ -182,7 +182,7 @@ export default function AuthModal() {
   }
 
   const isLocked = lockSeconds > 0
-  // Signup / forgot succeeded — show a confirmation instead of the form so the
+  // Signup / forgot succeeded - show a confirmation instead of the form so the
   // lingering email field + captcha don't read as "not done yet".
   const submitted = (tab === 'signup' || tab === 'forgot') && !!message
 

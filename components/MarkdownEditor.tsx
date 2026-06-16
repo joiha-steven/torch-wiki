@@ -146,7 +146,7 @@ export default function MarkdownEditor({ value, onChange, label = 'Description',
             rows={6}
             value={value}
             onChange={e => onChange(e.target.value)}
-            placeholder={placeholder ?? 'Markdown supported — **bold**, _italic_, ## headings, - lists, links. Use the toolbar to upload an image or embed a YouTube/Vimeo video.'}
+            placeholder={placeholder ?? 'Markdown supported - **bold**, _italic_, ## headings, - lists, links. Use the toolbar to upload an image or embed a YouTube/Vimeo video.'}
           />
         </div>
       )}

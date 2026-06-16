@@ -10,7 +10,7 @@ import { SITE_URL, SITE_NAME, OG_IMAGE } from '@/lib/seo'
 import './globals.css'
 
 // Single site-wide typeface: Inter (variable, weights 100–900). Self-hosted from
-// the repo — no Google Fonts request at build or runtime; Next serves it with an
+// the repo - no Google Fonts request at build or runtime; Next serves it with an
 // immutable long-cache header.
 const inter = localFont({
   src: './fonts/inter-variable.woff2',
@@ -19,13 +19,13 @@ const inter = localFont({
   weight: '100 900',
 })
 
-const SITE_DESC = 'Community reference database for flashlight collectors and enthusiasts — full specs, reviews, images and release history for hundreds of EDC, tactical, thrower and headlamp flashlights.'
+const SITE_DESC = 'Community reference database for flashlight collectors and enthusiasts - full specs, reviews, images and release history for hundreds of EDC, tactical, thrower and headlamp flashlights.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'torch.EDC.wiki — Flashlight Database',
-    template: '%s — torch.EDC.wiki',
+    default: 'torch.EDC.wiki - Flashlight Database',
+    template: '%s - torch.EDC.wiki',
   },
   description: SITE_DESC,
   applicationName: SITE_NAME,
@@ -46,15 +46,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: 'torch.EDC.wiki — Flashlight Database',
+    title: 'torch.EDC.wiki - Flashlight Database',
     description: SITE_DESC,
     url: SITE_URL,
     locale: 'en_US',
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'torch.EDC.wiki — Flashlight Database' }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'torch.EDC.wiki - Flashlight Database' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'torch.EDC.wiki — Flashlight Database',
+    title: 'torch.EDC.wiki - Flashlight Database',
     description: SITE_DESC,
     images: [OG_IMAGE],
   },
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     capable: true,
     // 'default' keeps content below the status bar and lets iOS colour the bar to
     // match the app (works for both light and dark themes). 'black-translucent'
-    // would push content under the clock and force white text — unreadable on the
+    // would push content under the clock and force white text - unreadable on the
     // light surface.
     statusBarStyle: 'default',
     title: 'torch.EDC',
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
-    // Dedicated 180×180 filled icon — iOS rounds the corners itself, so a
+    // Dedicated 180×180 filled icon - iOS rounds the corners itself, so a
     // full-bleed square (not the padded maskable one) looks right on the home screen.
     apple: '/apple-touch-icon.png',
   },

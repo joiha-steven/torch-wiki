@@ -12,7 +12,7 @@ export default function WishlistButtons({ flashlightId }: Props) {
 
   return (
     <div className="flex gap-2.5 mt-6">
-      {/* Primary — Add to collection (amber, subtle gloss + glow) */}
+      {/* Primary - Add to collection (amber, subtle gloss + glow) */}
       <button
         onClick={() => toggleCollection(flashlightId)}
         className="flex items-center gap-2 h-11 px-5 rounded-full text-sm font-semibold text-[#1d1604] bg-brand-500 hover:brightness-[0.97] transition-[filter]"
@@ -22,7 +22,7 @@ export default function WishlistButtons({ flashlightId }: Props) {
         {inCollection ? 'In Collection' : 'Add to Collection'}
       </button>
 
-      {/* Secondary — Wishlist (glass ghost) */}
+      {/* Secondary - Wishlist (glass ghost) */}
       <button
         onClick={() => toggleWishlist(flashlightId)}
         className="glass flex items-center gap-2 h-11 px-5 rounded-full text-sm font-semibold text-ink hover:border-white transition-colors"

@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
 import { SITE_URL as BASE } from '@/lib/seo'
 
-// Regenerate hourly — content is reference data, not real-time
+// Regenerate hourly - content is reference data, not real-time
 export const revalidate = 3600
 
 export async function GET() {
@@ -30,7 +30,7 @@ The database currently holds ${count ?? 'hundreds of'} flashlights across ${bran
 
 - [Browse all flashlights](${BASE}/): Filterable, searchable index of every flashlight by category, brand, battery, emitter, output, price and country of origin.
 - [Brands & makers](${BASE}/brands): Index of every brand and custom maker with model counts and company info.
-- [Top lists](${BASE}/top): Curated rankings — recently added, newest releases, most expensive, best value.
+- [Top lists](${BASE}/top): Curated rankings - recently added, newest releases, most expensive, best value.
 - [Compare flashlights](${BASE}/compare): Side-by-side spec comparison of up to four lights.
 - [Updates](${BASE}/updates): Changelog of new flashlights, features and improvements.
 - [Contribute](${BASE}/contribute): How to add a flashlight or improve existing data.

@@ -15,7 +15,7 @@ type Props = {
   onToggleCompare: (id: string) => void
   priority?: boolean
   // Near-fold cards load eagerly (not lazy). Random sort makes the LCP card
-  // unpredictable, so the whole initial viewport must be eager — otherwise
+  // unpredictable, so the whole initial viewport must be eager - otherwise
   // whichever card becomes LCP loads late (lazy resource-load delay).
   eager?: boolean
 }
@@ -27,7 +27,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
   const inWishlist = wishlistIds.has(flashlight.id)
   const inCollection = collectionIds.has(flashlight.id)
 
-  // Monochrome spec line — mono numbers, hairline dots between values
+  // Monochrome spec line - mono numbers, hairline dots between values
   const specParts = [
     flashlight.max_lumens      ? `${flashlight.max_lumens.toLocaleString()} lm` : null,
     flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m`              : null,
@@ -37,7 +37,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
   return (
     <div className={`glass-card rounded-[18px] p-3.5 flex flex-col ${isSelected ? 'is-selected' : ''}`}>
 
-      {/* Thumbnail — translucent glass fill, fixed ratio so cards stay even */}
+      {/* Thumbnail - translucent glass fill, fixed ratio so cards stay even */}
       <Link href={`/${flashlight.slug}`} className="block" prefetch={false}>
         <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden mb-3.5 bg-plate">
           {flashlight.image_url ? (
@@ -48,10 +48,10 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
               sizes="(max-width: 819px) calc(50vw - 24px), (max-width: 1100px) calc(33vw - 24px), calc(25vw - 24px)"
               priority={priority}
               // This Next build doesn't derive fetchpriority from `priority`, so
-              // set it explicitly — flags the LCP image to the browser as urgent.
+              // set it explicitly - flags the LCP image to the browser as urgent.
               fetchPriority={priority ? 'high' : undefined}
-              // Eager (or priority) cards aren't lazy-loaded, so the LCP image —
-              // wherever random sort places it in the initial viewport — fetches
+              // Eager (or priority) cards aren't lazy-loaded, so the LCP image -
+              // wherever random sort places it in the initial viewport - fetches
               // immediately. No JS opacity fade anymore: it kept the image
               // invisible until hydration/onLoad, which was the LCP render delay.
               loading={priority ? undefined : eager ? 'eager' : 'lazy'}
@@ -84,7 +84,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
         )}
       </div>
 
-      {/* Brand + Model — flex-1 keeps every card the same height */}
+      {/* Brand + Model - flex-1 keeps every card the same height */}
       <div className="flex-1">
         <Link
           href={`/brand/${brandSlug(flashlight.brand)}`}
@@ -98,7 +98,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
         </Link>
       </div>
 
-      {/* Monochrome spec line — fixed height so missing-spec cards don't shrink */}
+      {/* Monochrome spec line - fixed height so missing-spec cards don't shrink */}
       <p className="mt-2.5 font-mono text-[11.5px] text-ink-2 tracking-[-0.01em] min-h-4 truncate">
         {specParts.length ? (
           specParts.map((part, i) => (
@@ -112,7 +112,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
         )}
       </p>
 
-      {/* Foot — price + actions */}
+      {/* Foot - price + actions */}
       <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
         <span className="font-mono text-[14px] font-semibold text-ink">
           {flashlight.price_usd ? `$${flashlight.price_usd.toLocaleString()}` : ''}

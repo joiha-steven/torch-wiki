@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Every flashlight brand and custom maker in the torch.EDC.wiki database, with model counts and company info.',
   alternates: { canonical: `${BASE}/brands` },
   openGraph: {
-    title: 'Brands & makers — torch.EDC.wiki',
+    title: 'Brands & makers - torch.EDC.wiki',
     description: 'Every flashlight brand and custom maker in the torch.EDC.wiki database, with model counts and company info.',
     url: `${BASE}/brands`,
     siteName: 'torch.EDC.wiki',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default async function BrandsPage() {
   const [{ data: rows }, { data: meta }] = await Promise.all([
     supabase.from('flashlights').select('brand'),
-    // Index only shows name + country + founded year — skip the markdown `about`
+    // Index only shows name + country + founded year - skip the markdown `about`
     // bio and other columns that would otherwise bloat the static HTML.
     supabase.from('brands').select('name, country, founded_year'),
   ])

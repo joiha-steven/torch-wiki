@@ -11,8 +11,8 @@ export default function CookieConsent() {
   const settings = useGaSettings()
 
   // The banner only exists to gate GA's cookie. If GA isn't configured/on
-  // (no Measurement ID), there's no cookie to consent to — and admins are
-  // never tracked — so skip it entirely.
+  // (no Measurement ID), there's no cookie to consent to - and admins are
+  // never tracked - so skip it entirely.
   if (isAdmin || !gaActive(settings)) return null
   // Only show until the visitor makes a choice.
   if (consent !== null) return null

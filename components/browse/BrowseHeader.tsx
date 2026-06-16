@@ -90,7 +90,7 @@ export default function BrowseHeader({
         </div>
       </div>
 
-      {/* Mobile nav dropdown — includes search on small screens */}
+      {/* Mobile nav dropdown - includes search on small screens */}
       {navOpen && (
         <nav className="relative z-[1] sm:hidden border-t border-white/10 px-[22px] py-3 flex flex-col gap-0.5">
           <div className="glass-dark flex items-center gap-2 rounded-full px-3.5 h-[34px] mb-2">

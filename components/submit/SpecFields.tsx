@@ -23,7 +23,7 @@ export function OutputBeamFields({ data, set, num }: Props) {
         </Field>
         <Field label="Beam Type">
           <select className={input} value={data.beam_type ?? ''} onChange={e => set('beam_type', e.target.value || null)}>
-            <option value="">— Select —</option>
+            <option value="">- Select -</option>
             {BEAM_TYPES.map(b => <option key={b}>{b}</option>)}
           </select>
         </Field>

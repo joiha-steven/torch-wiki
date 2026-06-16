@@ -26,7 +26,7 @@ export async function PATCH(request: Request) {
   if (!name?.trim()) return NextResponse.json({ error: 'Missing brand name' }, { status: 400 })
   if (!isStr(name, MAX.name)) return bad('Brand name too long')
   // Cap free-text fields so a single field can't carry multi-MB payloads.
-  // (Empty strings are allowed — they clear the field via cleanData.)
+  // (Empty strings are allowed - they clear the field via cleanData.)
   if (data) {
     if (data.about != null && (typeof data.about !== 'string' || data.about.length > MAX.text)) return bad('About text too long')
     for (const k of ['website', 'logo_url', 'headquarters', 'made_in', 'country'] as const) {

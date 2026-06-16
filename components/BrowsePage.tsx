@@ -95,12 +95,12 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
     } catch {}
   }, [])
 
-  // Load facet data once (after first paint — doesn't block the seeded grid).
+  // Load facet data once (after first paint - doesn't block the seeded grid).
   useEffect(() => {
     fetchFacetRows().then(setFacetRows).catch(() => {})
   }, [])
 
-  // Fetch on filter change — debounce search by 300ms. Skips the first run after
+  // Fetch on filter change - debounce search by 300ms. Skips the first run after
   // a server-seeded mount (filters are still default → same data we already have).
   useEffect(() => {
     if (skipNextFetch.current) { skipNextFetch.current = false; return }
@@ -142,7 +142,7 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   const hasMore = items.length < totalCount
   const availableMadeIn = Array.from(new Set(brandsMeta.map(b => b.made_in).filter(Boolean) as string[])).sort()
 
-  // Facet narrowing — which filter options still have results given the OTHER
+  // Facet narrowing - which filter options still have results given the OTHER
   // active filters (each facet ignores its own selection so multi-select keeps
   // working). Computed client-side from facetRows; null until that data loads,
   // in which case the rail shows the full lists (unchanged behaviour).
@@ -182,14 +182,14 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   const categoriesToShow = facets ? Array.from(new Set([...facets.cat, ...filters.categories])) : undefined
   const batteryTypesToShow = facets ? Array.from(new Set([...facets.bat, ...filters.batteryTypes])) : undefined
 
-  // Infinite scroll — observe sentinel div at bottom of list
+  // Infinite scroll - observe sentinel div at bottom of list
   const sentinelRef = useRef<HTMLDivElement>(null)
   const loadingMoreRef = useRef(loadingMore)
   const hasMoreRef = useRef(hasMore)
   // Holds the latest loadMore (which closes over current filters/items) so the
   // observer never fires a stale one after a filter change.
   const loadMoreRef = useRef(loadMore)
-  // Sync the refs the observer reads — in an effect, never during render.
+  // Sync the refs the observer reads - in an effect, never during render.
   useEffect(() => {
     loadingMoreRef.current = loadingMore
     hasMoreRef.current = hasMore

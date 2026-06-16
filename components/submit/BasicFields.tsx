@@ -18,7 +18,7 @@ export default function BasicFields({ data, set, num }: Props) {
       </Field>
       <Field label="Category">
         <select className={input} value={data.category ?? ''} onChange={e => set('category', e.target.value || null)}>
-          <option value="">— Select —</option>
+          <option value="">- Select -</option>
           {CATEGORIES.map(c => <option key={c}>{c}</option>)}
         </select>
       </Field>
