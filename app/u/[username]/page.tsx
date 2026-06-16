@@ -9,7 +9,14 @@ import ProfileTabs, { ProfileItem } from './ProfileTabs'
 // ISR: public profile data changes rarely (only when a contribution is approved),
 // so cache the rendered page at the edge for 60s instead of recomputing every hit.
 // Next emits `s-maxage=60, stale-while-revalidate` automatically for ISR pages.
+// A dynamic segment with NO generateStaticParams renders dynamically by default,
+// so revalidate alone isn't enough — returning [] opts it into on-demand ISR
+// (pages built on first request, then cached/revalidated). See Next's
+// generateStaticParams docs.
 export const revalidate = 60
+export async function generateStaticParams() {
+  return []
+}
 
 type Props = { params: Promise<{ username: string }> }
 
