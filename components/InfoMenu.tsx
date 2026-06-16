@@ -40,7 +40,7 @@ export default function InfoMenu() {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-11 bg-panel rounded-xl shadow-lg border border-line py-1 w-40 z-50 text-sm" role="menu">
+        <div className="absolute left-0 top-11 bg-panel rounded-xl shadow-lg border border-line py-1 w-48 z-50 text-sm" role="menu">
           {INFO_NAV.map(n => (
             <Link
               key={n.href}

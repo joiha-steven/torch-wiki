@@ -210,11 +210,13 @@ RETURNS TABLE(brand text) LANGUAGE SQL AS $$
 $$;
 ```
 
+**`data_change_log(p_limit, p_offset)` + `data_change_log_count()`** (migration `data_change_log_rpc`) — power the **`/data-log` (Database updates)** page. `SECURITY DEFINER` (so they can read RLS-protected `flashlight_submissions` / `brand_submissions` and expose only safe public fields), `GRANT EXECUTE TO anon`. They UNION approved flashlight submissions (`new`→`added`, `edit`→`edited`; slug resolved via `target_id`, else by brand+model, else `data->>'slug'`) and approved brand submissions (first-for-that-brand → `created brand`, else `updated brand`), join `profiles` for the nickname, newest first. System-seeded flashlights have no submission row so they are naturally excluded. Page size 500, paginated with `?page=`.
+
 ## Auth Flow
 
 - Sign in / Sign up via `AuthModal` (email + password)
 - **Login rate limiting** — 5 failed attempts → locked 10 minutes (localStorage)
-- Forgot password → `supabase.auth.resetPasswordForEmail()` → email link → `/reset-password`
+- Forgot password → `supabase.auth.resetPasswordForEmail()` → email link → `/reset-password`. **If the account has 2FA**, the recovery link is only AAL1 but `updateUser({password})` needs AAL2 — `/reset-password` detects this (`getAuthenticatorAssuranceLevel`), shows a TOTP code field, steps up via `mfa.challenge`+`verify`, then updates (was failing with "AAL2 session is required…").
 - **2FA (TOTP)** — enroll via `/account` → Security tab → QR code → 10 recovery codes (SHA-256 hashed in `recovery_codes` table)
 - Login with 2FA → AuthModal shows TOTP step; "lost authenticator" → recovery code → calls `/api/recover-account` (admin API deletes factor)
 - Change password → `/account` → Security tab (re-authenticates with current password first)
@@ -376,7 +378,8 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/compare/page.tsx` | Side-by-side spec comparison (up to 4) |
 | `app/log/page.tsx` + `log/updates-data.ts` | The **Log** page (was `/updates`; `/updates` now 308-redirects here via `next.config.ts`). Leads with a plain-language feature list, a "Built with" stack summary, and a version chip linking to the deployed commit on GitHub (`process.env.VERCEL_GIT_COMMIT_SHA`). Below that, the static changelog: the `UPDATES` array in `app/log/updates-data.ts` (page just renders it). **One entry per calendar day** - add items to today's entry rather than creating a second one for the same date; adjust the day's umbrella `title` if needed. Newest day first. |
 | `app/guide/page.tsx` | Static **Guide**: how to use the site, the visitor/member/moderator permission hierarchy, community rules + ban policy, install-as-app, privacy, and license. Prose kept in JS string arrays (rendered via `{}`) to avoid `react/no-unescaped-entities`. |
-| `components/InfoMenu.tsx` | "Information" nav dropdown (Log + Guide), styled like `UserMenu`. Sub-links live in `INFO_NAV` (`lib/nav.ts`); `NAV` holds the flat top-level links. Both `Header` and `browse/BrowseHeader` render `{NAV.map} + <InfoMenu/>` (desktop) and flatten `INFO_NAV` under an "Information" label (mobile). |
+| `app/data-log/page.tsx` | **Database updates** — public, `force-dynamic` audit feed of every community data change (flashlight/brand add/edit), via the `data_change_log` RPCs. Each line: GMT+7 timestamp + "{nickname} added/edited {Brand Model}" (links to the light) or "{nickname} created/updated brand {Brand}". 500/page, `?page=`. |
+| `components/InfoMenu.tsx` | "Information" nav dropdown (Log + Database updates + Guide), styled like `UserMenu`. Sub-links live in `INFO_NAV` (`lib/nav.ts`); `NAV` holds the flat top-level links. Both `Header` and `browse/BrowseHeader` render `{NAV.map} + <InfoMenu/>` (desktop) and flatten `INFO_NAV` under an "Information" label (mobile). |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
 | `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
 | `app/api/upload/route.ts` | Vercel Blob client upload handler — gated by `clientPayload` `{ session }` (Supabase token) or `{ turnstile }` (see Security) |
