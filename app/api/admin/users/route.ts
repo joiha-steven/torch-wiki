@@ -44,6 +44,8 @@ export async function GET(request: Request) {
     is_admin:     profileMap[u.id]?.is_admin ?? false,
     is_moderator: profileMap[u.id]?.is_moderator ?? false,
     banned:       !!u.banned_until && new Date(u.banned_until) > new Date(),
+    // A verified TOTP factor = 2FA enabled (listUsers includes each user's factors).
+    has_2fa:      (u.factors ?? []).some(f => f.status === 'verified'),
     created_at:   u.created_at,
     last_sign_in: u.last_sign_in_at ?? null,
   }))

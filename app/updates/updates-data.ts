@@ -10,8 +10,10 @@ export type UpdateEntry = {
 export const UPDATES: UpdateEntry[] = [
   {
     "date": "June 16, 2026",
-    "title": "Lumintop catalog, installable app & lots of fixes",
+    "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
     "items": [
+      "Added a Guide page (in the top menu) that explains how to use the site, what members, moderators and admins can each do, and the community rules — be accurate, no spam, and what happens if you break them",
+      "Entries added or edited by the team now show the contributor's name in amber, so you can tell official edits from community ones at a glance",
       "Cleaned up battery data — lights that take alternatives (e.g. “14500 or AA”) are now split into proper separate options, and stray labels were tidied so battery types stay consistent across the catalog",
       "Reworked the Battery & Charging editor when adding or editing a light — battery and charging are now clearly separate, you can list up to 4 battery types each with its own cell count, and the battery type is chosen from a list (now with more sizes, including coin cells and single-use cells) rather than typed by hand",
       "Tidied the LED / Emitter filter: generic UV LEDs are just “UV” (with “UV 365nm/395nm” kept when known), infrared is “IR”, all non-LEP lasers are “Laser”, and Weltool lights no longer list a house “X-LED” label",

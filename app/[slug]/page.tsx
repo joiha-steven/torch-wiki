@@ -102,11 +102,17 @@ export default async function FlashlightPage({ params }: Props) {
   const editedByUser = !!flashlight.updated_by && flashlight.updated_at !== flashlight.created_at
 
   let updatedByNickname: string | null = null
+  let updatedByStaff = false // admin/mod contributor → highlight the nickname in brand amber
   if (flashlight.updated_by) {
     const { data: profile } = await supabase
-      .from('profiles').select('nickname').eq('id', flashlight.updated_by).single()
+      .from('profiles').select('nickname, is_admin, is_moderator').eq('id', flashlight.updated_by).single()
     updatedByNickname = profile?.nickname ?? null
+    updatedByStaff = !!(profile?.is_admin || profile?.is_moderator)
   }
+  // Staff contributors get the amber (brand) link; regular users stay neutral grey.
+  const contributorClass = updatedByStaff
+    ? 'text-brand-600 font-semibold hover:text-brand-500'
+    : 'text-ink-3 font-medium hover:text-ink-2'
 
   const specs = [
     { label: 'Brand', value: flashlight.brand },
@@ -296,7 +302,7 @@ export default async function FlashlightPage({ params }: Props) {
               <span>
                 Updated by{' '}
                 {updatedByNickname
-                  ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
+                  ? <Link href={`/u/${updatedByNickname}`} className={contributorClass}>{updatedByNickname}</Link>
                   : 'user'
                 }
                 {' · '}{new Date(flashlight.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -308,7 +314,7 @@ export default async function FlashlightPage({ params }: Props) {
             <span>
               Added by{' '}
               {addedByUser && updatedByNickname
-                ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
+                ? <Link href={`/u/${updatedByNickname}`} className={contributorClass}>{updatedByNickname}</Link>
                 : 'system'
               }
               {' · '}{new Date(flashlight.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

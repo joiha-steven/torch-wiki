@@ -7,6 +7,7 @@ import { authHeader } from './shared'
 type UserRow = {
   id: string; email: string; nickname: string | null
   is_admin: boolean; is_moderator: boolean; banned: boolean
+  has_2fa: boolean
   created_at: string; last_sign_in: string | null
 }
 
@@ -102,6 +103,9 @@ export default function UsersPanel() {
                     {u.is_admin     && <span className="text-[10px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded font-medium">Admin</span>}
                     {u.is_moderator && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">Moderator</span>}
                     {u.banned       && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">Banned</span>}
+                    {u.has_2fa
+                      ? <span className="inline-flex items-center gap-0.5 text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium"><ShieldCheck size={10} /> 2FA</span>
+                      : <span className="inline-flex items-center gap-0.5 text-[10px] bg-slate-100 text-ink-3 px-1.5 py-0.5 rounded font-medium"><ShieldOff size={10} /> No 2FA</span>}
                   </div>
                   <p className="text-xs text-ink-3 mt-0.5">
                     {u.nickname ? `@${u.nickname} · ` : ''}Joined {fmt(u.created_at)} · Last seen {fmt(u.last_sign_in)}
