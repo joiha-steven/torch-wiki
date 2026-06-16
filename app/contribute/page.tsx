@@ -279,16 +279,17 @@ export default function ContributePage() {
                     // For new: brand+model from submitted data
                     // For edit: original flashlight name from joined flashlights table
                     const isNew = s.type === 'new'
+                    const isDelete = s.type === 'delete'
                     const fl = s.flashlights as { brand: string; model: string; slug: string } | null
                     const title = isNew
                       ? [s.data.brand, s.data.model].filter(Boolean).join(' ') || 'New flashlight'
-                      : fl ? `${fl.brand} ${fl.model}` : [s.data.brand, s.data.model].filter(Boolean).join(' ') || 'Edit'
+                      : fl ? `${fl.brand} ${fl.model}` : [s.data.brand, s.data.model].filter(Boolean).join(' ') || (isDelete ? 'Delete request' : 'Edit')
                     return (
                       <div key={s.id} className="bg-panel rounded-xl border border-line px-5 py-4">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLE[s.status]}`}>{s.status}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${isNew ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                            {isNew ? 'New flashlight' : 'Edit'}
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${isNew ? 'bg-blue-100 text-blue-700' : isDelete ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
+                            {isNew ? 'New flashlight' : isDelete ? 'Delete request' : 'Edit'}
                           </span>
                           <span className="font-medium text-ink text-sm">{title}</span>
                         </div>

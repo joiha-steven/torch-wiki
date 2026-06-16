@@ -110,7 +110,7 @@ export type SubmissionImage = {
 export type FlashlightSubmission = {
   id: string
   user_id: string
-  type: 'new' | 'edit'
+  type: 'new' | 'edit' | 'delete'
   status: 'pending' | 'approved' | 'rejected'
   target_id: string | null
   data: Partial<Flashlight>

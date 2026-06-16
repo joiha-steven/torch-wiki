@@ -45,10 +45,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status') ?? 'pending'
 
+  // Delete suggestions (type='delete') live in the admin Delete tab, not here —
+  // the pending/approved/rejected lists are for new + edit submissions only.
   const { data, error } = await admin
     .from('flashlight_submissions')
     .select('*, submission_images(*), flashlights(*)')
     .eq('status', status)
+    .neq('type', 'delete')
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
