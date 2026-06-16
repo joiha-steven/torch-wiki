@@ -210,6 +210,8 @@ RETURNS TABLE(brand text) LANGUAGE SQL AS $$
 $$;
 ```
 
+**`admin_mfa_user_ids()`** (migration `admin_mfa_user_ids_rpc`) — returns the user ids with a verified MFA factor, read from `auth.mfa_factors`. `SECURITY DEFINER`, **execute granted to `service_role` only** (anon/authenticated revoked). The admin Users panel uses it because `auth.admin.listUsers()` does **not** reliably populate per-user `factors` (it was always showing "No 2FA"). The route also derives a `verified` flag from `email_confirmed_at` to badge unactivated accounts.
+
 **`data_change_log(p_limit, p_offset)` + `data_change_log_count()`** (migration `data_change_log_rpc`) — power the **`/data-log` (Database updates)** page. `SECURITY DEFINER` (so they can read RLS-protected `flashlight_submissions` / `brand_submissions` and expose only safe public fields), `GRANT EXECUTE TO anon`. They UNION approved flashlight submissions (`new`→`added`, `edit`→`edited`; slug resolved via `target_id`, else by brand+model, else `data->>'slug'`) and approved brand submissions (first-for-that-brand → `created brand`, else `updated brand`), join `profiles` for the nickname, newest first. System-seeded flashlights have no submission row so they are naturally excluded. Page size 500, paginated with `?page=`.
 
 ## Auth Flow

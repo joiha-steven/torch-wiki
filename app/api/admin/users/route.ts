@@ -26,6 +26,11 @@ export async function GET(request: Request) {
   const profileMap: Record<string, { nickname: string | null; is_admin: boolean; is_moderator: boolean }> =
     Object.fromEntries((profiles ?? []).map(p => [p.id, p]))
 
+  // listUsers() does not reliably populate per-user `factors`, so read the set of
+  // users with a verified MFA factor from the auth schema via a dedicated RPC.
+  const { data: mfaIds } = await admin.rpc('admin_mfa_user_ids')
+  const mfaSet = new Set((mfaIds ?? []) as string[])
+
   const filtered = q
     ? users.filter(u =>
         u.email?.toLowerCase().includes(q) ||
@@ -44,8 +49,10 @@ export async function GET(request: Request) {
     is_admin:     profileMap[u.id]?.is_admin ?? false,
     is_moderator: profileMap[u.id]?.is_moderator ?? false,
     banned:       !!u.banned_until && new Date(u.banned_until) > new Date(),
-    // A verified TOTP factor = 2FA enabled (listUsers includes each user's factors).
-    has_2fa:      (u.factors ?? []).some(f => f.status === 'verified'),
+    has_2fa:      mfaSet.has(u.id),
+    // Email confirmed = account activated. Unconfirmed users never clicked the
+    // verification link.
+    verified:     !!(u.email_confirmed_at ?? u.confirmed_at),
     created_at:   u.created_at,
     last_sign_in: u.last_sign_in_at ?? null,
   }))

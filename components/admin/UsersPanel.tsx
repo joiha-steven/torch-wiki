@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2, Trash2, ShieldOff, ShieldCheck, KeyRound } from 'lucide-react'
+import { Loader2, Trash2, ShieldOff, ShieldCheck, KeyRound, MailWarning } from 'lucide-react'
 import { authHeader } from './shared'
 
 type UserRow = {
   id: string; email: string; nickname: string | null
   is_admin: boolean; is_moderator: boolean; banned: boolean
-  has_2fa: boolean
+  has_2fa: boolean; verified: boolean
   created_at: string; last_sign_in: string | null
 }
 
@@ -103,6 +103,7 @@ export default function UsersPanel() {
                     {u.is_admin     && <span className="text-[10px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded font-medium">Admin</span>}
                     {u.is_moderator && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">Moderator</span>}
                     {u.banned       && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">Banned</span>}
+                    {!u.verified    && <span className="inline-flex items-center gap-0.5 text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium"><MailWarning size={10} /> Unverified</span>}
                     {u.has_2fa
                       ? <span className="inline-flex items-center gap-0.5 text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium"><ShieldCheck size={10} /> 2FA</span>
                       : <span className="inline-flex items-center gap-0.5 text-[10px] bg-slate-100 text-ink-3 px-1.5 py-0.5 rounded font-medium"><ShieldOff size={10} /> No 2FA</span>}
