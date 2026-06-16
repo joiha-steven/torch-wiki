@@ -18,6 +18,8 @@ export const BATTERY_TYPES = [
   // Li-ion rechargeable (cylindrical), small → large
   '10180', '10280', '10440', '14500', '16340', '16650', '18350', '18500',
   '18650', '20700', '21700', '26350', '26650', '26800', '32650',
+  // Large-format Li-ion (high-power lights)
+  '33140', '46110', '46800', '46900', '46950',
   // Other
   'Built-in',
 ]
