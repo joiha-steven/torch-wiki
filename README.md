@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/icon-512.png" alt="torch.EDC.wiki logo" width="96" height="96">
+</p>
+
 # Torch EDC.wiki
 
 [![Code: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](./LICENSE) [![Content: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
