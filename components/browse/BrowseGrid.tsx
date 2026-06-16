@@ -2,7 +2,9 @@
 
 import type { RefObject } from 'react'
 import FlashlightCard from '@/components/FlashlightCard'
+import FlashlightRow from '@/components/FlashlightRow'
 import FlashlightCardSkeleton from '@/components/FlashlightCardSkeleton'
+import ViewToggle, { type BrowseView } from './ViewToggle'
 import type { Flashlight } from '@/lib/types'
 
 // Presentational results grid. The data-fetching + infinite-scroll observer stay
@@ -16,6 +18,8 @@ export default function BrowseGrid({
   loadingMore,
   sentinelRef,
   siteStats,
+  view,
+  onViewChange,
 }: {
   loading: boolean
   items: Flashlight[]
@@ -25,6 +29,8 @@ export default function BrowseGrid({
   loadingMore: boolean
   sentinelRef: RefObject<HTMLDivElement | null>
   siteStats?: { flashlights: number; brands: number; users: number }
+  view: BrowseView
+  onViewChange: (v: BrowseView) => void
 }) {
   if (loading) {
     return (
@@ -42,29 +48,48 @@ export default function BrowseGrid({
 
   return (
     <>
-      <p className="hidden md:block text-[13px] text-ink-2 mb-[22px]">
-        <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
-        {siteStats && (
-          <>
-            <span className="text-line-strong mx-1.5">·</span>
-            <b className="text-ink font-semibold">{siteStats.brands.toLocaleString()}</b> brands
-            <span className="text-line-strong mx-1.5">·</span>
-            <b className="text-ink font-semibold">{siteStats.users.toLocaleString()}</b> users
-          </>
-        )}
-      </p>
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-        {items.map((f, i) => (
-          <FlashlightCard
-            key={f.id}
-            flashlight={f}
-            isSelected={compareSet.has(f.id)}
-            onToggleCompare={onToggleCompare}
-            priority={i < 4}
-            eager={i < 12}
-          />
-        ))}
+      <div className="hidden md:flex items-center justify-between mb-[22px]">
+        <p className="text-[13px] text-ink-2">
+          <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
+          {siteStats && (
+            <>
+              <span className="text-line-strong mx-1.5">·</span>
+              <b className="text-ink font-semibold">{siteStats.brands.toLocaleString()}</b> brands
+              <span className="text-line-strong mx-1.5">·</span>
+              <b className="text-ink font-semibold">{siteStats.users.toLocaleString()}</b> users
+            </>
+          )}
+        </p>
+        <ViewToggle view={view} onChange={onViewChange} />
       </div>
+
+      {view === 'list' ? (
+        <div className="flex flex-col gap-2.5">
+          {items.map((f, i) => (
+            <FlashlightRow
+              key={f.id}
+              flashlight={f}
+              isSelected={compareSet.has(f.id)}
+              onToggleCompare={onToggleCompare}
+              priority={i < 3}
+              eager={i < 8}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          {items.map((f, i) => (
+            <FlashlightCard
+              key={f.id}
+              flashlight={f}
+              isSelected={compareSet.has(f.id)}
+              onToggleCompare={onToggleCompare}
+              priority={i < 4}
+              eager={i < 12}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Infinite scroll sentinel */}
       <div ref={sentinelRef} className="mt-8 flex justify-center h-8">

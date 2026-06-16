@@ -19,6 +19,7 @@ import {
 } from '@/lib/browse'
 import FilterPanel from './FilterPanel'
 import BrowseHeader from './browse/BrowseHeader'
+import ViewToggle, { type BrowseView } from './browse/ViewToggle'
 import BrowseGrid from './browse/BrowseGrid'
 import CompareBar from './browse/CompareBar'
 
@@ -44,6 +45,13 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
+  // Grid vs list view. Default 'grid'; read the saved choice after mount (SSR-safe,
+  // same pattern as compareIds) so server + first client render match.
+  const [view, setView] = useState<BrowseView>('grid')
+  const changeView = useCallback((v: BrowseView) => {
+    setView(v)
+    try { localStorage.setItem('browseView', v) } catch {}
+  }, [])
   const [availableBrands, setAvailableBrands] = useState<string[]>(initialMeta?.brands ?? [])
   const [availableEmitters, setAvailableEmitters] = useState<string[]>(initialMeta?.emitters ?? [])
   const [brandsMeta, setBrandsMeta] = useState<BrandMeta[]>(initialMeta?.brandsMeta ?? [])
@@ -92,6 +100,14 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
       // localStorage is client-only, so this read must happen in an effect (SSR-safe).
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (stored) setCompareIds(JSON.parse(stored))
+    } catch {}
+  }, [])
+
+  // Load saved grid/list view (after mount → no hydration mismatch)
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (localStorage.getItem('browseView') === 'list') setView('list')
     } catch {}
   }, [])
 
@@ -244,6 +260,7 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
                 </>
               )}
             </span>
+            <ViewToggle view={view} onChange={changeView} />
             <button
               onClick={() => setFilterOpen(true)}
               className="flex items-center gap-2 text-sm border border-line-strong rounded-lg px-3 py-1.5 bg-panel"
@@ -262,6 +279,8 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
             loadingMore={loadingMore}
             sentinelRef={sentinelRef}
             siteStats={siteStats ?? undefined}
+            view={view}
+            onViewChange={changeView}
           />
         </main>
       </div>
