@@ -91,4 +91,4 @@ write:  client → /api/* (validate → verify-admin → service-role Supabase) 
 - `emitters` (text[]) is canonical; numerics in `font-mono` (JetBrains Mono).
 - `tsc --noEmit` + `npm run build` must pass before commit (hook enforces). Deploy = push to
   `main` (Vercel auto-build; fallback `npx vercel --prod --yes`), then verify on prod.
-- Every push also updates `app/updates/page.tsx` (the public changelog).
+- Every push also updates the changelog in `app/log/updates-data.ts` (the `/log` page).
