@@ -42,3 +42,10 @@ next-env.d.ts
 
 # nextorch scraper scratch (raw Shopify dump + logs)
 scripts/.nextorch-raw/
+
+# Flashlight scraper scripts + their data are kept privately in the workspace repo
+# (04_Codebase/scrapers/), symlinked into scripts/ so they still run locally. They
+# must never be published to this public repo. Run with: node --preserve-symlinks scripts/<name>.mjs
+scripts/seed-*.mjs
+scripts/add-coolfall-trek.mjs
+scripts/*-data.json

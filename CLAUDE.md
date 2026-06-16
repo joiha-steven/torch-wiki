@@ -329,13 +329,19 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | Script | Purpose |
 |---|---|
 | `scripts/migrate-to-vercel-blob.mjs` | Download images from any URL → upload to Vercel Blob → update DB |
-| `scripts/seed-ledlenser.mjs` | Scrape LED Lenser Shopify API → insert |
-| `scripts/seed-acebeam-edc.mjs` · `seed-acebeam-tactical.mjs` · `seed-acebeam-more.mjs` | Acebeam EDC / tactical / headlamp+high-power+LEP+diving seeds |
-| `scripts/seed-prometheus.mjs` · `scripts/seed-foursevens.mjs` | Prometheus (6) / Foursevens (7) seeds — combined pattern: re-host product images from darksucks.com (Shopify `/products/<handle>.json`) onto Vercel Blob in the same run |
-| `scripts/seed-nextorch.mjs` (+ `scripts/nextorch-data.json`) | Nextorch (72) seed — scraped from Shopify `collections/<h>/products.json`, normalized into a committed `nextorch-data.json`, then images re-hosted to Blob in the same upsert. NEXDOT kept under the Nextorch brand (model prefixed). Scratch dump under `scripts/.nextorch-raw/` is gitignored. |
 | `scripts/normalize-emitters.mjs` | Normalize emitter names DB-wide (see emitter naming convention above) |
 
-**Seeding convention:** Always set `image_url` in the **same upsert** as the row data, then migrate the blob in the same script (see `seed-acebeam-tactical.mjs` / `seed-acebeam-more.mjs` for the combined pattern). Do NOT insert rows first and add images in a second pass — detail pages are SSG with `revalidate = false`, so a page rendered during the null-image window freezes with "No image" (the browse grid still shows it because it fetches client-side). After any direct DB seed/edit, force-clear cache: `curl -X POST https://torch.edc.wiki/api/revalidate -H 'Content-Type: application/json' -H "x-revalidate-secret: $REVALIDATE_SECRET" -d '{"force":true}'`. (The route now requires either this secret header or an admin/mod bearer token — see Security below. The admin "Force clear cache" button uses the session token automatically.)
+**⚠ Brand scraper / seed scripts are PRIVATE — not in this public repo.** All
+`seed-*.mjs` (LED Lenser, Acebeam, Prometheus, Foursevens, Nextorch, Lumintop,
+Olight, …), `add-coolfall-trek.mjs`, and their `*-data.json` live in the workspace
+repo at **`edc.wiki/04_Codebase/scrapers/`** (private), symlinked into `scripts/`
+and gitignored here (`scripts/seed-*.mjs`, `scripts/*-data.json`). **New flashlight
+scrapers go there too, never committed to this repo** (owner rule, 2026-06-17). They
+still run normally from the repo root — `node scripts/<name>.mjs` — because a
+`node_modules` symlink in the scrapers dir resolves the deps and `.env.local` loads
+from the cwd. See `04_Codebase/scrapers/README.md`.
+
+**Seeding convention:** Always set `image_url` in the **same upsert** as the row data, then migrate the blob in the same script (see the Acebeam tactical/more scrapers for the combined pattern). Do NOT insert rows first and add images in a second pass — detail pages are SSG with `revalidate = false`, so a page rendered during the null-image window freezes with "No image" (the browse grid still shows it because it fetches client-side). After any direct DB seed/edit, force-clear cache: `curl -X POST https://torch.edc.wiki/api/revalidate -H 'Content-Type: application/json' -H "x-revalidate-secret: $REVALIDATE_SECRET" -d '{"force":true}'`. (The route now requires either this secret header or an admin/mod bearer token — see Security below. The admin "Force clear cache" button uses the session token automatically.)
 
 ## Key Components & Pages
 
@@ -376,7 +382,6 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/robots.ts` | robots.txt — explicit allow for AI bots (GPTBot, ClaudeBot…), disallow `/admin /api/ /my /account /reset-password /change-password` |
 | `components/FlashlightCardSkeleton.tsx` | Shimmer skeleton card shown while browse page loads |
 | `components/PageFade.tsx` | Wraps page content with fade-in animation on navigation |
-| `scripts/seed-ledlenser.mjs` | Scrapes ledlenserusa.com Shopify API → inserts flashlights/headlamps/area lights |
 | `app/my/page.tsx` | My Lists — wishlist + collection |
 | `app/account/page.tsx` | My Account — profile (email change, nickname), security (password, 2FA) |
 | `app/contribute/page.tsx` | Contribute — add/edit flashlights, submission history |
