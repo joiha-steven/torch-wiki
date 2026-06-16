@@ -77,6 +77,7 @@ export default async function UserProfilePage({ params }: Props) {
         .from('flashlights')
         .select('id, brand, model, slug, image_url')
         .in('id', editTargetIds)
+        .is('deleted_at', null)
     : { data: [] }
 
   const flashlightById = Object.fromEntries(
@@ -94,6 +95,7 @@ export default async function UserProfilePage({ params }: Props) {
         .from('flashlights')
         .select('slug, image_url')
         .in('slug', newSlugs)
+        .is('deleted_at', null)
     : { data: [] }
 
   const imageBySlug = Object.fromEntries(

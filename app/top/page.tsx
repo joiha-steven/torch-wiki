@@ -34,23 +34,27 @@ async function fetchLists(): Promise<TopList[]> {
     supabase
       .from('flashlights')
       .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(10),
     supabase
       .from('flashlights')
       .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .is('deleted_at', null)
       .not('year', 'is', null)
       .order('year', { ascending: false })
       .limit(10),
     supabase
       .from('flashlights')
       .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .is('deleted_at', null)
       .not('price_usd', 'is', null)
       .order('price_usd', { ascending: false })
       .limit(10),
     supabase
       .from('flashlights')
       .select('id,brand,model,slug,price_usd,max_lumens,year,image_url,created_at')
+      .is('deleted_at', null)
       .not('price_usd', 'is', null)
       .gt('price_usd', 0)
       .order('price_usd', { ascending: true })

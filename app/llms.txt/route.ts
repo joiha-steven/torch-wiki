@@ -7,7 +7,7 @@ export const revalidate = 3600
 
 export async function GET() {
   const [{ count }, { data: brandRows }] = await Promise.all([
-    supabase.from('flashlights').select('*', { count: 'exact', head: true }),
+    supabase.from('flashlights').select('*', { count: 'exact', head: true }).is('deleted_at', null),
     supabase.rpc('get_distinct_brands'),
   ])
 

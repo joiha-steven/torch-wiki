@@ -50,7 +50,7 @@ export function buildQuery(
   // `items.length < totalCount`, and a low planner estimate (`estimated`/`planned`,
   // common right after a bulk insert before ANALYZE) made the grid stop loading
   // early even when more results existed.
-  let q = supabase.from('flashlights').select(BROWSE_COLS, { count: 'exact' })
+  let q = supabase.from('flashlights').select(BROWSE_COLS, { count: 'exact' }).is('deleted_at', null)
 
   if (filters.brands.length > 0) q = q.in('brand', filters.brands)
   if (madeInBrands !== null) q = q.in('brand', madeInBrands)
@@ -105,6 +105,7 @@ export async function fetchFacetRows(): Promise<FacetRow[]> {
   const { data } = await supabase
     .from('flashlights')
     .select('brand,category,battery_types,emitters,max_lumens,price_usd,charging_type')
+    .is('deleted_at', null)
   return (data ?? []) as FacetRow[]
 }
 
@@ -123,7 +124,7 @@ export async function fetchBrowseMeta(): Promise<BrowseMeta> {
     supabase.rpc('get_distinct_brands'),
     supabase.rpc('get_distinct_emitters'),
     supabase.from('brands').select('name, made_in'),
-    supabase.from('flashlights').select('id', { count: 'exact', head: true }),
+    supabase.from('flashlights').select('id', { count: 'exact', head: true }).is('deleted_at', null),
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
   ])
   const brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]

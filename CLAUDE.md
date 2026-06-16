@@ -32,6 +32,7 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
 TURNSTILE_SECRET_KEY=...
 NEXT_PUBLIC_ADMIN_EMAIL=...
 REVALIDATE_SECRET=...   # shared secret for /api/revalidate from scripts/curl (any long random string)
+CRON_SECRET=...         # required for the daily trash auto-purge cron (/api/cron/purge-trash). Set this in Vercel → Vercel sends it as `Authorization: Bearer <CRON_SECRET>`; without it that route returns 503 (the admin Trash view still purges expired items opportunistically).
 ```
 
 **After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
@@ -92,6 +93,7 @@ Key tables:
 - `flashlights` — main product table. RLS disabled (public read). Key columns:
   - specs: `max_lumens`, `min_lumens`, `beam_distance_m`, `beam_type`, `emitter` (legacy text), `emitters` (text[]), `battery_type` (legacy text), `battery_count` (legacy int), `battery_types` (text[]), `battery_options` (jsonb `[{type,count}]`), `charging_type`, `has_usb_charging`, `length_mm`, `head_diameter_mm`, `body_diameter_mm`, `weight_g`, `material`, `ip_rating`, `impact_resistance_m`, `category`, `price_usd`, `year`
   - content: `image_url` (Vercel Blob URL), `slug`, `notes`, `manual_url` (legacy), `manual_urls` (text[]), `description`, `is_discontinued`
+  - soft delete: `deleted_at` (timestamptz, null = live). Set = **in Trash / unpublished** — hidden from EVERY public read (browse, detail SSG + `generateStaticParams`, brand pages, top, compare, sitemap, llms.txt, contribute search, `/u`, and the `get_distinct_brands/emitters` RPCs all filter `.is('deleted_at', null)`). Purged permanently (DB rows + Blob assets) 30 days later. Migration: `alter table flashlights add column if not exists deleted_at timestamptz; create index if not exists idx_flashlights_deleted_at on flashlights(deleted_at);`. **When adding a new public flashlights query, remember to add `.is('deleted_at', null)`.**
   - ordering: `sort_seed` (double precision, default `random()`) — backs the **Random** browse sort (the default). Reshuffled nightly by a pg_cron job `reshuffle-flashlights` (`0 17 * * *` UTC = midnight Vietnam) so the order rotates daily. Browse orders by `sort_seed` then `id` (tie-break).
   - attribution: `updated_by` (uuid → auth.users) = the admin/mod who approved; `submitted_by` (uuid → profiles) = the original contributor. Both set on approval in `/api/admin/submissions`.
 - `flashlight_images` — extra images per flashlight (`url`, `sort_order`)
@@ -380,6 +382,9 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/compare/page.tsx` | Side-by-side spec comparison (up to 4) |
 | `app/log/page.tsx` + `log/updates-data.ts` | The **Log** page (was `/updates`; `/updates` now 308-redirects here via `next.config.ts`). Leads with a plain-language feature list, a "Built with" stack summary, and a version chip linking to the deployed commit on GitHub (`process.env.VERCEL_GIT_COMMIT_SHA`). Below that, the static changelog: the `UPDATES` array in `app/log/updates-data.ts` (page just renders it). **One entry per calendar day** - add items to today's entry rather than creating a second one for the same date; adjust the day's umbrella `title` if needed. Newest day first. |
 | `app/guide/page.tsx` | Static **Guide**: how to use the site, the visitor/member/moderator permission hierarchy, community rules + ban policy, install-as-app, privacy, and license. Prose kept in JS string arrays (rendered via `{}`) to avoid `react/no-unescaped-entities`. |
+| `app/api/admin/trash/route.ts` + `lib/trash.ts` | **Delete/Trash** (admin-only). POST `{id, action: trash\|restore\|purge}`; GET lists trashed lights and opportunistically purges expired ones. `lib/trash.ts`: `purgeFlashlight()` (deletes Blob assets — primary/extra images + manuals — then DB rows), `purgeExpiredTrash()` (everything past `TRASH_RETENTION_DAYS`=30). |
+| `app/api/cron/purge-trash/route.ts` | Daily Vercel Cron (`vercel.json`, 08:30 UTC) → `purgeExpiredTrash()`. Requires `CRON_SECRET` (503 if unset). |
+| `components/admin/DeletePanel.tsx` · `TrashPanel.tsx` | Admin "Delete" subtab (search → preview → confirm → move to Trash) and "Trash" subtab (list with days-left, Restore / Delete-permanently). Both gated to `isAdmin` in `AdminDashboard` (mods can edit but not delete). |
 | `app/data-log/page.tsx` | **Database updates** — public, `force-dynamic` audit feed of every community data change (flashlight/brand add/edit), via the `data_change_log` RPCs. Each line: GMT+7 timestamp + "{nickname} added/edited {Brand Model}" (links to the light) or "{nickname} created/updated brand {Brand}". 500/page, `?page=`. |
 | `components/InfoMenu.tsx` | "Information" nav dropdown (Log + Database updates + Guide), styled like `UserMenu`. Sub-links live in `INFO_NAV` (`lib/nav.ts`); `NAV` holds the flat top-level links. Both `Header` and `browse/BrowseHeader` render `{NAV.map} + <InfoMenu/>` (desktop) and flatten `INFO_NAV` under an "Information" label (mobile). |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |

@@ -31,12 +31,13 @@ const getFlashlight = cache(async (slug: string) => {
     .from('flashlights')
     .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,beam_type,emitters,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
     .eq('slug', slug)
+    .is('deleted_at', null)
     .single()
   return data
 })
 
 export async function generateStaticParams() {
-  const { data } = await supabase.from('flashlights').select('slug')
+  const { data } = await supabase.from('flashlights').select('slug').is('deleted_at', null)
   return (data ?? []).map(f => ({ slug: f.slug }))
 }
 

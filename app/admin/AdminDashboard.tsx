@@ -5,13 +5,15 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
 import { FlashlightSubmission } from '@/lib/types'
 import Header from '@/components/Header'
-import { Check, X, Clock, Loader2, Bug, Layers, Settings, Users, Tag } from 'lucide-react'
+import { Check, X, Clock, Loader2, Bug, Layers, Settings, Users, Tag, Trash2, Archive } from 'lucide-react'
 import { authHeader, SubmissionTab, Section } from '@/components/admin/shared'
 import SubmissionCard from '@/components/admin/SubmissionCard'
 import ReportsPanel from '@/components/admin/ReportsPanel'
 import UsersPanel from '@/components/admin/UsersPanel'
 import SettingsPanel from '@/components/admin/SettingsPanel'
 import BrandsPanel from '@/components/admin/BrandsPanel'
+import DeletePanel from '@/components/admin/DeletePanel'
+import TrashPanel from '@/components/admin/TrashPanel'
 import { useHashTab } from '@/lib/use-hash-tab'
 
 const SECTIONS = ['submissions', 'brands', 'reports', 'users', 'settings'] as const
@@ -51,13 +53,20 @@ export default function AdminDashboard() {
   }, [subTab])
 
   // loadSubs() flips the loading spinner on; standard data-fetch-on-mount pattern.
+  // Only the status tabs hit the submissions API; delete/trash render their own panels.
+  const isListTab = subTab === 'pending' || subTab === 'approved' || subTab === 'rejected'
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { if (section === 'submissions') loadSubs() }, [section, loadSubs])
+  useEffect(() => { if (section === 'submissions' && isListTab) loadSubs() }, [section, isListTab, loadSubs])
 
   const SUB_TABS: { key: SubmissionTab; label: string; icon: React.ReactNode }[] = [
     { key: 'pending',  label: 'Pending',  icon: <Clock size={14} /> },
     { key: 'approved', label: 'Approved', icon: <Check size={14} /> },
     { key: 'rejected', label: 'Rejected', icon: <X size={14} /> },
+    // Deleting flashlights is destructive → admin only.
+    ...(isAdmin ? [
+      { key: 'delete' as const, label: 'Delete', icon: <Trash2 size={14} /> },
+      { key: 'trash'  as const, label: 'Trash',  icon: <Archive size={14} /> },
+    ] : []),
   ]
 
   return (
@@ -136,7 +145,11 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {loading ? (
+            {subTab === 'delete' ? (
+              <DeletePanel />
+            ) : subTab === 'trash' ? (
+              <TrashPanel />
+            ) : loading ? (
               <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
             ) : submissions.length === 0 ? (
               <p className="text-ink-3 text-sm py-16 text-center">No {subTab} submissions.</p>

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-export type SubmissionTab = 'pending' | 'approved' | 'rejected'
+export type SubmissionTab = 'pending' | 'approved' | 'rejected' | 'delete' | 'trash'
 export type ReportStatus  = 'new' | 'read' | 'resolved'
 export type Section = 'submissions' | 'brands' | 'reports' | 'users' | 'settings'
 

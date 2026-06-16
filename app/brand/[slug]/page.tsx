@@ -34,6 +34,7 @@ const resolveBrand = cache(async (slug: string) => {
       // group the list). Was `select('*')` (full rows incl. description/notes).
       .select(`${BROWSE_COLS},year`)
       .eq('brand', name)
+      .is('deleted_at', null)
       .order('year', { ascending: false, nullsFirst: false })
       .order('model', { ascending: true }),
   ])

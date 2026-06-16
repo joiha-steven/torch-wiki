@@ -42,7 +42,7 @@ export default function ComparePage() {
       let ids: string[]
       try { ids = JSON.parse(stored) } catch { setLoading(false); return }
       if (ids.length === 0) { setLoading(false); return }
-      const { data } = await supabase.from('flashlights').select('*').in('id', ids)
+      const { data } = await supabase.from('flashlights').select('*').in('id', ids).is('deleted_at', null)
       setFlashlights(data ?? [])
       setLoading(false)
     }

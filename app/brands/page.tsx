@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default async function BrandsPage() {
   const [{ data: rows }, { data: meta }] = await Promise.all([
-    supabase.from('flashlights').select('brand'),
+    supabase.from('flashlights').select('brand').is('deleted_at', null),
     // Index only shows name + country + founded year - skip the markdown `about`
     // bio and other columns that would otherwise bloat the static HTML.
     supabase.from('brands').select('name, country, founded_year'),

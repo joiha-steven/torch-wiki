@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data } = await supabase
     .from('flashlights')
     .select('slug, updated_at')
+    .is('deleted_at', null)
     .order('updated_at', { ascending: false })
 
   const flashlightUrls: MetadataRoute.Sitemap = (data ?? []).map(f => ({

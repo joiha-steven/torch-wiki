@@ -35,6 +35,7 @@ function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
         .from('flashlights')
         .select('id, brand, model, slug, image_url, category, max_lumens')
         .or(`model.ilike.%${q}%,brand.ilike.%${q}%`)
+        .is('deleted_at', null)
         .order('brand')
         .limit(20)
       setResults((data ?? []) as Flashlight[])
