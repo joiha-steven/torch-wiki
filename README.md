@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="public/icon-512.png" alt="torch.EDC.wiki logo" width="96" height="96">
-</p>
+<img src="public/logo-rounded.png" alt="torch.EDC.wiki logo" width="88" height="88">
 
 # Torch EDC.wiki
 
