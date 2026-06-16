@@ -26,6 +26,15 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 16, 2026',
+    title: 'Lumintop LED catalog added',
+    items: [
+      'Added Lumintop\'s full LED flashlight range — 133 more models across EDC, high-power, camping/area and headlamp lights, from the tiny Tool AA and EDC pocket lights to the big Mach and Tiger high-power throwers',
+      'Together with the LEP lasers from earlier, Lumintop now has nearly 150 lights in the database',
+      'As always for a wiki, discontinued and out-of-stock models are kept; colour and metal variants are merged into one entry with the materials noted',
+    ],
+  },
+  {
+    date: 'June 16, 2026',
     title: 'Small fix',
     items: [
       'The “Discontinued” tag on browse cards now spells out the full word instead of a clipped “Disc.”',
