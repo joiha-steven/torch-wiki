@@ -214,6 +214,8 @@ $$;
 
 **`admin_mfa_user_ids()`** (migration `admin_mfa_user_ids_rpc`) — returns the user ids with a verified MFA factor, read from `auth.mfa_factors`. `SECURITY DEFINER`, **execute granted to `service_role` only** (anon/authenticated revoked). The admin Users panel uses it because `auth.admin.listUsers()` does **not** reliably populate per-user `factors` (it was always showing "No 2FA"). The route also derives a `verified` flag from `email_confirmed_at` to badge unactivated accounts.
 
+**`flashlight_change_log(p_slug)` + `brand_change_log(p_brand)`** (migration `per_entity_change_log_rpcs`) — power the public **"Change history"** section on each flashlight detail page and each brand page (`components/ChangeLog.tsx`, newest-first, collapses past 5 with "See more"). Same source/`SECURITY DEFINER`/anon-grant pattern as `data_change_log`: approved `flashlight_submissions` (+ `brand_submissions` for the brand version) resolved to who/when. `flashlight_change_log` returns that one light's create/edit events; `brand_change_log` returns the brand's create/edit events **plus** every flashlight create/edit under that brand (each row carries `model`/`slug` to link). System-seeded rows have no submission, so the pages append a synthetic "added · system · created_at" base entry.
+
 **`data_change_log(p_limit, p_offset)` + `data_change_log_count()`** (migration `data_change_log_rpc`) — power the **`/data-log` (Database updates)** page. `SECURITY DEFINER` (so they can read RLS-protected `flashlight_submissions` / `brand_submissions` and expose only safe public fields), `GRANT EXECUTE TO anon`. They UNION approved flashlight submissions (`new`→`added`, `edit`→`edited`; slug resolved via `target_id`, else by brand+model, else `data->>'slug'`) and approved brand submissions (first-for-that-brand → `created brand`, else `updated brand`), join `profiles` for the nickname, newest first. System-seeded flashlights have no submission row so they are naturally excluded. Page size 500, paginated with `?page=`.
 
 ## Auth Flow
@@ -442,7 +444,7 @@ Sections in order:
 4. Specifications — flat table, hairline row borders, `font-mono` values, no zebra
 5. Reviews — hairline-separated list
 6. User Manual — hairline-separated PDF links
-7. Attribution timeline — newest event on top, bullet "–" prefix, links to `/u/[nickname]`
+7. Change history — full public create/edit record via `flashlight_change_log` RPC (`components/ChangeLog.tsx`): newest first, bullet "–" prefix, links to `/u/[nickname]`, collapses past 5 with "See more". Falls back to a synthetic "added · system" entry for seeded lights. (Replaced the old derived "Added by / Updated by" timeline.)
 
 **Attribution logic:**
 - `updated_by != null && updated_at == created_at` → "Added by [user]" (user submitted new flashlight)
@@ -461,11 +463,7 @@ Sections in order:
 
 **Charging:** Any / USB / Magnetic / None
 
-**Lumens buckets** (range min–max on `max_lumens`; sentinel max 50000): `<100`, `100–300`, `300–600`, `600–1000`, `1K–2K`, `2K–5K`, `5K–10K`, `>10K`, Any. Single-select; a bucket sets `minLumens`+`maxLumens` (query: `gte`/`lte` on `max_lumens`).
-
-**Price buckets** (range min–max on `price_usd`; sentinel max 99999): `<$50`, `$50–100`, `$100–200`, `$200–300`, `$300–500`, `$500+`, `$1K+`, `$2K+`, `$3K+`, Any. Single-select; sets `minPrice`+`maxPrice`. The `+` buckets have no upper bound (max = sentinel).
-
-(Both rendered by the shared `RangeButtons` group in `components/FilterPanel.tsx`; buckets are defined in `LUMEN_BUCKETS` / `PRICE_BUCKETS` there.)
+**Lumens & Price** are **dual-thumb drag sliders** (`RangeSlider` in `components/FilterPanel.tsx`), not buckets. Lumens slider runs 0–50000 (`max_lumens`); Price slider runs 0–3000 in display units (`PRICE_CEIL`). The **max thumb at the end = "no upper bound"**: lumens hi 50000 = `LUMEN_MAX` sentinel; price hi 3000 maps to `PRICE_MAX` (99999) sentinel. `buildQuery` applies `gte` when min>0 and `lte` only when max < sentinel (so the top thumb drops the upper bound — covers the few lights above 50000 lm / 3000 USD). Thumb CSS = `.dual-range` in `globals.css`.
 
 **Sort by** (`SORT_OPTIONS` in `FilterPanel.tsx`): **Random** (default), Model A–Z, Lumens (High–Low / Low–High), Price (Low–High / High–Low), Beam Distance (Far–Near), Weight (Light–Heavy). Random orders by `flashlights.sort_seed` (+ `id` tie-break) and reshuffles nightly via pg_cron — see the schema note.
 

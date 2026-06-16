@@ -11,6 +11,7 @@ import type { Flashlight, Brand } from '@/lib/types'
 import Header from '@/components/Header'
 import MarkdownContent from '@/components/MarkdownContent'
 import BrandEditButton from '@/components/BrandEditButton'
+import ChangeLog, { type ChangeEvent } from '@/components/ChangeLog'
 import BrandFlashlights from './BrandFlashlights'
 
 // Pre-render brand pages at build; cleared on-demand like flashlight pages.
@@ -83,15 +84,25 @@ export default async function BrandPage({ params }: Props) {
 
   // Attribution - same logic as flashlight pages: updated_by set + timestamps
   // equal → added by that user; differ → also edited by them; null → system.
-  const addedByUser  = !!info?.updated_by && info?.updated_at === info?.created_at
-  const editedByUser = !!info?.updated_by && info?.updated_at !== info?.created_at
+  const addedByUser = !!info?.updated_by && info?.updated_at === info?.created_at
   let updatedByNickname: string | null = null
   if (info?.updated_by) {
     const { data: profile } = await supabase.from('profiles').select('nickname').eq('id', info.updated_by).single()
     updatedByNickname = profile?.nickname ?? null
   }
-  const fmtDate = (iso?: string | null) =>
-    iso ? new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null
+
+  // Full public change history: brand create/edit + every flashlight create/edit
+  // under this brand. Newest first, with a base "brand added" entry when the brand
+  // was seeded (no submission row).
+  const { data: clRows } = await supabase.rpc('brand_change_log', { p_brand: name })
+  const changeEvents = (clRows ?? []) as ChangeEvent[]
+  if (info?.created_at && !changeEvents.some(e => e.kind === 'brand_create')) {
+    changeEvents.push({
+      ts: info.created_at,
+      nickname: addedByUser ? updatedByNickname : null,
+      kind: 'brand_create',
+    })
+  }
 
   // Structured data: Brand entity + breadcrumb trail
   const jsonLd = {
@@ -176,31 +187,11 @@ export default async function BrandPage({ params }: Props) {
           )}
         </div>
 
-        {/* Attribution timeline */}
-        {(info?.created_at || info?.updated_by) && (
-          <div className="mt-8 pt-4 border-t border-line space-y-1 text-xs text-ink-3">
-            {editedByUser && (
-              <div className="flex items-center gap-2">
-                <span className="text-slate-300">–</span>
-                <span>
-                  Updated by{' '}
-                  {updatedByNickname
-                    ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
-                    : 'user'}
-                  {info?.updated_at ? `${' · '}${fmtDate(info.updated_at)}` : ''}
-                </span>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <span className="text-slate-300">–</span>
-              <span>
-                Added by{' '}
-                {addedByUser && updatedByNickname
-                  ? <Link href={`/u/${updatedByNickname}`} className="text-ink-3 font-medium hover:text-ink-2">{updatedByNickname}</Link>
-                  : 'system'}
-                {info?.created_at ? `${' · '}${fmtDate(info.created_at)}` : ''}
-              </span>
-            </div>
+        {/* Change history - full public record of brand + flashlight changes */}
+        {changeEvents.length > 0 && (
+          <div className="mt-8 pt-4 border-t border-line">
+            <p className="text-[12px] font-semibold text-ink-2 mb-2">Change history</p>
+            <ChangeLog events={changeEvents} context="brand" />
           </div>
         )}
       </div>

@@ -14,6 +14,7 @@ import ManualSection from '@/components/ManualSection'
 import MarkdownContent from '@/components/MarkdownContent'
 import SuggestEditButton from '@/components/SuggestEditButton'
 import SuggestDeleteButton from '@/components/SuggestDeleteButton'
+import ChangeLog, { type ChangeEvent } from '@/components/ChangeLog'
 import Header from '@/components/Header'
 
 // Pre-render all flashlight pages at build time
@@ -101,20 +102,26 @@ export default async function FlashlightPage({ params }: Props) {
   // updated_by set + updated_at == created_at → user submitted this as new
   // updated_by set + updated_at != created_at → user edited an existing one
   const addedByUser = !!flashlight.updated_by && flashlight.updated_at === flashlight.created_at
-  const editedByUser = !!flashlight.updated_by && flashlight.updated_at !== flashlight.created_at
 
   let updatedByNickname: string | null = null
-  let updatedByStaff = false // admin/mod contributor → highlight the nickname in brand amber
   if (flashlight.updated_by) {
     const { data: profile } = await supabase
-      .from('profiles').select('nickname, is_admin, is_moderator').eq('id', flashlight.updated_by).single()
+      .from('profiles').select('nickname').eq('id', flashlight.updated_by).single()
     updatedByNickname = profile?.nickname ?? null
-    updatedByStaff = !!(profile?.is_admin || profile?.is_moderator)
   }
-  // Staff contributors get the amber (brand) link; regular users stay neutral grey.
-  const contributorClass = updatedByStaff
-    ? 'text-brand-600 font-semibold hover:text-brand-500'
-    : 'text-ink-3 font-medium hover:text-ink-2'
+
+  // Full public change history (every approved create/edit for this flashlight).
+  const { data: clRows } = await supabase.rpc('flashlight_change_log', { p_slug: slug })
+  const changeEvents = (clRows ?? []) as ChangeEvent[]
+  // System-seeded lights have no submission row → add a base "Added" entry so the
+  // history always shows where the record came from.
+  if (!changeEvents.some(e => e.kind === 'flashlight_create')) {
+    changeEvents.push({
+      ts: flashlight.created_at,
+      nickname: addedByUser ? updatedByNickname : null,
+      kind: 'flashlight_create',
+    })
+  }
 
   const specs = [
     { label: 'Brand', value: flashlight.brand },
@@ -297,32 +304,10 @@ export default async function FlashlightPage({ params }: Props) {
           </div>
         )}
 
-        {/* Timeline */}
-        <div className="mt-8 pt-4 border-t border-line space-y-1 text-xs text-ink-3">
-          {editedByUser && (
-            <div className="flex items-center gap-2">
-              <span className="text-slate-300">–</span>
-              <span>
-                Updated by{' '}
-                {updatedByNickname
-                  ? <Link href={`/u/${updatedByNickname}`} className={contributorClass}>{updatedByNickname}</Link>
-                  : 'user'
-                }
-                {' · '}{new Date(flashlight.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </span>
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            <span className="text-slate-300">–</span>
-            <span>
-              Added by{' '}
-              {addedByUser && updatedByNickname
-                ? <Link href={`/u/${updatedByNickname}`} className={contributorClass}>{updatedByNickname}</Link>
-                : 'system'
-              }
-              {' · '}{new Date(flashlight.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </span>
-          </div>
+        {/* Change history - full public record of every create/edit */}
+        <div className="mt-8 pt-4 border-t border-line">
+          <p className="text-[12px] font-semibold text-ink-2 mb-2">Change history</p>
+          <ChangeLog events={changeEvents} context="flashlight" />
         </div>
 
       </div>

@@ -14,30 +14,12 @@ const SORT_OPTIONS = [
   { value: 'weight_asc',  label: 'Weight (Light–Heavy)' },
 ]
 
-// Single-select range buckets. Sentinels for "no upper bound": lumens 50000, price 99999.
+// Sentinels for "no upper bound": lumens 50000, price 99999 (buildQuery drops the
+// lte when the max sits at the sentinel). The price slider uses a soft display
+// cap of 3000 - the top thumb means "$3000+" and maps to the no-bound sentinel.
 const LUMEN_MAX = 50000
 const PRICE_MAX = 99999
-const LUMEN_BUCKETS = [
-  { label: '<100',     min: 0,     max: 100 },
-  { label: '100–300',  min: 100,   max: 300 },
-  { label: '300–600',  min: 300,   max: 600 },
-  { label: '600–1000', min: 600,   max: 1000 },
-  { label: '1K–2K',    min: 1000,  max: 2000 },
-  { label: '2K–5K',    min: 2000,  max: 5000 },
-  { label: '5K–10K',   min: 5000,  max: 10000 },
-  { label: '>10K',     min: 10000, max: LUMEN_MAX },
-]
-const PRICE_BUCKETS = [
-  { label: '<$50',     min: 0,    max: 50 },
-  { label: '$50–100',  min: 50,   max: 100 },
-  { label: '$100–200', min: 100,  max: 200 },
-  { label: '$200–300', min: 200,  max: 300 },
-  { label: '$300–500', min: 300,  max: 500 },
-  { label: '$500+',    min: 500,  max: PRICE_MAX },
-  { label: '$1K+',     min: 1000, max: PRICE_MAX },
-  { label: '$2K+',     min: 2000, max: PRICE_MAX },
-  { label: '$3K+',     min: 3000, max: PRICE_MAX },
-]
+const PRICE_CEIL = 3000
 
 const CHARGING_OPTIONS = [
   { value: null,        label: 'Any' },
@@ -72,33 +54,45 @@ function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: ()
   )
 }
 
-// Single-select range-bucket pill group. A bucket sets (min, max); re-clicking
-// the active bucket or "Any" resets to (0, resetMax).
-function RangeButtons({ buckets, min, max, resetMax, onSelect }: {
-  buckets: { label: string; min: number; max: number }[]
-  min: number
-  max: number
-  resetMax: number
-  onSelect: (min: number, max: number) => void
+// Dual-thumb range slider. Operates in display units [floor, ceil]; the parent
+// maps the ceil thumb to the no-bound sentinel. Two overlaid range inputs with a
+// highlighted segment between the thumbs.
+function RangeSlider({ floor, ceil, step, lo, hi, onChange, format }: {
+  floor: number
+  ceil: number
+  step: number
+  lo: number
+  hi: number
+  onChange: (lo: number, hi: number) => void
+  format: (v: number) => string
 }) {
-  const isActive = (b: { min: number; max: number }) => min === b.min && max === b.max
+  const pct = (v: number) => ((v - floor) / (ceil - floor)) * 100
+  const loP = pct(lo)
+  const hiP = pct(hi)
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {buckets.map(b => (
-        <button
-          key={b.label}
-          onClick={() => isActive(b) ? onSelect(0, resetMax) : onSelect(b.min, b.max)}
-          className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${isActive(b) ? 'on' : ''}`}
-        >
-          {b.label}
-        </button>
-      ))}
-      <button
-        onClick={() => onSelect(0, resetMax)}
-        className={`glass-pill text-[12px] px-[11px] py-[5px] rounded-full ${min === 0 && max === resetMax ? 'on' : ''}`}
-      >
-        Any
-      </button>
+    <div>
+      <div className="flex justify-between text-[12.5px] font-medium text-ink-2 mb-2.5">
+        <span>{format(lo)}</span>
+        <span>{format(hi)}</span>
+      </div>
+      <div className="dual-range relative h-4">
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[3px] rounded-full bg-line" />
+        <div className="absolute top-1/2 -translate-y-1/2 h-[3px] rounded-full bg-brand-500"
+          style={{ left: `${loP}%`, right: `${100 - hiP}%` }} />
+        {/* lo thumb - raise above the hi input near the top end so it stays grabbable */}
+        <input
+          type="range" min={floor} max={ceil} step={step} value={lo}
+          onChange={e => onChange(Math.min(Number(e.target.value), hi), hi)}
+          style={{ zIndex: loP > 75 ? 5 : 3 }}
+          aria-label="Minimum"
+        />
+        <input
+          type="range" min={floor} max={ceil} step={step} value={hi}
+          onChange={e => onChange(lo, Math.max(Number(e.target.value), lo))}
+          style={{ zIndex: 4 }}
+          aria-label="Maximum"
+        />
+      </div>
     </div>
   )
 }
@@ -186,28 +180,24 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Lumens */}
       <div>
-        <p className={sectionTitle}>
-          Lumens{(filters.minLumens > 0 || filters.maxLumens < LUMEN_MAX) && (
-            <span className="ml-1.5 text-brand-500 normal-case">
-              {LUMEN_BUCKETS.find(b => b.min === filters.minLumens && b.max === filters.maxLumens)?.label ?? ''}
-            </span>
-          )}
-        </p>
-        <RangeButtons buckets={LUMEN_BUCKETS} min={filters.minLumens} max={filters.maxLumens} resetMax={LUMEN_MAX}
-          onSelect={(min, max) => onChange({ ...filters, minLumens: min, maxLumens: max })} />
+        <p className={sectionTitle}>Lumens</p>
+        <RangeSlider
+          floor={0} ceil={LUMEN_MAX} step={100}
+          lo={filters.minLumens} hi={Math.min(filters.maxLumens, LUMEN_MAX)}
+          onChange={(lo, hi) => onChange({ ...filters, minLumens: lo, maxLumens: hi })}
+          format={v => `${v.toLocaleString()}${v >= LUMEN_MAX ? '+' : ''}`}
+        />
       </div>
 
       {/* Price Range */}
       <div>
-        <p className={sectionTitle}>
-          Price Range{(filters.minPrice > 0 || filters.maxPrice < PRICE_MAX) && (
-            <span className="ml-1.5 text-brand-500 normal-case">
-              {PRICE_BUCKETS.find(b => b.min === filters.minPrice && b.max === filters.maxPrice)?.label ?? ''}
-            </span>
-          )}
-        </p>
-        <RangeButtons buckets={PRICE_BUCKETS} min={filters.minPrice} max={filters.maxPrice} resetMax={PRICE_MAX}
-          onSelect={(min, max) => onChange({ ...filters, minPrice: min, maxPrice: max })} />
+        <p className={sectionTitle}>Price</p>
+        <RangeSlider
+          floor={0} ceil={PRICE_CEIL} step={25}
+          lo={filters.minPrice} hi={Math.min(filters.maxPrice, PRICE_CEIL)}
+          onChange={(lo, hi) => onChange({ ...filters, minPrice: lo, maxPrice: hi >= PRICE_CEIL ? PRICE_MAX : hi })}
+          format={v => `$${v.toLocaleString()}${v >= PRICE_CEIL ? '+' : ''}`}
+        />
       </div>
 
       {/* Category */}
