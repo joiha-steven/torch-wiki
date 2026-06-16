@@ -69,6 +69,23 @@ API routes validate input via the shared helpers in `lib/validate.ts` (`readJson
 ### Documentation
 13. New table/column → update **Database Schema** below. New env var → update **Environment Variables** above. New gotcha → `06_Wiki/gotchas.md` in the workspace repo.
 
+## Testing
+
+- Framework: **Vitest** (unit tests only, `environment: 'node'` — no DOM/React plugin installed by design).
+- Run: `npm test` (single run) · `npm run test:watch` (dev) · `npm run test:coverage`.
+- Scope: **pure functions in `lib/`** (validators, formatters, slug/url helpers). Component tests were deliberately skipped — UI components pull in the Supabase client + auth context and need heavy, brittle mocking for low return. To add them later: install `jsdom`, `@vitejs/plugin-react`, `@testing-library/react`, and flip `environment` to `jsdom` in `vitest.config.ts`.
+- **Every new pure function** in `lib/` should get unit tests; **every bug fix** in tested code should add a regression test.
+- Test files live in `tests/` mirroring source: `tests/lib/validate.test.ts` → `lib/validate.ts`. Import from the real module (`@/lib/...`), test edge cases not just the happy path.
+- Tests run on **every commit** (`.husky/pre-commit`: lint-staged → typecheck → `npm test --reporter=dot --bail=1`) and in the **pre-deploy gate**.
+
+## Pre-Deploy Quality Gate
+
+`npm run pre-deploy` (`scripts/pre-deploy.mjs`) runs all gates in sequence and exits 1 if any fail: **build · typecheck · unit tests · zero `any` types · every source file ≤400 lines**. Run it before any non-trivial push. (Smoke is NOT in this gate — it verifies the *deployed* site, so `npm run smoke` runs *after* deploy.)
+
+## Deployment Workflow
+
+Solo-owner project: default is **commit directly to `main` → push → Vercel auto-deploys → `npm run smoke`**. No PR/branch-protection ceremony (no second reviewer; would only add friction). Optional `feat/*` branches give a preview URL for risky/large changes, merged back with `git merge --ff-only`. Full process + **rollback procedures** (Vercel `npx vercel rollback`, `git revert`, DB rollback SQL) are in the workspace doc `06_Wiki/deployment-workflow.md`; the (disabled) branch-protection checklist is in `06_Wiki/branch-protection.md`.
+
 ## Database Schema (Supabase)
 
 Key tables:

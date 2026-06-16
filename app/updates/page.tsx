@@ -25,6 +25,14 @@ type UpdateEntry = {
 
 const UPDATES: UpdateEntry[] = [
   {
+    date: 'June 16, 2026',
+    title: 'Behind the scenes: automated testing',
+    items: [
+      'Added an automated test suite that checks the core building blocks of the site — battery formatting, link handling and the validation that guards every form — so these keep working as the site grows',
+      'Every change now passes a single safety gate before going live: build, type checks, tests and code-quality limits all in one step, with instant rollback ready if anything ever slips through',
+    ],
+  },
+  {
     date: 'June 14, 2026',
     title: 'Reliability & security hardening',
     items: [
