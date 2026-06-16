@@ -33,17 +33,17 @@ function FlashlightRow({ flashlight, isSelected, onToggleCompare, priority = fal
   ].filter(Boolean) as string[]
 
   return (
-    <div className={`glass-card rounded-[14px] p-3 flex items-center gap-3.5 sm:gap-4 ${isSelected ? 'is-selected' : ''}`}>
+    <div className={`glass-card rounded-[14px] px-3 py-2 flex items-center gap-3.5 sm:gap-4 ${isSelected ? 'is-selected' : ''}`}>
 
-      {/* Thumbnail */}
+      {/* Thumbnail - larger/wider, row kept thin via reduced vertical padding */}
       <HoverPrefetchLink href={`/${flashlight.slug}`} className="shrink-0">
-        <div className="relative w-[76px] h-[57px] sm:w-[92px] sm:h-[69px] rounded-[10px] overflow-hidden bg-plate">
+        <div className="relative w-[108px] h-[64px] sm:w-[140px] sm:h-[72px] rounded-[10px] overflow-hidden bg-plate">
           {flashlight.image_url ? (
             <Image
               src={flashlight.image_url}
               alt={`${flashlight.brand} ${flashlight.model}`}
               fill
-              sizes="92px"
+              sizes="140px"
               priority={priority}
               fetchPriority={priority ? 'high' : undefined}
               loading={priority ? undefined : eager ? 'eager' : 'lazy'}
