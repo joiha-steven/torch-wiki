@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import { Search, Loader2, Trash2, AlertTriangle } from 'lucide-react'
+import { Search, Loader2, Trash2, AlertTriangle, Check, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { authHeader } from './shared'
 
@@ -10,6 +10,13 @@ type Hit = {
   id: string; brand: string; model: string; slug: string
   image_url: string | null; category: string | null
   max_lumens: number | null; price_usd: number | null; year: number | null
+}
+
+type Suggestion = {
+  id: string; target_id: string | null
+  data: { brand?: string; model?: string; slug?: string } | null
+  created_at: string
+  nickname: string | null
 }
 
 export default function DeletePanel() {
@@ -20,7 +27,29 @@ export default function DeletePanel() {
   const [confirm, setConfirm]   = useState(false)
   const [busy, setBusy]         = useState(false)
   const [msg, setMsg]           = useState('')
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [suggActing, setSuggActing] = useState<string | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const loadSuggestions = useCallback(async () => {
+    const res = await fetch('/api/admin/trash', { headers: await authHeader() })
+    const d = res.ok ? await res.json() : { suggestions: [] }
+    setSuggestions((d.suggestions ?? []) as Suggestion[])
+  }, [])
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { loadSuggestions() }, [loadSuggestions])
+
+  async function actSuggestion(action: string, submissionId?: string) {
+    setSuggActing(submissionId ?? 'all')
+    const res = await fetch('/api/admin/trash', {
+      method: 'POST', headers: await authHeader(),
+      body: JSON.stringify(submissionId ? { action, submissionId } : { action }),
+    })
+    setSuggActing(null)
+    if (res.ok) { setMsg(action.startsWith('reject') ? 'Suggestion dismissed.' : 'Deleted.'); loadSuggestions(); setTimeout(() => setMsg(''), 4000) }
+    else { const d = await res.json().catch(() => ({})); setMsg(d.error ?? 'Action failed.') }
+  }
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current)
@@ -94,6 +123,40 @@ export default function DeletePanel() {
         ) : query.trim() ? (
           <p className="text-ink-3 text-sm py-8 text-center">No flashlights found.</p>
         ) : null
+      )}
+
+      {/* Delete suggestions from moderators */}
+      {!selected && suggestions.length > 0 && (
+        <div className="border border-line rounded-2xl p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-ink">Delete suggestions ({suggestions.length})</h3>
+            <button onClick={() => actSuggestion('approve_all_suggestions')} disabled={!!suggActing}
+              className="flex items-center gap-1.5 text-xs text-red-600 border border-red-200 rounded-lg px-2.5 py-1.5 hover:bg-red-50 disabled:opacity-50">
+              {suggActing === 'all' ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Approve all
+            </button>
+          </div>
+          {suggestions.map(s => (
+            <div key={s.id} className="flex items-center gap-3 px-1 py-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-ink truncate">
+                  <span className="text-ink-3">{s.data?.brand}</span> {s.data?.model}
+                </p>
+                <p className="text-[11px] text-ink-3">
+                  by {s.nickname ? `@${s.nickname}` : 'a member'} · {new Date(s.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <button onClick={() => actSuggestion('approve_suggestion', s.id)} disabled={!!suggActing}
+                title="Approve (move to Trash)"
+                className="flex items-center gap-1 text-xs text-white bg-red-600 hover:bg-red-700 rounded-lg px-2.5 py-1.5 disabled:opacity-50">
+                {suggActing === s.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />} Delete
+              </button>
+              <button onClick={() => actSuggestion('reject_suggestion', s.id)} disabled={!!suggActing}
+                title="Dismiss" className="p-2 text-ink-3 hover:text-ink-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg disabled:opacity-50">
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Preview + confirm */}

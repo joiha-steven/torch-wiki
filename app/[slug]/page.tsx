@@ -13,6 +13,7 @@ import WishlistButtons from './WishlistButtons'
 import ManualSection from '@/components/ManualSection'
 import MarkdownContent from '@/components/MarkdownContent'
 import SuggestEditButton from '@/components/SuggestEditButton'
+import SuggestDeleteButton from '@/components/SuggestDeleteButton'
 import Header from '@/components/Header'
 
 // Pre-render all flashlight pages at build time
@@ -227,8 +228,9 @@ export default async function FlashlightPage({ params }: Props) {
 
             <WishlistButtons flashlightId={flashlight.id} />
 
-            <div className="mt-4">
+            <div className="mt-4 flex items-center gap-4 flex-wrap">
               <SuggestEditButton flashlightId={flashlight.id} />
+              <SuggestDeleteButton flashlightId={flashlight.id} brand={flashlight.brand} model={flashlight.model} slug={flashlight.slug} />
             </div>
           </div>
         </div>

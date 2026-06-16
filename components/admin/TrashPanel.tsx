@@ -23,6 +23,7 @@ export default function TrashPanel() {
   const [loading, setLoading] = useState(true)
   const [acting, setActing] = useState<string | null>(null)
   const [confirmPurge, setConfirmPurge] = useState<TrashItem | null>(null)
+  const [confirmAll, setConfirmAll] = useState(false)
   const [msg, setMsg]       = useState('')
 
   const load = useCallback(async () => {
@@ -54,15 +55,34 @@ export default function TrashPanel() {
     }
   }
 
+  async function emptyTrash() {
+    setActing('all')
+    const res = await fetch('/api/admin/trash', {
+      method: 'POST', headers: await authHeader(), body: JSON.stringify({ action: 'purge_all' }),
+    })
+    setActing(null); setConfirmAll(false)
+    const d = await res.json().catch(() => ({}))
+    if (res.ok) { flash(`Permanently deleted ${d.count ?? 0} flashlight${d.count !== 1 ? 's' : ''}.`); load() }
+    else flash(d.error ?? 'Action failed.')
+  }
+
   if (loading) return <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
 
   return (
     <div className="max-w-2xl mx-auto space-y-3">
       {msg && <p className="text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2">{msg}</p>}
-      <p className="text-xs text-ink-3">
-        Deleted flashlights are unpublished and kept here for {RETENTION_DAYS} days, then permanently removed
-        (database + images). Restore to bring one back.
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs text-ink-3">
+          Deleted flashlights are unpublished and kept here for {RETENTION_DAYS} days, then permanently removed
+          (database + images). Restore to bring one back.
+        </p>
+        {items.length > 0 && (
+          <button onClick={() => setConfirmAll(true)} disabled={!!acting}
+            className="shrink-0 flex items-center gap-1.5 text-xs text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 disabled:opacity-50">
+            <Trash2 size={13} /> Empty trash
+          </button>
+        )}
+      </div>
 
       {items.length === 0 ? (
         <p className="text-ink-3 text-sm py-16 text-center">Trash is empty.</p>
@@ -94,6 +114,27 @@ export default function TrashPanel() {
           </div>
         )
       })}
+
+      {/* Empty-trash confirm */}
+      {confirmAll && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4" onClick={() => setConfirmAll(false)}>
+          <div className="bg-panel rounded-xl border border-line p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-2 text-red-500"><AlertTriangle size={18} /><h2 className="font-bold text-ink">Empty the trash?</h2></div>
+            <p className="text-sm text-ink-3">
+              All <span className="font-medium text-ink-2">{items.length}</span> trashed flashlight{items.length !== 1 ? 's' : ''} and their images
+              will be erased from the database and storage right now. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmAll(false)}
+                className="flex-1 border border-line text-ink-2 text-sm py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5">Cancel</button>
+              <button onClick={emptyTrash} disabled={!!acting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-lg disabled:opacity-50 flex items-center justify-center gap-2">
+                {acting === 'all' ? <Loader2 size={13} className="animate-spin" /> : null} Delete all forever
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Permanent-delete confirm */}
       {confirmPurge && (
