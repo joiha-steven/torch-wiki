@@ -26,6 +26,8 @@ export default function BrandFlashlights({ items }: { items: Flashlight[] }) {
 
   useEffect(() => {
     const stored = localStorage.getItem('compareIds')
+    // localStorage is client-only, so this read must happen in an effect (SSR-safe).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stored) setCompareIds(JSON.parse(stored))
   }, [])
 
@@ -66,7 +68,7 @@ export default function BrandFlashlights({ items }: { items: Flashlight[] }) {
 
       {compareIds.length > 0 && (
         <div
-          className="floating-nav fixed bottom-4 left-1/2 -translate-x-1/2 z-40 rounded-[22px] text-[#f3f3f0]"
+          className="floating-nav fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 rounded-[22px] text-[#f3f3f0]"
           style={{ width: 'min(1320px, calc(100% - 32px))' }}
         >
           <div className="flex items-center justify-between px-[22px] h-14">

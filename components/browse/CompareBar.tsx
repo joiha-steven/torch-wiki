@@ -14,7 +14,7 @@ export default function CompareBar({
 
   return (
     <div
-      className="floating-nav fixed bottom-4 left-1/2 -translate-x-1/2 z-40 rounded-[22px] text-[#f3f3f0]"
+      className="floating-nav fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 rounded-[22px] text-[#f3f3f0]"
       style={{ width: 'min(1320px, calc(100% - 32px))' }}
     >
       <div className="flex items-center justify-between px-[22px] h-14">

@@ -23,7 +23,7 @@ export default function CookieConsent() {
     <div
       role="dialog"
       aria-label="Cookie consent"
-      className="fixed bottom-8 left-8 z-50 w-[19rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-line bg-panel p-4 animate-[consentIn_200ms_ease-out]"
+      className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] left-8 z-50 w-[19rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-line bg-panel p-4 animate-[consentIn_200ms_ease-out]"
     >
       <p className="text-[12px] leading-relaxed text-ink-2">
         We use a <span className="font-medium text-ink-2">Google Analytics</span> cookie to

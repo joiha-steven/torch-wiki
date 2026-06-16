@@ -1,10 +1,11 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import Providers from '@/components/Providers'
 import PageFade from '@/components/PageFade'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import CookieConsent from '@/components/CookieConsent'
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { SITE_URL, SITE_NAME, OG_IMAGE } from '@/lib/seo'
 import './globals.css'
 
@@ -59,7 +60,11 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    // 'default' keeps content below the status bar and lets iOS colour the bar to
+    // match the app (works for both light and dark themes). 'black-translucent'
+    // would push content under the clock and force white text — unreadable on the
+    // light surface.
+    statusBarStyle: 'default',
     title: 'torch.EDC',
   },
   icons: {
@@ -68,8 +73,23 @@ export const metadata: Metadata = {
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
-    apple: '/icon-192.png',
+    // Dedicated 180×180 filled icon — iOS rounds the corners itself, so a
+    // full-bleed square (not the padded maskable one) looks right on the home screen.
+    apple: '/apple-touch-icon.png',
   },
+}
+
+// viewportFit:'cover' lets the app use the full screen on notch / Dynamic Island
+// devices; safe-area padding (app/globals.css) keeps content clear of the home
+// indicator. themeColor here replaces the hand-written <meta> tags below.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f6f6f3' },
+    { media: '(prefers-color-scheme: dark)', color: '#17181b' },
+  ],
 }
 
 // Site-wide structured data: Organization + WebSite (enables sitelinks search box)
@@ -125,8 +145,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }catch(e){ document.documentElement.dataset.theme='light'; }})();`,
           }}
         />
-        <meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#17181b" media="(prefers-color-scheme: dark)" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJson(siteJsonLd) }}
@@ -146,6 +164,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Providers>
         <GoogleAnalytics />
         <CookieConsent />
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>

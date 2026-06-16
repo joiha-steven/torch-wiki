@@ -7,7 +7,7 @@ const BASE = process.argv[2] || process.env.SMOKE_BASE || 'https://torch.edc.wik
 const TIMEOUT_MS = 5000
 
 const PAGES = ['/', '/brands', '/compare', '/contribute', '/top', '/updates', '/privacy']
-const SEO = ['/robots.txt', '/sitemap.xml']
+const SEO = ['/robots.txt', '/sitemap.xml', '/manifest.webmanifest', '/sw.js', '/offline.html']
 const API = ['/api/ping']
 
 let passed = 0

@@ -26,6 +26,16 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 16, 2026',
+    title: 'Add it to your home screen like an app',
+    items: [
+      'torch.EDC.wiki now installs as a proper app — on iPhone tap Share → "Add to Home Screen", on Android use "Install app" — and opens full-screen with no browser bars',
+      'No more black flash when it opens: the launch screen now matches the app, in light or dark mode',
+      'Opens faster every time and keeps working offline — if you lose signal, the pages you’ve already visited still load, with a tidy offline screen otherwise',
+      'Sharper home-screen icon, and the layout now sits clear of the notch, status bar and home indicator on modern phones',
+    ],
+  },
+  {
+    date: 'June 16, 2026',
     title: 'Behind the scenes: automated testing',
     items: [
       'Added an automated test suite that checks the core building blocks of the site — battery formatting, link handling and the validation that guards every form — so these keep working as the site grows',

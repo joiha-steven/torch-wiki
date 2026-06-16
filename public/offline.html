@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Offline — torch.EDC.wiki</title>
+  <meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#17181b" media="(prefers-color-scheme: dark)" />
+  <style>
+    :root { --bg:#f6f6f3; --ink:#17181b; --ink2:#6b6b66; --line:#e7e7e1; --brand:#eba00b; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#17181b; --ink:#f3f3f0; --ink2:#a0a09a; --line:#2a2c30; --brand:#f4a820; }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      padding: calc(env(safe-area-inset-top) + 24px) 24px calc(env(safe-area-inset-bottom) + 24px);
+      text-align: center;
+    }
+    .card { max-width: 22rem; }
+    img { width: 72px; height: 72px; border-radius: 16px; margin: 0 auto 20px; display: block; }
+    h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 8px; }
+    p { color: var(--ink2); font-size: .95rem; line-height: 1.5; margin: 0 0 24px; }
+    button {
+      appearance: none; border: 1px solid var(--line); background: var(--brand);
+      color: #17181b; font: inherit; font-weight: 600; padding: 10px 20px;
+      border-radius: 10px; cursor: pointer;
+    }
+    button:active { opacity: .85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="/icon-192.png" alt="torch.EDC.wiki" />
+    <h1>You're offline</h1>
+    <p>No connection right now. Check your network and try again — your last viewed pages still work offline.</p>
+    <button onclick="location.reload()">Try again</button>
+  </div>
+</body>
+</html>
