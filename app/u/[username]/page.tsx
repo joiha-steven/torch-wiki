@@ -6,7 +6,10 @@ import { SITE_URL } from '@/lib/seo'
 import Header from '@/components/Header'
 import ProfileTabs, { ProfileItem } from './ProfileTabs'
 
-export const dynamic = 'force-dynamic'
+// ISR: public profile data changes rarely (only when a contribution is approved),
+// so cache the rendered page at the edge for 60s instead of recomputing every hit.
+// Next emits `s-maxage=60, stale-while-revalidate` automatically for ISR pages.
+export const revalidate = 60
 
 type Props = { params: Promise<{ username: string }> }
 

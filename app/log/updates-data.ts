@@ -12,6 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 16, 2026",
     "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
     "items": [
+      "Behind the scenes: public profile pages are now edge-cached for a minute, so they load faster on repeat visits",
       "Browse cards now quietly preload a flashlight page the moment you hover over it, so opening it feels instant - without slowing the initial page load (nothing is preloaded until you show interest)",
       "Redesigned the Log and Guide pages to use the full width on desktop - they now lay out in two columns, and the Log's feature list is fuller, explaining what each feature actually does",
       "Moderators can now suggest deleting a flashlight (a button next to Edit on each light) - it asks for confirmation, then sends the request to admins for approval. Admins review delete suggestions in the Delete tab and can approve or dismiss each, or approve them all at once. The Trash also got an Empty-trash button to clear everything quickly",

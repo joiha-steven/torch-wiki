@@ -236,7 +236,7 @@ $$;
 
 ## User Profiles (`/u/[username]`)
 
-- Public page, `force-dynamic`
+- Public page, **ISR `revalidate = 60`** (was `force-dynamic`) — profile data only changes when a contribution is approved, so it's edge-cached 60s (Next emits `s-maxage=60, stale-while-revalidate`) instead of recomputing every hit
 - Fetches profile by nickname via anon client (RLS: public SELECT on profiles)
 - Fetches approved submissions via **service role** (bypasses RLS on `flashlight_submissions`)
 - Shows: flashlights added (type=new), edit contributions (type=edit, deduplicated by flashlight)
