@@ -31,6 +31,11 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Warm graphite dark palette built on CSS color tokens flipped by `data-theme`; product photos stay on a light plate so dark-bodied lights remain legible
 - Fonts and the Liquid Glass effects are shared across both themes
 
+**Installable app (PWA)**
+- Add to the home screen or desktop and it opens full-screen like a native app — iOS (Share → Add to Home Screen), Android and desktop Chrome/Edge (Install app)
+- Faster launches and offline support for pages you have already opened, via a hand-rolled service worker (network-first for pages, cache-first for static assets)
+- Maskable + full-bleed icons and a launch screen that matches the app surface (no black flash on open)
+
 **Flashlight pages**
 - Full spec sheet: lumens, beam distance, emitter, battery, dimensions, weight, IP rating, charging
 - Multiple battery options per light (e.g. 2× 18350 or 1× 18650), with per-type cell counts
@@ -61,6 +66,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Edit form shows existing images and PDFs — remove, reorder, or upload new
 - Attach one or more PDF user manuals to any submission
 - All submissions go into a pending queue — reviewed before going live
+- Moderators can suggest deleting a flashlight (a button next to Edit) — the request is sent to admins for approval, not actioned directly
 - Requires a nickname to contribute
 
 **Admin panel** (`/admin`)
@@ -68,10 +74,13 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - 2FA required to access the admin panel
 - "Edit" button on each flashlight page — admin/mod edits apply instantly, bypassing the queue
 - Review queue with before/after diff for edits
-- User management: search, reset password, ban, delete
+- User management: search, reset password, ban, delete; shows each user's 2FA and email-verification status
+- Delete a flashlight: search → preview → confirm → move to Trash (unpublished immediately). Trashed lights are permanently deleted, with their Blob images, after 30 days; restore any time before that
+- Delete a brand: choose to move all its products to the Trash as well, or reassign them to another existing brand first (slugs kept stable)
+- Review moderator delete-suggestions in the Delete tab — approve or dismiss each, or approve them all at once; "Empty trash" clears everything
 - On approval: PDFs moved from temp storage to `flashlights/{slug}/`, removed images deleted from Blob
 - Google Analytics toggle and Measurement ID setting
-- Force cache clear button
+- Force cache clear button (admin only)
 
 **Security**
 - Cloudflare Turnstile captcha on signup, forgot password, and submission forms
@@ -111,6 +120,11 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Cookie consent banner — shown only when Google Analytics is configured; GA loads (and the `_ga` cookie is set) only after the visitor clicks Accept. With no Measurement ID set, the banner is hidden and the site runs purely on cookieless Vercel Analytics
 - Conversion goals tracked via cookieless Vercel Analytics custom events (sign-up, wishlist/collection adds, contributions)
 - Privacy & Cookies page (`/privacy`) explaining what is and isn't collected
+
+**Help & transparency** (grouped under an "Information" menu in the header)
+- Guide (`/guide`) — how to use the site, the visitor/member/moderator permission hierarchy, community rules and ban policy, install-as-app, privacy, and licensing
+- Log (`/log`) — a plain-language feature overview, the tech it's built on, a version chip linking to the exact deployed commit on GitHub, and a full changelog
+- Database updates (`/data-log`) — public audit feed of every community data change (who added/edited which flashlight or brand), timestamped in GMT+7
 
 ---
 
