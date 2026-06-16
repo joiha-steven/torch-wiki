@@ -10,8 +10,9 @@ export type UpdateEntry = {
 export const UPDATES: UpdateEntry[] = [
   {
     "date": "June 17, 2026",
-    "title": "EagleTac & Olight added, public change history & slider filters",
+    "title": "EagleTac, HDS & Olight added, public change history & slider filters",
     "items": [
+      "Added HDS Systems - 5 hand-built EDC lights (the EDC v4 Executive, LE, Rotary and Tactical, plus the EDC Bicycle) from the US maker known for ultra-reliable, user-programmable everyday-carry lights",
       "The Specifications section now also covers beam intensity (candela), number of LEDs, and driver type - on every flashlight page, the side-by-side Compare, and the contribute/edit form. EagleTac's candela figures are filled in; the rest can be added over time",
       "Added EagleTac - 96 flashlights with full specs (lumens, throw, battery, dimensions, weight, IP rating, year), from the D25 Clicky pocket series and the P/T duty lights to the MX/SX multi-emitter high-power lights and long-throw spotlights. Product photos are coming soon",
       "Every flashlight and brand page now shows its full Change history - who added or edited it and when (GMT+7), newest first, with a \"See more\" button when there are more than 5 entries. Edits are public and on the record",
