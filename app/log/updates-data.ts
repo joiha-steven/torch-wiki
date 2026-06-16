@@ -9,6 +9,15 @@ export type UpdateEntry = {
 
 export const UPDATES: UpdateEntry[] = [
   {
+    "date": "June 17, 2026",
+    "title": "Olight joins the database",
+    "items": [
+      "Added Olight's flashlight line-up - 42 models across EDC, tactical, weapon lights, throwers, floodlights, keychain lights and headlamps: the flat ArkPro and Arkfeld EDC lights, the Baton pocket family, the Warrior and Odin tactical lights, the Baldr and PL weapon lights, the Marauder and Javelot throwers, the Seeker floodlights, the i-series keychain lights, the Oclip clip lights and the Perun headlamps",
+      "As always for a wiki, discontinued and out-of-stock Olight models are kept, and colour/material variants are merged into one entry",
+      "Olight publishes its detailed specs only inside images rather than as text, so a few technical figures (throw, runtime, dimensions) start out blank - they can be filled in over time via \"Suggest an edit\""
+    ]
+  },
+  {
     "date": "June 16, 2026",
     "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
     "items": [
