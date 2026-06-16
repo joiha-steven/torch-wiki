@@ -12,10 +12,13 @@ import ReportsPanel from '@/components/admin/ReportsPanel'
 import UsersPanel from '@/components/admin/UsersPanel'
 import SettingsPanel from '@/components/admin/SettingsPanel'
 import BrandsPanel from '@/components/admin/BrandsPanel'
+import { useHashTab } from '@/lib/use-hash-tab'
+
+const SECTIONS = ['submissions', 'brands', 'reports', 'users', 'settings'] as const
 
 export default function AdminDashboard() {
   const { isAdmin } = useAuth()
-  const [section, setSection]   = useState<Section>('submissions')
+  const [section, setSection]   = useHashTab<Section>(SECTIONS, 'submissions')
   const [subTab, setSubTab]     = useState<SubmissionTab>('pending')
   const [submissions, setSubmissions] = useState<FlashlightSubmission[]>([])
   const [loading, setLoading]   = useState(true)

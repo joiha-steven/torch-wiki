@@ -12,8 +12,10 @@ import { supabase } from '@/lib/supabase'
 import { FlashlightSubmission, Flashlight } from '@/lib/types'
 import Header from '@/components/Header'
 import SubmitFlashlightForm from '@/components/SubmitFlashlightForm'
+import { useHashTab } from '@/lib/use-hash-tab'
 
 type Tab = 'add' | 'edit' | 'submissions'
+const CONTRIBUTE_TABS = ['add', 'edit', 'submissions'] as const
 
 // ── Search & pick a flashlight to edit ──────────────────────────────────────
 function FlashlightPicker({ onPick }: { onPick: (f: Flashlight) => void }) {
@@ -110,7 +112,7 @@ function SuccessScreen({ onAnother, onView }: { onAnother: () => void; onView: (
 export default function ContributePage() {
   const { user, loading, nickname, openAuthModal } = useAuth()
   const router = useRouter()
-  const [tab, setTab] = useState<Tab>('add')
+  const [tab, setTab] = useHashTab<Tab>(CONTRIBUTE_TABS, 'add')
   const [submitted, setSubmitted] = useState(false)
 
   // For "edit" tab - which flashlight is being edited
@@ -124,7 +126,7 @@ export default function ContributePage() {
       .then(({ data }) => {
         if (data) { setEditTarget(data as Flashlight); setTab('edit') }
       })
-  }, [])
+  }, [setTab])
 
   // Submissions list
   const [submissions, setSubmissions] = useState<FlashlightSubmission[]>([])

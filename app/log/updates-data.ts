@@ -12,6 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 16, 2026",
     "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
     "items": [
+      "Tabs on My Account, Contribute and the admin panel now show in the address bar (e.g. /account#security), so you can bookmark or share a direct link to a specific tab and the back button moves between them",
       "The account icon in the header is now white when you are signed out and amber once you sign in, so your sign-in state is clear at a glance",
       "Added a \"Database updates\" page (under Information) that lists every change the community makes - who added or edited which flashlight or brand, with a link to it, timestamped in GMT+7",
       "Fixed resetting your password when two-factor is on - the reset page now asks for your authenticator code and completes the change (previously it showed an \"AAL2 session required\" error)",

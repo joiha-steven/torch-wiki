@@ -10,10 +10,13 @@ import { supabase } from '@/lib/supabase'
 import { inp, nickError, type Tab } from '@/components/account/shared'
 import ChangePassword from '@/components/account/ChangePassword'
 import TwoFactor from '@/components/account/TwoFactor'
+import { useHashTab } from '@/lib/use-hash-tab'
+
+const ACCOUNT_TABS = ['profile', 'security'] as const
 
 export default function AccountPage() {
   const { user, loading } = useAuth()
-  const [tab, setTab] = useState<Tab>('profile')
+  const [tab, setTab] = useHashTab<Tab>(ACCOUNT_TABS, 'profile')
 
   // Email change
   const [newEmail, setNewEmail] = useState('')
