@@ -5,7 +5,7 @@ the source code is the truth, and deeper specifics live elsewhere:
 
 - **`CLAUDE.md`** — DB schema, conventions, design system, caching rules (source of truth for details).
 - **`AGENTS.md`** — this is a customized Next.js 16 build; read `node_modules/next/dist/docs/` before Next-specific code.
-- **`SCRAPING.md`** — data-import/scraping notes. **`README.md`** — project intro + licensing.
+- **`README.md`** — project intro + licensing. (The data-import/scraping playbook + brand scrapers are kept in the private maintenance workspace, not this repo.)
 
 > Keep this file high-level and current. Don't document individual functions here —
 > they rot; describe structure and flow, and let the code speak for specifics.

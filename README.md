@@ -196,7 +196,7 @@ node scripts/migrate-to-vercel-blob.mjs
 
 Script is safe to re-run — skips images already on Blob. Some brand CDNs require a `Referer` header (handled via `refererMap` in the script).
 
-**Bulk seeding a whole brand:** each brand gets a `scripts/seed-<brand>.mjs` that inserts rows and re-hosts images to Vercel Blob in the same run. Shopify-based stores (Nextorch, LED Lenser, Foursevens/Prometheus…) are pulled straight from `products.json`. See [`SCRAPING.md`](./SCRAPING.md) for the full rules.
+**Bulk seeding a whole brand:** each brand gets a `seed-<brand>.mjs` that inserts rows and re-hosts images to Vercel Blob in the same run. The brand scraper scripts and the full scraping playbook are kept in a **private maintenance workspace**, not in this public repo (they're an internal data-import tool). The `migrate-to-vercel-blob.mjs` / `normalize-emitters.mjs` utilities stay here.
 
 ---
 
