@@ -10,6 +10,14 @@ export type UpdateEntry = {
 export const UPDATES: UpdateEntry[] = [
   {
     date: 'June 16, 2026',
+    title: 'Cleaner LED list + type-ahead when contributing',
+    items: [
+      'Tidied the LED / Emitter filter: generic UV LEDs are just “UV” (with “UV 365nm/395nm” kept when known), infrared is “IR”, all non-LEP lasers are “Laser”, and Weltool lights no longer list a house “X-LED” label',
+      'When adding or editing a flashlight, the LED / Emitter field now suggests existing emitters as you type, so names stay consistent and typos don’t fragment the list',
+    ],
+  },
+  {
+    date: 'June 16, 2026',
     title: 'Browse fixes: scrolling & tidier filters',
     items: [
       'Fixed scroll-to-load-more sometimes stopping early (on the home page and especially after filtering) — the full set of results now loads as you scroll',

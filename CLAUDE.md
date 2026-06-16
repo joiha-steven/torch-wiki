@@ -180,8 +180,10 @@ WHERE battery_type IS NOT NULL AND (battery_options IS NULL OR battery_options =
 - Brand name in **proper case**, never ALL-CAPS: `Cree` (not CREE), `Luxeon` (not LUXEON), `Luminus`, `Nichia`, `Osram`. Always include the brand prefix (`Luminus SST-36R`, not bare `SST-36R`).
 - Cree **XHP** series gets a hyphen: `Cree XHP-70.2`, `Cree XHP-70.3 HI`, `Cree XHP-50.3 HI`. XP-series already hyphenated: `Cree XP-L`, `Cree XP-LR`.
 - Luminus series hyphenated: `Luminus SFT-90X`, `Luminus SST-20`, `Luminus SBT-90.3`.
-- LEP / laser lights use emitter `LEP`.
-- To normalize after a bad import, extend the `EMITTER_MAP` in `scripts/normalize-emitters.mjs` and re-run, then force-clear cache.
+- LEP / laser lights use emitter `LEP`. Other (non-LEP) lasers are just `Laser` (no colour, e.g. not "Green Laser").
+- Generic non-model light sources are collapsed so the filter list stays tidy: `UV` (package-named UV with no wavelength; keep `UV 365nm` / `UV 395nm` when known), `IR` (no wavelength), `HID`, `Xenon`, `RGB`. **Weltool** lights carry **no** emitter (their house "X-LED" isn't a real model).
+- To normalize after a bad import, extend `EMITTER_MAP` (renames) / `EMITTER_REMOVE` (drop a value) in `scripts/normalize-emitters.mjs` and re-run, then force-clear cache (or just redeploy).
+- The contribute/edit form's LED field (`components/submit/EmitterInput.tsx`) type-aheads from `get_distinct_emitters`, so contributors reuse existing names — keep the DB list clean and the suggestions stay clean.
 
 **Database indexes** (run once if missing):
 ```sql

@@ -9,7 +9,8 @@ import MarkdownEditor from '@/components/MarkdownEditor'
 import { useIsAdmin } from '@/lib/use-is-admin'
 import { batteryOptions } from '@/lib/battery'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
-import { Field, input, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
+import { Field, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
+import EmitterInput from '@/components/submit/EmitterInput'
 import BasicFields from '@/components/submit/BasicFields'
 import { OutputBeamFields, DimensionFields } from '@/components/submit/SpecFields'
 import BatterySection from '@/components/submit/BatterySection'
@@ -332,9 +333,8 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       <BasicFields data={data} set={set} num={num} />
 
       <OutputBeamFields data={data} set={set} num={num} />
-
       <Field label="LED / Emitters (comma-separated if multiple)">
-        <input className={input} value={emitterInput} onChange={e => setEmitterInput(e.target.value)} placeholder="e.g. Cree XHP50.2, Luminus SBT90.3" />
+        <EmitterInput value={emitterInput} onChange={setEmitterInput} />
       </Field>
 
       <BatterySection

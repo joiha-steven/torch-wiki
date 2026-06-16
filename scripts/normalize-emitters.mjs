@@ -26,7 +26,22 @@ const EMITTER_MAP = {
   'CREE XP-LR':       'Cree XP-LR',
   'LUXEON HL4X':      'Luxeon HL4X',
   'SST-36R':          'Luminus SST-36R',
+  // Simplify generic light-source labels: keep a model name only when it's a real
+  // model; otherwise collapse to the plain type so the filter list stays tidy.
+  'Green Laser':      'Laser',          // all non-LEP lasers are just "Laser" (LEP stays separate)
+  'IR LED 850nm':     'IR',
+  'LG 3535 UV':       'UV',             // package-named UV with no wavelength -> "UV"
+  'Luminus SST-10-UV':'UV',
+  'UV LED 365nm':     'UV 365nm',       // keep the wavelength when known
+  'UV LED 395nm':     'UV 395nm',
 }
+
+// Emitter values to drop entirely (the value is removed from every emitters[]
+// array). Weltool's house "X-LED" isn't a real emitter model, so per request
+// Weltool lights carry no LED spec.
+const EMITTER_REMOVE = new Set([
+  'Weltool X-LED', 'Weltool X-LED Amber', 'Weltool X-LED Green', 'Weltool X-LED Red',
+])
 
 // Acebeam lights actually powered by 16340 (RCR123) that were stored as CR123A
 const BATTERY_FIXES = {
@@ -53,8 +68,8 @@ async function run() {
     const orig = f.emitters || []
     if (orig.length === 0) continue
 
-    // Apply map, then dedupe preserving order
-    const mapped = orig.map(e => EMITTER_MAP[e] ?? e)
+    // Apply map, drop removed values, then dedupe preserving order
+    const mapped = orig.map(e => EMITTER_MAP[e] ?? e).filter(e => !EMITTER_REMOVE.has(e))
     const deduped = [...new Set(mapped)]
 
     const isSame = deduped.length === orig.length && deduped.every((v, i) => v === orig[i])
