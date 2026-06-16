@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { ChevronDown } from 'lucide-react'
 import { INFO_NAV } from '@/lib/nav'
 
-// "Information" dropdown in the floating nav — groups the Log + Guide pages.
+// "Information" dropdown in the floating nav - groups the Log + Guide pages.
 // Trigger matches the dark nav links; the panel matches the user menu (UserMenu)
 // so the two dropdowns share one look.
 export default function InfoMenu() {
