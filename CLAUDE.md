@@ -374,7 +374,7 @@ Script skips images already on Vercel Blob — safe to re-run anytime.
 | `app/contribute/page.tsx` | Contribute — add/edit flashlights, submission history |
 | `app/admin/page.tsx` + `AdminDashboard.tsx` | Admin review queue + reports + settings |
 | `app/compare/page.tsx` | Side-by-side spec comparison (up to 4) |
-| `app/updates/page.tsx` | Static changelog |
+| `app/updates/page.tsx` + `updates-data.ts` | Static changelog. Data is the `UPDATES` array in `app/updates/updates-data.ts` (page just renders it). **One entry per calendar day** — add items to today's entry rather than creating a second one for the same date; adjust the day's umbrella `title` if needed. Newest day first. |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
 | `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
 | `app/api/upload/route.ts` | Vercel Blob client upload handler — gated by `clientPayload` `{ session }` (Supabase token) or `{ turnstile }` (see Security) |
@@ -441,9 +441,9 @@ Sections in order:
 
 **Categories:** EDC, Tactical, Weapon Light, Thrower, Flood, Headlamp, Search & Rescue, Diving, Work, Custom
 
-**Battery types:** CR123A, D-cell, AA, AAA, 10440, 14500, 16340, 16650, 18350, 18650, 21700, 26650, Built-in
+**Battery types:** disposables (AAAA/AAA/AA/C-cell/D-cell/9V/CR123A/CR2), coin cells (CR2032/CR2025/CR2016/LR44), Li-ion (10180…32650), Built-in — full list in **`lib/constants.ts`** (`BATTERY_TYPES`).
 
-(Note: `16340` = RCR123 rechargeable Li-ion — use for lights with USB-C charging in a CR123-size cell, e.g. Acebeam W20/E10/G10. Reserve `CR123A` for lights that take non-rechargeable primaries, e.g. SureFire/Malkoff. Both `CATEGORIES` and `BATTERY_TYPES` are hardcoded in `components/FilterPanel.tsx` — adding a value there is a code change that needs a deploy to show on prod.)
+(Note: `16340` = RCR123 rechargeable Li-ion — use for lights with USB-C charging in a CR123-size cell, e.g. Acebeam W20/E10/G10. Reserve `CR123A` for lights that take non-rechargeable primaries, e.g. SureFire/Malkoff. **`CATEGORIES` and `BATTERY_TYPES` now live in `lib/constants.ts`** — shared by the browse `FilterPanel` and the contribute/edit form (`components/submit/*`). Adding a value is a code change that needs a deploy. The contribute form's battery type is a **select only** (no free typing), max **4 battery options** per light each with its own cell count; the browse filter only surfaces battery types actually in use, via facet narrowing.)
 
 **Charging:** Any / USB / Magnetic / None
 

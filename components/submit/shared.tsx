@@ -1,7 +1,6 @@
 import React from 'react'
 
-export const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Diving', 'Work', 'Custom']
-export const BATTERY_TYPES = ['CR123A', 'D-cell', 'AA', 'AAA', '10440', '14500', '16340', '18350', '18650', '21700', '26650', 'Built-in']
+export { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
 export const BEAM_TYPES = ['Spot', 'Flood', 'Spot+Flood', 'Thrower']
 export const CHARGING_TYPES = ['usb', 'magnetic', 'none']
 

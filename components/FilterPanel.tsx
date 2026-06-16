@@ -1,13 +1,7 @@
 'use client'
 
 import { FilterState } from '@/lib/types'
-
-const CATEGORIES = ['EDC', 'Tactical', 'Weapon Light', 'Thrower', 'Flood', 'Headlamp', 'Search & Rescue', 'Diving', 'Work', 'Custom']
-
-const BATTERY_TYPES = [
-  'CR123A', 'D-cell', 'AA', 'AAA',
-  '10440', '14500', '16340', '16650', '18350', '18650', '21700', '26650', 'Built-in',
-]
+import { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
 
 const SORT_OPTIONS = [
   { value: 'random',      label: 'Random' },

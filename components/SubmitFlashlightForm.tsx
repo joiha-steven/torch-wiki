@@ -89,7 +89,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
   const updateBatteryRow = (i: number, patch: Partial<BatteryOption>) =>
     setBatteryRows(rows => rows.map((r, j) => j === i ? { ...r, ...patch } : r))
-  const addBatteryRow = () => setBatteryRows(rows => [...rows, { type: '', count: 1 }])
+  const addBatteryRow = () => setBatteryRows(rows => rows.length >= 4 ? rows : [...rows, { type: '', count: 1 }])
   const removeBatteryRow = (i: number) => setBatteryRows(rows => rows.filter((_, j) => j !== i))
 
   async function handleImageFiles(files: FileList) {
