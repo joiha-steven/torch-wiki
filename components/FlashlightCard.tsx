@@ -1,8 +1,8 @@
 'use client'
 
 import { memo } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
+import HoverPrefetchLink from './HoverPrefetchLink'
 import { Heart, Bookmark, GitCompare } from 'lucide-react'
 import { Flashlight } from '@/lib/types'
 import { formatBatteries } from '@/lib/battery'
@@ -38,7 +38,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
     <div className={`glass-card rounded-[18px] p-3.5 flex flex-col ${isSelected ? 'is-selected' : ''}`}>
 
       {/* Thumbnail - translucent glass fill, fixed ratio so cards stay even */}
-      <Link href={`/${flashlight.slug}`} className="block" prefetch={false}>
+      <HoverPrefetchLink href={`/${flashlight.slug}`} className="block">
         <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden mb-3.5 bg-plate">
           {flashlight.image_url ? (
             <Image
@@ -73,7 +73,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
             </span>
           )}
         </div>
-      </Link>
+      </HoverPrefetchLink>
 
       {/* Category label */}
       <div className="min-h-[16px] mb-1.5">
@@ -86,16 +86,15 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
 
       {/* Brand + Model - flex-1 keeps every card the same height */}
       <div className="flex-1">
-        <Link
+        <HoverPrefetchLink
           href={`/brand/${brandSlug(flashlight.brand)}`}
-          prefetch={false}
           className="text-[12.5px] text-ink-2 leading-none mb-0.5 inline-block hover:text-brand-600 transition-colors"
         >
           {flashlight.brand}
-        </Link>
-        <Link href={`/${flashlight.slug}`} className="block" prefetch={false}>
+        </HoverPrefetchLink>
+        <HoverPrefetchLink href={`/${flashlight.slug}`} className="block">
           <h3 className="text-[15px] font-semibold text-ink leading-snug tracking-[-0.01em]">{flashlight.model}</h3>
-        </Link>
+        </HoverPrefetchLink>
       </div>
 
       {/* Monochrome spec line - fixed height so missing-spec cards don't shrink */}
