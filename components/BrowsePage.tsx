@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { SlidersHorizontal, X } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { Flashlight as FlashlightType, FilterState } from '@/lib/types'
 import {
   PAGE_SIZE_DESKTOP,
@@ -12,9 +11,11 @@ import {
   buildQuery,
   madeInBrandNames,
   fetchBrowseMeta,
+  fetchFacetRows,
   type BrandMeta,
   type BrowseMeta,
   type SiteStats,
+  type FacetRow,
 } from '@/lib/browse'
 import FilterPanel from './FilterPanel'
 import BrowseHeader from './browse/BrowseHeader'
@@ -47,6 +48,8 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   const [availableEmitters, setAvailableEmitters] = useState<string[]>(initialMeta?.emitters ?? [])
   const [brandsMeta, setBrandsMeta] = useState<BrandMeta[]>(initialMeta?.brandsMeta ?? [])
   const [siteStats, setSiteStats] = useState<SiteStats | null>(initialMeta?.stats ?? null)
+  // Per-row facet data for hiding zero-result filter options (loaded once, after paint).
+  const [facetRows, setFacetRows] = useState<FacetRow[]>([])
   const fetchId = useRef(0)
   // The filter-change effect fires once on mount; when the server already seeded
   // the first page (default filters) skip that first fetch so we don't re-query
@@ -86,8 +89,15 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('compareIds')
+      // localStorage is client-only, so this read must happen in an effect (SSR-safe).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (stored) setCompareIds(JSON.parse(stored))
     } catch {}
+  }, [])
+
+  // Load facet data once (after first paint — doesn't block the seeded grid).
+  useEffect(() => {
+    fetchFacetRows().then(setFacetRows).catch(() => {})
   }, [])
 
   // Fetch on filter change — debounce search by 300ms. Skips the first run after
@@ -132,12 +142,59 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   const hasMore = items.length < totalCount
   const availableMadeIn = Array.from(new Set(brandsMeta.map(b => b.made_in).filter(Boolean) as string[])).sort()
 
+  // Facet narrowing — which filter options still have results given the OTHER
+  // active filters (each facet ignores its own selection so multi-select keeps
+  // working). Computed client-side from facetRows; null until that data loads,
+  // in which case the rail shows the full lists (unchanged behaviour).
+  const facets = useMemo(() => {
+    if (facetRows.length === 0) return null
+    const madeInSet = filters.madeIn.length
+      ? new Set(madeInBrandNames(filters, brandsMeta) ?? [])
+      : null
+    const overlaps = (a: string[] | null, b: string[]) => !!a && a.some(x => b.includes(x))
+    const match = (r: FacetRow, exclude: string) => {
+      if (exclude !== 'brand' && filters.brands.length && !(r.brand && filters.brands.includes(r.brand))) return false
+      if (exclude !== 'brand' && madeInSet && !(r.brand && madeInSet.has(r.brand))) return false
+      if (exclude !== 'category' && filters.categories.length && !(r.category && filters.categories.includes(r.category))) return false
+      if (exclude !== 'battery' && filters.batteryTypes.length && !overlaps(r.battery_types, filters.batteryTypes)) return false
+      if (exclude !== 'emitter' && filters.emitters.length && !overlaps(r.emitters, filters.emitters)) return false
+      if (filters.minLumens > 0 && !(r.max_lumens != null && r.max_lumens >= filters.minLumens)) return false
+      if (filters.maxLumens < 50000 && !(r.max_lumens != null && r.max_lumens <= filters.maxLumens)) return false
+      if (filters.minPrice > 0 && !(r.price_usd != null && r.price_usd >= filters.minPrice)) return false
+      if (filters.maxPrice < 99999 && !(r.price_usd != null && r.price_usd <= filters.maxPrice)) return false
+      if (filters.chargingType !== null && r.charging_type !== filters.chargingType) return false
+      return true
+    }
+    const cat = new Set<string>(), bat = new Set<string>(), emi = new Set<string>(), brd = new Set<string>()
+    for (const r of facetRows) {
+      if (match(r, 'category') && r.category) cat.add(r.category)
+      if (match(r, 'brand') && r.brand) brd.add(r.brand)
+      if (match(r, 'battery')) (r.battery_types ?? []).forEach(x => bat.add(x))
+      if (match(r, 'emitter')) (r.emitters ?? []).forEach(x => emi.add(x))
+    }
+    return { cat, bat, emi, brd }
+  }, [facetRows, filters, brandsMeta])
+
+  // Narrow the rail lists to available options (always keep a currently-selected
+  // value visible so it can be unchecked). Before facets load, show everything.
+  const brandsToShow = facets ? availableBrands.filter(b => facets.brd.has(b) || filters.brands.includes(b)) : availableBrands
+  const emittersToShow = facets ? availableEmitters.filter(e => facets.emi.has(e) || filters.emitters.includes(e)) : availableEmitters
+  const categoriesToShow = facets ? Array.from(new Set([...facets.cat, ...filters.categories])) : undefined
+  const batteryTypesToShow = facets ? Array.from(new Set([...facets.bat, ...filters.batteryTypes])) : undefined
+
   // Infinite scroll — observe sentinel div at bottom of list
   const sentinelRef = useRef<HTMLDivElement>(null)
   const loadingMoreRef = useRef(loadingMore)
-  loadingMoreRef.current = loadingMore
   const hasMoreRef = useRef(hasMore)
-  hasMoreRef.current = hasMore
+  // Holds the latest loadMore (which closes over current filters/items) so the
+  // observer never fires a stale one after a filter change.
+  const loadMoreRef = useRef(loadMore)
+  // Sync the refs the observer reads — in an effect, never during render.
+  useEffect(() => {
+    loadingMoreRef.current = loadingMore
+    hasMoreRef.current = hasMore
+    loadMoreRef.current = loadMore
+  })
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -145,14 +202,13 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
     const observer = new IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && hasMoreRef.current && !loadingMoreRef.current) {
-          loadMore()
+          loadMoreRef.current()
         }
       },
       { rootMargin: '200px' } // start loading 200px before reaching the bottom
     )
     observer.observe(el)
     return () => observer.disconnect()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]) // re-attach when list grows so sentinel stays valid
 
   return (
@@ -167,9 +223,11 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
           <FilterPanel
             filters={filters}
             onChange={setFilters}
-            availableBrands={availableBrands}
-            availableEmitters={availableEmitters}
+            availableBrands={brandsToShow}
+            availableEmitters={emittersToShow}
             availableMadeIn={availableMadeIn}
+            availableCategories={categoriesToShow}
+            availableBatteryTypes={batteryTypesToShow}
           />
         </div>
 
@@ -219,9 +277,11 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
             <FilterPanel
               filters={filters}
               onChange={setFilters}
-              availableBrands={availableBrands}
-              availableEmitters={availableEmitters}
+              availableBrands={brandsToShow}
+              availableEmitters={emittersToShow}
               availableMadeIn={availableMadeIn}
+              availableCategories={categoriesToShow}
+              availableBatteryTypes={batteryTypesToShow}
             />
           </div>
         </div>

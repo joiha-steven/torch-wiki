@@ -45,9 +45,12 @@ export function buildQuery(
   to: number,
   madeInBrands: string[] | null = null,
 ) {
-  // `estimated` is exact for small tables and a planner estimate for large ones —
-  // avoids a full COUNT scan on every filter change (was `exact`).
-  let q = supabase.from('flashlights').select(BROWSE_COLS, { count: 'estimated' })
+  // `exact` count — the table is small (~hundreds of rows) so a real COUNT is
+  // cheap, and an accurate total is REQUIRED for infinite scroll: `hasMore` is
+  // `items.length < totalCount`, and a low planner estimate (`estimated`/`planned`,
+  // common right after a bulk insert before ANALYZE) made the grid stop loading
+  // early even when more results existed.
+  let q = supabase.from('flashlights').select(BROWSE_COLS, { count: 'exact' })
 
   if (filters.brands.length > 0) q = q.in('brand', filters.brands)
   if (madeInBrands !== null) q = q.in('brand', madeInBrands)
@@ -84,6 +87,27 @@ export function buildQuery(
   return q.range(from, to)
 }
 
+// Lightweight per-row facet data (just the filterable columns, all rows) used to
+// compute which filter options still yield results given the active filters, so
+// zero-result options can be hidden. The table is small, so loading every row's
+// few facet columns once (after first paint) is cheap and lets the rail update
+// instantly client-side with no query per filter change.
+export type FacetRow = {
+  brand: string | null
+  category: string | null
+  battery_types: string[] | null
+  emitters: string[] | null
+  max_lumens: number | null
+  price_usd: number | null
+  charging_type: string | null
+}
+export async function fetchFacetRows(): Promise<FacetRow[]> {
+  const { data } = await supabase
+    .from('flashlights')
+    .select('brand,category,battery_types,emitters,max_lumens,price_usd,charging_type')
+  return (data ?? []) as FacetRow[]
+}
+
 // Resolve the "Made in" filter (a brands-table attribute) to the set of brand names to match on.
 // Returns null when the filter is inactive (no constraint).
 export function madeInBrandNames(filters: FilterState, brandsMeta: BrandMeta[]): string[] | null {
@@ -92,14 +116,15 @@ export function madeInBrandNames(filters: FilterState, brandsMeta: BrandMeta[]):
 }
 
 // Filter lists + site counts. Runs on the server (next to the DB) for the first
-// paint; also used as a client fallback. Counts use `estimated` to skip a full scan.
+// paint; also used as a client fallback. Small tables → `exact` counts are cheap
+// and the headline "X flashlights" number stays correct.
 export async function fetchBrowseMeta(): Promise<BrowseMeta> {
   const [{ data: b }, { data: e }, { data: br }, { count: fCount }, { count: uCount }] = await Promise.all([
     supabase.rpc('get_distinct_brands'),
     supabase.rpc('get_distinct_emitters'),
     supabase.from('brands').select('name, made_in'),
-    supabase.from('flashlights').select('id', { count: 'estimated', head: true }),
-    supabase.from('profiles').select('id', { count: 'estimated', head: true }),
+    supabase.from('flashlights').select('id', { count: 'exact', head: true }),
+    supabase.from('profiles').select('id', { count: 'exact', head: true }),
   ])
   const brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]
   const emitters = (e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[]

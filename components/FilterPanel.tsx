@@ -115,11 +115,24 @@ type Props = {
   availableBrands: string[]
   availableEmitters: string[]
   availableMadeIn?: string[]
+  // Allowed sets for the hardcoded groups, narrowed by the active filters so
+  // zero-result options are hidden. Undefined = facet data not loaded → show all.
+  availableCategories?: string[]
+  availableBatteryTypes?: string[]
 }
 
-export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [] }: Props) {
+export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [], availableCategories, availableBatteryTypes }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
+
+  // Hide options with no results (keep any currently-selected one so it can be
+  // unchecked). Before facet data loads the lists are undefined → show everything.
+  const categories = availableCategories
+    ? CATEGORIES.filter(c => availableCategories.includes(c) || filters.categories.includes(c))
+    : CATEGORIES
+  const batteryTypes = availableBatteryTypes
+    ? BATTERY_TYPES.filter(b => availableBatteryTypes.includes(b) || filters.batteryTypes.includes(b))
+    : BATTERY_TYPES
 
   const hasActiveFilters =
     filters.brands.length > 0 ||
@@ -204,16 +217,18 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       </div>
 
       {/* Category */}
-      <div>
-        <p className={sectionTitle}>Category</p>
-        <div className="space-y-[3px]">
-          {CATEGORIES.map(cat => (
-            <CheckRow key={cat} checked={filters.categories.includes(cat)}
-              onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
-              label={cat} />
-          ))}
+      {categories.length > 0 && (
+        <div>
+          <p className={sectionTitle}>Category</p>
+          <div className="space-y-[3px]">
+            {categories.map(cat => (
+              <CheckRow key={cat} checked={filters.categories.includes(cat)}
+                onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
+                label={cat} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Made in */}
       {availableMadeIn.length > 0 && (
@@ -230,16 +245,18 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       )}
 
       {/* Battery */}
-      <div>
-        <p className={sectionTitle}>Battery</p>
-        <div className="space-y-[3px]">
-          {BATTERY_TYPES.map(bt => (
-            <CheckRow key={bt} checked={filters.batteryTypes.includes(bt)}
-              onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
-              label={bt} />
-          ))}
+      {batteryTypes.length > 0 && (
+        <div>
+          <p className={sectionTitle}>Battery</p>
+          <div className="space-y-[3px]">
+            {batteryTypes.map(bt => (
+              <CheckRow key={bt} checked={filters.batteryTypes.includes(bt)}
+                onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
+                label={bt} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Emitters */}
       {availableEmitters.length > 0 && (
