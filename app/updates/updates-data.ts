@@ -29,7 +29,7 @@ export const UPDATES: UpdateEntry[] = [
     date: 'June 16, 2026',
     title: 'Small fix',
     items: [
-      'The “Discontinued” tag on browse cards now spells out the full word instead of a clipped “Disc.”',
+      'The “Discontinued” tag on browse cards now spells out the full word (was a clipped “Disc.”) and uses a lighter chip in the bottom corner of the photo, matching the rest of the design',
     ],
   },
   {
