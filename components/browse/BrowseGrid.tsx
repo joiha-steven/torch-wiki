@@ -48,7 +48,8 @@ export default function BrowseGrid({
 
   return (
     <>
-      <div className="hidden md:flex items-center justify-between mb-[22px]">
+      <div className="hidden md:flex items-center gap-3 mb-[22px]">
+        <ViewToggle view={view} onChange={onViewChange} />
         <p className="text-[13px] text-ink-2">
           <b className="text-ink font-semibold">{totalCount.toLocaleString()}</b> flashlight{totalCount !== 1 ? 's' : ''}
           {siteStats && (
@@ -60,7 +61,6 @@ export default function BrowseGrid({
             </>
           )}
         </p>
-        <ViewToggle view={view} onChange={onViewChange} />
       </div>
 
       {view === 'list' ? (
