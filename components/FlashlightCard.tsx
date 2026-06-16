@@ -68,7 +68,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
             </div>
           )}
           {flashlight.is_discontinued && (
-            <span className="absolute bottom-2 left-2 bg-panel/85 text-ink-3 text-[10px] font-medium border border-line rounded px-2 py-0.5">
+            <span className="absolute bottom-2 right-2 bg-panel/85 text-ink-3 text-[10px] font-medium border border-line rounded px-2 py-0.5">
               Discontinued
             </span>
           )}
