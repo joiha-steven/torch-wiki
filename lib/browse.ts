@@ -123,7 +123,7 @@ export async function fetchBrowseMeta(): Promise<BrowseMeta> {
   const [{ data: b }, { data: e }, { data: br }, { count: fCount }, { count: uCount }] = await Promise.all([
     supabase.rpc('get_distinct_brands'),
     supabase.rpc('get_distinct_emitters'),
-    supabase.from('brands').select('name, made_in'),
+    supabase.from('brands').select('name, made_in').is('deleted_at', null),
     supabase.from('flashlights').select('id', { count: 'exact', head: true }).is('deleted_at', null),
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
   ])

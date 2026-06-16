@@ -12,6 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 16, 2026",
     "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
     "items": [
+      "Admins can now delete a brand too: when deleting, choose whether to move all its products to the Trash as well, or reassign them to another existing brand first. Deleted brands sit in a Trash and are permanently removed after 30 days, with restore available",
       "Admins can now remove a flashlight: search for it, preview it, and move it to a Trash. Trashed lights are unpublished immediately and permanently deleted (with their images) after 30 days, with a chance to restore in the meantime",
       "Tabs on My Account, Contribute and the admin panel now show in the address bar (e.g. /account#security), so you can bookmark or share a direct link to a specific tab and the back button moves between them",
       "The account icon in the header is now white when you are signed out and amber once you sign in, so your sign-in state is clear at a glance",

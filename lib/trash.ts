@@ -49,3 +49,42 @@ export async function purgeExpiredTrash(): Promise<string[]> {
   for (const r of rows) await purgeFlashlight(r.id)
   return rows.map(r => r.slug)
 }
+
+/**
+ * Permanently delete a brand: its logo Blob, any of its still-trashed flashlights
+ * (DB + Blob), then the brand row. Live products should already be gone (trashed
+ * or reassigned at delete time), but we sweep trashed ones for cleanliness.
+ */
+export async function purgeBrand(name: string): Promise<void> {
+  const admin = getSupabaseAdmin()
+  const { data: brand } = await admin.from('brands').select('logo_url').eq('name', name).single()
+
+  const { data: lights } = await admin
+    .from('flashlights')
+    .select('id')
+    .eq('brand', name)
+    .not('deleted_at', 'is', null)
+  for (const l of (lights ?? []) as { id: string }[]) await purgeFlashlight(l.id)
+
+  const logo = brand?.logo_url as string | null | undefined
+  if (logo && logo.includes('.public.blob.vercel-storage.com')) await del(logo).catch(() => {})
+
+  await admin.from('brands').delete().eq('name', name)
+}
+
+/**
+ * Purge every trashed brand past the retention window. Returns the purged brand
+ * names so the caller can revalidate the brands index.
+ */
+export async function purgeExpiredBrandTrash(): Promise<string[]> {
+  const admin = getSupabaseAdmin()
+  const cutoff = new Date(Date.now() - TRASH_RETENTION_DAYS * 86_400_000).toISOString()
+  const { data } = await admin
+    .from('brands')
+    .select('name')
+    .not('deleted_at', 'is', null)
+    .lt('deleted_at', cutoff)
+  const names = (data ?? []).map((b: { name: string }) => b.name)
+  for (const n of names) await purgeBrand(n)
+  return names
+}

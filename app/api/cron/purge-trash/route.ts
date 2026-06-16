@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { purgeExpiredTrash } from '@/lib/trash'
+import { purgeExpiredTrash, purgeExpiredBrandTrash } from '@/lib/trash'
 
 // Daily auto-purge of trashed flashlights past the 30-day window (DB + Blob).
 // Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` when CRON_SECRET is set.
@@ -16,9 +16,11 @@ export async function GET(request: Request) {
 
   const slugs = await purgeExpiredTrash()
   for (const s of slugs) revalidatePath(`/${s}`)
-  if (slugs.length) {
+  const brands = await purgeExpiredBrandTrash()
+  if (slugs.length || brands.length) {
     revalidatePath('/', 'layout')
     revalidatePath('/sitemap.xml')
+    revalidatePath('/brands')
   }
-  return NextResponse.json({ purged: slugs.length })
+  return NextResponse.json({ purged: slugs.length, brandsPurged: brands.length })
 }

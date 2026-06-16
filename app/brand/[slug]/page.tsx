@@ -27,7 +27,7 @@ const resolveBrand = cache(async (slug: string) => {
   if (!name) return null
 
   const [{ data: info }, { data: lights }] = await Promise.all([
-    supabase.from('brands').select('*').eq('name', name).maybeSingle(),
+    supabase.from('brands').select('*').eq('name', name).is('deleted_at', null).maybeSingle(),
     supabase
       .from('flashlights')
       // Cards only - same columns the browse grid renders, plus `year` (used to

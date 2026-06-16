@@ -2,8 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import MarkdownContent from '@/components/MarkdownContent'
-import { Check, X, Clock, Loader2 } from 'lucide-react'
+import { Check, X, Clock, Loader2, Trash2, Archive } from 'lucide-react'
 import { authHeader, SubmissionTab } from './shared'
+import { useAuth } from '@/lib/auth-context'
+import BrandDeletePanel from './BrandDeletePanel'
+import BrandTrashPanel from './BrandTrashPanel'
 
 type BrandSubmission = {
   id: string
@@ -21,10 +24,14 @@ const BRAND_FIELD_LABELS: Record<string, string> = {
 }
 
 export default function BrandsPanel() {
+  const { isAdmin } = useAuth()
   const [statusFilter, setStatusFilter] = useState<SubmissionTab>('pending')
   const [subs, setSubs] = useState<BrandSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [acting, setActing] = useState<string | null>(null)
+
+  // Only the suggestion tabs hit the submissions API; delete/trash render panels.
+  const isListTab = statusFilter === 'pending' || statusFilter === 'approved' || statusFilter === 'rejected'
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -36,7 +43,7 @@ export default function BrandsPanel() {
 
   // load() flips the loading spinner on; standard data-fetch-on-mount pattern.
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { load() }, [load])
+  useEffect(() => { if (isListTab) load() }, [isListTab, load])
 
   async function act(id: string, action: 'approve' | 'reject') {
     const reviewerNote = action === 'reject' ? (window.prompt('Reason (optional, shown to submitter):') ?? '') : undefined
@@ -53,6 +60,10 @@ export default function BrandsPanel() {
     { key: 'pending', label: 'Pending', icon: <Clock size={14} /> },
     { key: 'approved', label: 'Approved', icon: <Check size={14} /> },
     { key: 'rejected', label: 'Rejected', icon: <X size={14} /> },
+    ...(isAdmin ? [
+      { key: 'delete' as const, label: 'Delete', icon: <Trash2 size={14} /> },
+      { key: 'trash'  as const, label: 'Trash',  icon: <Archive size={14} /> },
+    ] : []),
   ]
 
   return (
@@ -66,7 +77,11 @@ export default function BrandsPanel() {
         ))}
       </div>
 
-      {loading ? (
+      {statusFilter === 'delete' ? (
+        <BrandDeletePanel />
+      ) : statusFilter === 'trash' ? (
+        <BrandTrashPanel />
+      ) : loading ? (
         <div className="flex justify-center py-16 text-ink-3"><Loader2 size={20} className="animate-spin" /></div>
       ) : subs.length === 0 ? (
         <p className="text-ink-3 text-sm py-16 text-center">No {statusFilter} brand suggestions.</p>
