@@ -138,7 +138,7 @@ export default function GuidePage() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="max-w-5xl mx-auto px-6 py-10 sm:py-14">
+      <div className="max-w-6xl mx-auto px-6 py-10 sm:py-14">
 
         {/* Hero */}
         <div className="text-center mb-12">
@@ -150,137 +150,148 @@ export default function GuidePage() {
           </p>
         </div>
 
-        {/* Using the site */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">Using the site</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {USING.map(h => (
-              <div key={h.title} className="bg-panel border border-line rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-1.5 text-brand-600">
-                  {h.icon}
-                  <h3 className="text-sm font-semibold text-ink">{h.title}</h3>
-                </div>
-                <p className="text-[13px] text-ink-3 leading-relaxed">{h.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Two columns on desktop; stacks to one column (left first) on mobile. */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-start">
 
-        {/* Install as an app */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-2">Install it like an app</h2>
-          <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
-            Add torch.EDC.wiki to your home screen or desktop and it opens full-screen
-            with no browser bars, launches faster, and keeps working offline for pages
-            you have already opened.
-          </p>
-          <div className="bg-panel border border-line rounded-xl p-5 space-y-3">
-            {INSTALL.map(i => (
-              <div key={i.device} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-                <span className="text-sm font-semibold text-ink shrink-0 sm:w-52">{i.device}</span>
-                <span className="text-[13px] text-ink-3 leading-relaxed">{i.how}</span>
+          {/* Left column */}
+          <div className="space-y-12">
+            {/* Using the site */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">Using the site</h2>
+              <div className="space-y-3">
+                {USING.map(h => (
+                  <div key={h.title} className="bg-panel border border-line rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-1.5 text-brand-600">
+                      {h.icon}
+                      <h3 className="text-sm font-semibold text-ink">{h.title}</h3>
+                    </div>
+                    <p className="text-[13px] text-ink-3 leading-relaxed">{h.body}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
 
-        {/* Roles */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-2">Who can do what</h2>
-          <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
-            Permissions are layered - each level can do everything the one above it can, plus more.
-          </p>
-          <div className="grid lg:grid-cols-3 gap-3 items-start">
-            {ROLES.map(r => (
-              <div key={r.name} className="bg-panel border border-line rounded-xl p-5">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <span className={r.accent}>{r.icon}</span>
-                  <h3 className="text-sm font-bold text-ink">{r.name}</h3>
-                  <span className="text-[12px] text-ink-3">· {r.who}</span>
-                </div>
-                <ul className="space-y-1.5">
-                  {r.can.map(c => (
-                    <li key={c} className="flex gap-2 text-[13px] text-ink-2 leading-relaxed">
-                      <span className="text-brand-500 shrink-0">–</span>
-                      <span>{c}</span>
+            {/* Install as an app */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-2">Install it like an app</h2>
+              <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
+                Add torch.EDC.wiki to your home screen or desktop and it opens full-screen
+                with no browser bars, launches faster, and keeps working offline for pages
+                you have already opened.
+              </p>
+              <div className="bg-panel border border-line rounded-xl p-5 space-y-3">
+                {INSTALL.map(i => (
+                  <div key={i.device} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+                    <span className="text-sm font-semibold text-ink shrink-0 sm:w-52">{i.device}</span>
+                    <span className="text-[13px] text-ink-3 leading-relaxed">{i.how}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Privacy */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">Privacy &amp; your data</h2>
+              <div className="bg-panel border border-line rounded-xl p-5">
+                <ul className="space-y-2.5">
+                  {PRIVACY.map(p => (
+                    <li key={p} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
+                      <span className="text-brand-500 shrink-0 mt-0.5">–</span>
+                      <span>{p}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
 
-        {/* Rules */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">Community rules</h2>
-          <div className="grid md:grid-cols-3 gap-3 items-start">
-            {RULES.map(rule => (
-              <div key={rule.title} className="bg-panel border border-line rounded-xl p-5">
-                <h3 className="text-sm font-semibold text-ink mb-1">{rule.title}</h3>
-                <p className="text-[13px] text-ink-3 leading-relaxed">{rule.body}</p>
+            {/* License */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">License &amp; reuse</h2>
+              <div className="bg-panel border border-line rounded-xl p-5">
+                <ul className="space-y-2.5">
+                  {LICENSE.map(l => (
+                    <li key={l} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
+                      <span className="text-brand-500 shrink-0 mt-0.5">–</span>
+                      <span>{l}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
+            </section>
           </div>
 
-          {/* Enforcement */}
-          <div className="mt-4 flex gap-3 rounded-xl border border-red-200 bg-red-50/60 dark:bg-red-500/5 p-5">
-            <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-semibold text-ink mb-1">If you break the rules</h3>
-              <p className="text-[13px] text-ink-3 leading-relaxed">
-                Inaccurate, spammy or low-effort submissions are rejected. Deliberately
-                adding false information, spamming, or repeated abuse will get your
-                account banned - losing access to contributing, your lists and your
-                collection. Honest mistakes are fine; just fix them or let us know.
+          {/* Right column */}
+          <div className="space-y-12">
+            {/* Roles */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-2">Who can do what</h2>
+              <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
+                Permissions are layered - each level can do everything the one above it can, plus more.
               </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Deleting your account */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">Deleting your account</h2>
-          <div className="bg-panel border border-line rounded-xl p-5">
-            <p className="text-[13px] text-ink-3 leading-relaxed">
-              Want your account removed? Head to the{' '}
-              <Link href="/report" className="text-brand-600 font-medium hover:text-brand-500">Report</Link>{' '}
-              page and let us know - we will delete it for you, along with your lists and collection.
-            </p>
-          </div>
-        </section>
-
-        {/* Privacy + License - two columns on desktop */}
-        <section className="mb-14 grid lg:grid-cols-2 gap-8 items-start">
-          <div>
-            <h2 className="text-lg font-bold text-ink mb-5">Privacy &amp; your data</h2>
-            <div className="bg-panel border border-line rounded-xl p-5">
-              <ul className="space-y-2.5">
-                {PRIVACY.map(p => (
-                  <li key={p} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
-                    <span className="text-brand-500 shrink-0 mt-0.5">–</span>
-                    <span>{p}</span>
-                  </li>
+              <div className="space-y-3">
+                {ROLES.map(r => (
+                  <div key={r.name} className="bg-panel border border-line rounded-xl p-5">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <span className={r.accent}>{r.icon}</span>
+                      <h3 className="text-sm font-bold text-ink">{r.name}</h3>
+                      <span className="text-[12px] text-ink-3">· {r.who}</span>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {r.can.map(c => (
+                        <li key={c} className="flex gap-2 text-[13px] text-ink-2 leading-relaxed">
+                          <span className="text-brand-500 shrink-0">–</span>
+                          <span>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-ink mb-5">License &amp; reuse</h2>
-            <div className="bg-panel border border-line rounded-xl p-5">
-              <ul className="space-y-2.5">
-                {LICENSE.map(l => (
-                  <li key={l} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
-                    <span className="text-brand-500 shrink-0 mt-0.5">–</span>
-                    <span>{l}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+              </div>
+            </section>
 
-        <p className="text-[13px] text-ink-3 leading-relaxed border-t border-line pt-6">
+            {/* Rules */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">Community rules</h2>
+              <div className="space-y-3">
+                {RULES.map(rule => (
+                  <div key={rule.title} className="bg-panel border border-line rounded-xl p-5">
+                    <h3 className="text-sm font-semibold text-ink mb-1">{rule.title}</h3>
+                    <p className="text-[13px] text-ink-3 leading-relaxed">{rule.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Enforcement */}
+              <div className="mt-4 flex gap-3 rounded-xl border border-red-200 bg-red-50/60 dark:bg-red-500/5 p-5">
+                <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-semibold text-ink mb-1">If you break the rules</h3>
+                  <p className="text-[13px] text-ink-3 leading-relaxed">
+                    Inaccurate, spammy or low-effort submissions are rejected. Deliberately
+                    adding false information, spamming, or repeated abuse will get your
+                    account banned - losing access to contributing, your lists and your
+                    collection. Honest mistakes are fine; just fix them or let us know.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Deleting your account */}
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">Deleting your account</h2>
+              <div className="bg-panel border border-line rounded-xl p-5">
+                <p className="text-[13px] text-ink-3 leading-relaxed">
+                  Want your account removed? Head to the{' '}
+                  <Link href="/report" className="text-brand-600 font-medium hover:text-brand-500">Report</Link>{' '}
+                  page and let us know - we will delete it for you, along with your lists and collection.
+                </p>
+              </div>
+            </section>
+          </div>
+
+        </div>
+
+        <p className="text-[13px] text-ink-3 leading-relaxed border-t border-line pt-6 mt-12">
           Questions or something wrong on a page? Use the{' '}
           <Link href="/report" className="text-brand-600 font-medium hover:text-brand-500">Report</Link>{' '}
           page. This is a non-commercial reference project and is not affiliated with any brand.

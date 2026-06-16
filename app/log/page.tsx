@@ -90,7 +90,7 @@ export default function LogPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-5xl mx-auto px-6 py-10 sm:py-14">
+      <div className="max-w-6xl mx-auto px-6 py-10 sm:py-14">
 
         {/* Header + version */}
         <div className="text-center mb-12">
@@ -109,62 +109,76 @@ export default function LogPage() {
           </a>
         </div>
 
-        {/* Features - detailed, two columns on desktop */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">Features</h2>
-          <div className="grid md:grid-cols-2 gap-3">
-            {FEATURES.map(f => (
-              <div key={f.title} className="bg-panel border border-line rounded-xl p-5">
-                <h3 className="text-sm font-bold text-ink mb-1.5">{f.title}</h3>
-                <p className="text-[13px] text-ink-3 leading-relaxed">{f.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Two columns on desktop: left = Features + Built with, right = Changelog.
+            Stacks to one column (left first) on mobile. */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-start">
 
-        {/* Stack */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">Built with</h2>
-          <div className="grid md:grid-cols-2 gap-3">
-            {STACK.map(s => (
-              <div key={s.name} className="bg-panel border border-line rounded-xl p-5">
-                <span className="block text-sm font-semibold text-ink mb-1">{s.name}</span>
-                <span className="text-[13px] text-ink-3 leading-relaxed">{s.note}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Changelog - chronological, kept single-column for readability */}
-        <h2 className="text-lg font-bold text-ink mb-5">Changelog</h2>
-        <div className="relative bg-panel border border-line rounded-2xl p-6 sm:p-8 max-w-3xl">
-          <div className="absolute left-6 sm:left-8 top-8 bottom-8 w-px bg-line" />
-
-          <div className="space-y-10 pl-8">
-            {UPDATES.map((u, i) => (
-              <div key={i} className="relative">
-                <div className="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-panel" />
-
-                <div className="flex items-baseline gap-3 mb-1">
-                  <h3 className="font-semibold text-ink">{u.title}</h3>
-                  {u.version && (
-                    <span className="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded">
-                      {u.version}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-ink-3 mb-3">{u.date}</p>
-                <ul className="space-y-1.5">
-                  {u.items.map((item, j) => (
-                    <li key={j} className="text-sm text-ink-2 flex gap-2">
-                      <span className="text-slate-300 shrink-0 mt-0.5">–</span>
-                      {item}
+          {/* Left: Features + Built with */}
+          <div className="space-y-12">
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">Features</h2>
+              <div className="bg-panel border border-line rounded-2xl p-6 sm:p-7">
+                <ul className="space-y-4">
+                  {FEATURES.map(f => (
+                    <li key={f.title} className="flex gap-2.5">
+                      <span className="text-brand-500 shrink-0 mt-1">–</span>
+                      <div>
+                        <span className="text-sm font-semibold text-ink">{f.title}</span>
+                        <p className="text-[13px] text-ink-3 leading-relaxed mt-0.5">{f.body}</p>
+                      </div>
                     </li>
                   ))}
                 </ul>
               </div>
-            ))}
+            </section>
+
+            <section>
+              <h2 className="text-lg font-bold text-ink mb-5">Built with</h2>
+              <div className="bg-panel border border-line rounded-2xl p-6 sm:p-7 space-y-3">
+                {STACK.map(s => (
+                  <div key={s.name} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+                    <span className="text-sm font-semibold text-ink shrink-0 sm:w-56">{s.name}</span>
+                    <span className="text-[13px] text-ink-3 leading-relaxed">{s.note}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
+
+          {/* Right: Changelog */}
+          <section>
+            <h2 className="text-lg font-bold text-ink mb-5">Changelog</h2>
+            <div className="relative bg-panel border border-line rounded-2xl p-6 sm:p-8">
+              <div className="absolute left-6 sm:left-8 top-8 bottom-8 w-px bg-line" />
+
+              <div className="space-y-10 pl-8">
+                {UPDATES.map((u, i) => (
+                  <div key={i} className="relative">
+                    <div className="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-panel" />
+
+                    <div className="flex items-baseline gap-3 mb-1">
+                      <h3 className="font-semibold text-ink">{u.title}</h3>
+                      {u.version && (
+                        <span className="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded">
+                          {u.version}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-ink-3 mb-3">{u.date}</p>
+                    <ul className="space-y-1.5">
+                      {u.items.map((item, j) => (
+                        <li key={j} className="text-sm text-ink-2 flex gap-2">
+                          <span className="text-slate-300 shrink-0 mt-0.5">–</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
         </div>
       </div>
     </div>
