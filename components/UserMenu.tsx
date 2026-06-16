@@ -23,9 +23,9 @@ export default function UserMenu() {
       <button
         onClick={openAuthModal}
         aria-label="Sign in"
-        className="glass-dark w-[34px] h-[34px] grid place-items-center rounded-full"
+        className="glass-dark w-[34px] h-[34px] grid place-items-center rounded-full text-[#f3f3f0]/90"
       >
-        <User size={19} strokeWidth={1.8} style={{ color: '#eba00b' }} />
+        <User size={19} strokeWidth={1.8} />
       </button>
     )
   }
