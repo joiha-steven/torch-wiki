@@ -5,7 +5,12 @@ export const NAV = [
   { href: '/brands',  label: 'Brands' },
   { href: '/top',     label: 'Top' },
   { href: '/compare', label: 'Compare' },
-  { href: '/updates', label: 'Updates' },
-  { href: '/guide',   label: 'Guide' },
   { href: '/report',  label: 'Report' },
+] as const
+
+// Grouped under the "Information" dropdown (rendered by components/InfoMenu,
+// styled like the user menu). On mobile these are flattened into the nav list.
+export const INFO_NAV = [
+  { href: '/log',   label: 'Log' },
+  { href: '/guide', label: 'Guide' },
 ] as const

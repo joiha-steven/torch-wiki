@@ -6,7 +6,7 @@
 const BASE = process.argv[2] || process.env.SMOKE_BASE || 'https://torch.edc.wiki'
 const TIMEOUT_MS = 5000
 
-const PAGES = ['/', '/brands', '/compare', '/contribute', '/top', '/updates', '/guide', '/privacy']
+const PAGES = ['/', '/brands', '/compare', '/contribute', '/top', '/log', '/guide', '/privacy']
 const SEO = ['/robots.txt', '/sitemap.xml', '/manifest.webmanifest', '/sw.js', '/offline.html']
 const API = ['/api/ping']
 
@@ -72,7 +72,7 @@ async function checkOneDetail() {
     const { res } = await timedFetch(BASE + '/')
     const html = await res.text()
     // Detail links look like href="/some-slug" — exclude known top-level routes.
-    const reserved = new Set(['brands', 'compare', 'contribute', 'top', 'updates', 'guide', 'privacy',
+    const reserved = new Set(['brands', 'compare', 'contribute', 'top', 'log', 'updates', 'guide', 'privacy',
       'account', 'admin', 'my', 'u', 'brand', 'report', 'api', 'reset-password',
       'change-password', 'change-password', 'top', ''])
     const slugs = [...html.matchAll(/href="\/([a-z0-9][a-z0-9-]+)"/gi)]

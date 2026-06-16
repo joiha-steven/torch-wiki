@@ -1,4 +1,4 @@
-// Changelog data for /updates. Kept in its own module so app/updates/page.tsx
+// Changelog data for /log. Kept in its own module so app/log/page.tsx
 // stays well under the 400-line cap as the changelog grows.
 export type UpdateEntry = {
   date: string
@@ -12,6 +12,8 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 16, 2026",
     "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
     "items": [
+      "Tidied the top menu: Updates and Guide now live together under an \"Information\" dropdown. The Updates page is now the \"Log\" page, and starts with a quick overview of every feature, the tech it is built on, and a link to the exact code version on GitHub",
+      "The Guide now explains privacy (the site does not track you and stores no personal data - not even your password, which is handled by the database), how the site is licensed, and how to install it like an app",
       "Added a Guide page (in the top menu) that explains how to use the site, what members, moderators and admins can each do, and the community rules - be accurate, no spam, and what happens if you break them",
       "Entries added or edited by the team now show the contributor's name in amber, so you can tell official edits from community ones at a glance",
       "Cleaned up battery data - lights that take alternatives (e.g. “14500 or AA”) are now split into proper separate options, and stray labels were tidied so battery types stay consistent across the catalog",

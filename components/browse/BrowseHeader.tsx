@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { Search, X, Menu } from 'lucide-react'
 import UserMenu from '@/components/UserMenu'
 import ThemeToggle from '@/components/ThemeToggle'
-import { NAV } from '@/lib/nav'
+import InfoMenu from '@/components/InfoMenu'
+import { NAV, INFO_NAV } from '@/lib/nav'
 
 // The browse page keeps its own floating header (separate from components/Header
 // for the search field). Self-contained: owns nav-open + pointer-glow state, only
@@ -59,6 +60,7 @@ export default function BrowseHeader({
               </Link>
             )
           })}
+          <InfoMenu />
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <div className="glass-dark hidden sm:flex items-center gap-2 rounded-full px-3.5 h-[34px] w-60">
@@ -104,6 +106,13 @@ export default function BrowseHeader({
             />
           </div>
           {NAV.map(n => (
+            <Link key={n.href} href={n.href} onClick={() => setNavOpen(false)}
+              className="text-sm text-[#f3f3f0]/60 hover:text-[#f3f3f0] py-2.5 border-b border-white/10 last:border-0">
+              {n.label}
+            </Link>
+          ))}
+          <p className="text-[11px] uppercase tracking-wide text-[#f3f3f0]/40 pt-3 pb-1">Information</p>
+          {INFO_NAV.map(n => (
             <Link key={n.href} href={n.href} onClick={() => setNavOpen(false)}
               className="text-sm text-[#f3f3f0]/60 hover:text-[#f3f3f0] py-2.5 border-b border-white/10 last:border-0">
               {n.label}

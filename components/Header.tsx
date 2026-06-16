@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import UserMenu from './UserMenu'
 import ThemeToggle from './ThemeToggle'
-import { NAV } from '@/lib/nav'
+import InfoMenu from './InfoMenu'
+import { NAV, INFO_NAV } from '@/lib/nav'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
@@ -59,6 +60,7 @@ export default function Header() {
               </Link>
             )
           })}
+          <InfoMenu />
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
@@ -93,6 +95,17 @@ export default function Header() {
               </Link>
             )
           })}
+          <p className="text-[11px] uppercase tracking-wide text-[#f3f3f0]/40 pt-3 pb-1">Information</p>
+          {INFO_NAV.map(n => (
+            <Link
+              key={n.href}
+              href={n.href}
+              onClick={() => setOpen(false)}
+              className="text-sm py-2.5 border-b border-white/10 last:border-0 text-[#f3f3f0]/60 hover:text-[#f3f3f0]"
+            >
+              {n.label}
+            </Link>
+          ))}
         </nav>
       )}
     </header>

@@ -115,6 +115,25 @@ const RULES: { title: string; body: string }[] = [
   },
 ]
 
+const INSTALL: { device: string; how: string }[] = [
+  { device: 'iPhone / iPad (Safari)', how: 'Tap the Share button, then "Add to Home Screen".' },
+  { device: 'Android (Chrome)', how: 'Open the browser menu, then "Install app" or "Add to Home screen".' },
+  { device: 'Desktop (Chrome / Edge)', how: 'Click the install icon at the right of the address bar.' },
+]
+
+const PRIVACY: string[] = [
+  'No tracking and no third-party ads. The site is cookieless by default - analytics stay off unless turned on, and only ever run after you accept.',
+  'We keep no personal data beyond what an account needs to work: your email and the nickname you choose. Your wishlist and collection are private to you.',
+  'Your password is never visible to anyone - not even the site owner. Sign-in and passwords are handled automatically and securely by Supabase (the database that powers the site), which only ever stores a one-way scrambled version, never the real password.',
+]
+
+const LICENSE: string[] = [
+  'The site code is open source under the MIT license.',
+  'The original writing and the way the data is compiled are shared under CC BY 4.0 - reuse it freely with credit.',
+  'Plain factual specifications are facts and belong to no one.',
+  'Product images belong to their manufacturers and are shown only as non-commercial reference - they are not covered by the licenses above.',
+]
+
 export default function GuidePage() {
   return (
     <div className="min-h-screen">
@@ -142,6 +161,24 @@ export default function GuidePage() {
                   <h3 className="text-sm font-semibold text-ink">{h.title}</h3>
                 </div>
                 <p className="text-[13px] text-ink-3 leading-relaxed">{h.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Install as an app */}
+        <section className="mb-14">
+          <h2 className="text-lg font-bold text-ink mb-2">Install it like an app</h2>
+          <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
+            Add torch.EDC.wiki to your home screen or desktop and it opens full-screen
+            with no browser bars, launches faster, and keeps working offline for pages
+            you have already opened.
+          </p>
+          <div className="bg-panel border border-line rounded-xl p-5 space-y-3">
+            {INSTALL.map(i => (
+              <div key={i.device} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+                <span className="text-sm font-semibold text-ink shrink-0 sm:w-52">{i.device}</span>
+                <span className="text-[13px] text-ink-3 leading-relaxed">{i.how}</span>
               </div>
             ))}
           </div>
@@ -210,6 +247,36 @@ export default function GuidePage() {
               <Link href="/report" className="text-brand-600 font-medium hover:text-brand-500">Report</Link>{' '}
               page and let us know - we will delete it for you, along with your lists and collection.
             </p>
+          </div>
+        </section>
+
+        {/* Privacy */}
+        <section className="mb-14">
+          <h2 className="text-lg font-bold text-ink mb-5">Privacy &amp; your data</h2>
+          <div className="bg-panel border border-line rounded-xl p-5">
+            <ul className="space-y-2.5">
+              {PRIVACY.map(p => (
+                <li key={p} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
+                  <span className="text-brand-500 shrink-0 mt-0.5">–</span>
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* License */}
+        <section className="mb-14">
+          <h2 className="text-lg font-bold text-ink mb-5">License &amp; reuse</h2>
+          <div className="bg-panel border border-line rounded-xl p-5">
+            <ul className="space-y-2.5">
+              {LICENSE.map(l => (
+                <li key={l} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
+                  <span className="text-brand-500 shrink-0 mt-0.5">–</span>
+                  <span>{l}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

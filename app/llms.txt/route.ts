@@ -32,7 +32,8 @@ The database currently holds ${count ?? 'hundreds of'} flashlights across ${bran
 - [Brands & makers](${BASE}/brands): Index of every brand and custom maker with model counts and company info.
 - [Top lists](${BASE}/top): Curated rankings - recently added, newest releases, most expensive, best value.
 - [Compare flashlights](${BASE}/compare): Side-by-side spec comparison of up to four lights.
-- [Updates](${BASE}/updates): Changelog of new flashlights, features and improvements.
+- [Log](${BASE}/log): What the site does, the tech stack, and a changelog of new flashlights, features and improvements.
+- [Guide](${BASE}/guide): How to use the site, contributor roles, community rules, privacy and license.
 - [Contribute](${BASE}/contribute): How to add a flashlight or improve existing data.
 
 ## Data conventions
