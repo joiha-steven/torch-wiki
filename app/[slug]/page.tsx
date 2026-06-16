@@ -31,7 +31,7 @@ const getFlashlight = cache(async (slug: string) => {
   // types - which also makes tsc flag any field the page reads but didn't select.
   const { data } = await supabase
     .from('flashlights')
-    .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,beam_type,emitters,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
+    .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,candela,beam_type,emitters,led_count,driver_type,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
     .eq('slug', slug)
     .is('deleted_at', null)
     .single()
@@ -133,8 +133,11 @@ export default async function FlashlightPage({ params }: Props) {
     { label: 'Max Output', value: flashlight.max_lumens ? `${flashlight.max_lumens.toLocaleString()} lm` : null },
     { label: 'Min Output', value: flashlight.min_lumens ? `${flashlight.min_lumens} lm` : null },
     { label: 'Beam Distance', value: flashlight.beam_distance_m ? `${flashlight.beam_distance_m} m` : null },
+    { label: 'Beam Intensity', value: flashlight.candela ? `${flashlight.candela.toLocaleString()} cd` : null },
     { label: 'Beam Type', value: flashlight.beam_type },
     { label: 'LED / Emitter', value: flashlight.emitters?.length ? flashlight.emitters.join(' + ') : null },
+    { label: 'Number of LEDs', value: flashlight.led_count ?? null },
+    { label: 'Driver', value: flashlight.driver_type },
     { label: 'Battery', value: formatBatteries(flashlight) },
     { label: 'Charging', value: flashlight.charging_type === 'usb' ? 'USB' : flashlight.charging_type === 'magnetic' ? 'Magnetic' : flashlight.charging_type === 'none' ? 'None' : null },
     { label: 'Length', value: flashlight.length_mm ? `${flashlight.length_mm} mm` : null },

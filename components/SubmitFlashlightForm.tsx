@@ -33,8 +33,8 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
   const isAdmin = useIsAdmin()
   const [data, setData] = useState<Partial<Flashlight>>({
     brand: '', model: '', category: null, year: null,
-    max_lumens: null, min_lumens: null, beam_distance_m: null, beam_type: null,
-    emitters: [], battery_type: null, battery_count: null,
+    max_lumens: null, min_lumens: null, beam_distance_m: null, candela: null, beam_type: null,
+    emitters: [], led_count: null, driver_type: null, battery_type: null, battery_count: null,
     charging_type: null, has_usb_charging: false,
     length_mm: null, head_diameter_mm: null, body_diameter_mm: null, weight_g: null,
     material: null, ip_rating: null, impact_resistance_m: null,

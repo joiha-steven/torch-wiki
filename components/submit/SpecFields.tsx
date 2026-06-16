@@ -21,11 +21,20 @@ export function OutputBeamFields({ data, set, num }: Props) {
         <Field label="Beam Distance (m)">
           <input className={input} type="number" value={data.beam_distance_m ?? ''} onChange={e => set('beam_distance_m', num(e.target.value))} placeholder="e.g. 300" />
         </Field>
+        <Field label="Candela (cd)">
+          <input className={input} type="number" value={data.candela ?? ''} onChange={e => set('candela', num(e.target.value))} placeholder="e.g. 22500" />
+        </Field>
         <Field label="Beam Type">
           <select className={input} value={data.beam_type ?? ''} onChange={e => set('beam_type', e.target.value || null)}>
             <option value="">- Select -</option>
             {BEAM_TYPES.map(b => <option key={b}>{b}</option>)}
           </select>
+        </Field>
+        <Field label="Number of LEDs">
+          <input className={input} type="number" value={data.led_count ?? ''} onChange={e => set('led_count', num(e.target.value))} placeholder="e.g. 1" />
+        </Field>
+        <Field label="Driver">
+          <input className={input} value={data.driver_type ?? ''} onChange={e => set('driver_type', e.target.value || null)} placeholder="e.g. Buck, FET, Linear" />
         </Field>
       </div>
     </div>

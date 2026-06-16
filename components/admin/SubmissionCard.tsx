@@ -37,7 +37,8 @@ function DiffRow({ label, before, after, changed }: { label: string; before: unk
 const SPEC_LABELS: [keyof Flashlight, string][] = [
   ['brand', 'Brand'], ['model', 'Model'], ['category', 'Category'], ['year', 'Year'],
   ['max_lumens', 'Max Lumens'], ['min_lumens', 'Min Lumens'], ['beam_distance_m', 'Beam Distance'],
-  ['beam_type', 'Beam Type'], ['emitters', 'Emitters'], ['battery_types', 'Battery'],
+  ['candela', 'Candela'], ['beam_type', 'Beam Type'], ['emitters', 'Emitters'],
+  ['led_count', 'Number of LEDs'], ['driver_type', 'Driver'], ['battery_types', 'Battery'],
   ['charging_type', 'Charging'],
   ['length_mm', 'Length'], ['head_diameter_mm', 'Head Ø'], ['body_diameter_mm', 'Body Ø'],
   ['weight_g', 'Weight'], ['material', 'Material'], ['ip_rating', 'IP Rating'],

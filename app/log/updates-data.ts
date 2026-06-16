@@ -12,6 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 17, 2026",
     "title": "EagleTac & Olight added, public change history & slider filters",
     "items": [
+      "The Specifications section now also covers beam intensity (candela), number of LEDs, and driver type - on every flashlight page, the side-by-side Compare, and the contribute/edit form. EagleTac's candela figures are filled in; the rest can be added over time",
       "Added EagleTac - 96 flashlights with full specs (lumens, throw, battery, dimensions, weight, IP rating, year), from the D25 Clicky pocket series and the P/T duty lights to the MX/SX multi-emitter high-power lights and long-throw spotlights. Product photos are coming soon",
       "Every flashlight and brand page now shows its full Change history - who added or edited it and when (GMT+7), newest first, with a \"See more\" button when there are more than 5 entries. Edits are public and on the record",
       "The Lumens and Price filters are now drag sliders instead of fixed buckets, so you can dial in any range - drag the max thumb to the end for \"no upper limit\"",

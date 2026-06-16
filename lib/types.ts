@@ -36,9 +36,12 @@ export type Flashlight = {
   max_lumens: number | null
   min_lumens: number | null
   beam_distance_m: number | null
+  candela: number | null          // beam intensity (cd); throw ≈ 2·√candela
   beam_type: string | null
   emitter: string | null  // legacy text field — use emitters[] for display/filter
   emitters: string[]
+  led_count: number | null        // number of emitters / LEDs
+  driver_type: string | null      // e.g. Buck, Boost, Buck-Boost, FET, Linear
   battery_type: string | null    // legacy single value — use battery_options/battery_types
   battery_count: number | null   // legacy single value — count of battery_type
   battery_types: string[]        // canonical: distinct battery sizes, used for filtering
