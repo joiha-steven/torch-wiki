@@ -26,6 +26,13 @@ type UpdateEntry = {
 const UPDATES: UpdateEntry[] = [
   {
     date: 'June 16, 2026',
+    title: 'Small fix',
+    items: [
+      'The “Discontinued” tag on browse cards now spells out the full word instead of a clipped “Disc.”',
+    ],
+  },
+  {
+    date: 'June 16, 2026',
     title: 'Lumintop LEP throwers added',
     items: [
       'Added Lumintop\'s full LEP ("white laser") flashlight line — 13 models including the Thor series (Thor I, II, II V2, 3, 4, 5, Mini), the Thanos 2.0 and Thanos 23 high-power throwers, the Petal, the pocket W1/W3 lasers and the tiny Ant Man',
