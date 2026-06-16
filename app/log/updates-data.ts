@@ -14,6 +14,7 @@ export const UPDATES: UpdateEntry[] = [
     "items": [
       "Every flashlight and brand page now shows its full Change history - who added or edited it and when (GMT+7), newest first, with a \"See more\" button when there are more than 5 entries. Edits are public and on the record",
       "The Lumens and Price filters are now drag sliders instead of fixed buckets, so you can dial in any range - drag the max thumb to the end for \"no upper limit\"",
+      "Behind the scenes: closed a database permission gap so the catalog tables are read-only to the public (edits still go through the proper review/admin paths) and tightened a few internal database functions",
       "Added Olight's flashlight line-up - 42 models across EDC, tactical, weapon lights, throwers, floodlights, keychain lights and headlamps: the flat ArkPro and Arkfeld EDC lights, the Baton pocket family, the Warrior and Odin tactical lights, the Baldr and PL weapon lights, the Marauder and Javelot throwers, the Seeker floodlights, the i-series keychain lights, the Oclip clip lights and the Perun headlamps",
       "As always for a wiki, discontinued and out-of-stock Olight models are kept, and colour/material variants are merged into one entry",
       "Olight publishes its detailed specs only inside images rather than as text, so a few technical figures (throw, runtime, dimensions) start out blank - they can be filled in over time via \"Suggest an edit\""
