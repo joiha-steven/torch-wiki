@@ -138,7 +138,7 @@ export default function GuidePage() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="max-w-3xl mx-auto px-6 py-10 sm:py-14">
+      <div className="max-w-5xl mx-auto px-6 py-10 sm:py-14">
 
         {/* Hero */}
         <div className="text-center mb-12">
@@ -153,7 +153,7 @@ export default function GuidePage() {
         {/* Using the site */}
         <section className="mb-14">
           <h2 className="text-lg font-bold text-ink mb-5">Using the site</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {USING.map(h => (
               <div key={h.title} className="bg-panel border border-line rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-1.5 text-brand-600">
@@ -190,7 +190,7 @@ export default function GuidePage() {
           <p className="text-[13px] text-ink-3 mb-5 leading-relaxed">
             Permissions are layered - each level can do everything the one above it can, plus more.
           </p>
-          <div className="space-y-3">
+          <div className="grid lg:grid-cols-3 gap-3 items-start">
             {ROLES.map(r => (
               <div key={r.name} className="bg-panel border border-line rounded-xl p-5">
                 <div className="flex items-center gap-2.5 mb-3">
@@ -214,7 +214,7 @@ export default function GuidePage() {
         {/* Rules */}
         <section className="mb-14">
           <h2 className="text-lg font-bold text-ink mb-5">Community rules</h2>
-          <div className="space-y-3">
+          <div className="grid md:grid-cols-3 gap-3 items-start">
             {RULES.map(rule => (
               <div key={rule.title} className="bg-panel border border-line rounded-xl p-5">
                 <h3 className="text-sm font-semibold text-ink mb-1">{rule.title}</h3>
@@ -250,33 +250,33 @@ export default function GuidePage() {
           </div>
         </section>
 
-        {/* Privacy */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">Privacy &amp; your data</h2>
-          <div className="bg-panel border border-line rounded-xl p-5">
-            <ul className="space-y-2.5">
-              {PRIVACY.map(p => (
-                <li key={p} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
-                  <span className="text-brand-500 shrink-0 mt-0.5">–</span>
-                  <span>{p}</span>
-                </li>
-              ))}
-            </ul>
+        {/* Privacy + License - two columns on desktop */}
+        <section className="mb-14 grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <h2 className="text-lg font-bold text-ink mb-5">Privacy &amp; your data</h2>
+            <div className="bg-panel border border-line rounded-xl p-5">
+              <ul className="space-y-2.5">
+                {PRIVACY.map(p => (
+                  <li key={p} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
+                    <span className="text-brand-500 shrink-0 mt-0.5">–</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </section>
-
-        {/* License */}
-        <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-5">License &amp; reuse</h2>
-          <div className="bg-panel border border-line rounded-xl p-5">
-            <ul className="space-y-2.5">
-              {LICENSE.map(l => (
-                <li key={l} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
-                  <span className="text-brand-500 shrink-0 mt-0.5">–</span>
-                  <span>{l}</span>
-                </li>
-              ))}
-            </ul>
+          <div>
+            <h2 className="text-lg font-bold text-ink mb-5">License &amp; reuse</h2>
+            <div className="bg-panel border border-line rounded-xl p-5">
+              <ul className="space-y-2.5">
+                {LICENSE.map(l => (
+                  <li key={l} className="flex gap-2 text-[13px] text-ink-3 leading-relaxed">
+                    <span className="text-brand-500 shrink-0 mt-0.5">–</span>
+                    <span>{l}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
 

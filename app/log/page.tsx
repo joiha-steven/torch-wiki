@@ -24,18 +24,56 @@ const COMMIT = process.env.VERCEL_GIT_COMMIT_SHA ?? ''
 const SHORT = COMMIT ? COMMIT.slice(0, 7) : null
 const COMMIT_URL = COMMIT ? `${REPO}/commit/${COMMIT}` : REPO
 
-// What the site does, in plain language.
-const FEATURES: string[] = [
-  'A growing catalog of flashlights - kept complete, so discontinued and out-of-stock models stay listed',
-  'Deep filters: brand, category, battery type, LED / emitter, lumens, price, charging and country of manufacture',
-  'Sort by lumens, price, beam distance, weight or name; the home page reshuffles into a fresh order every day',
-  'Compare up to four lights side by side',
-  'Full spec sheets, manufacturer manuals (PDF) and curated review links',
-  'A personal wishlist and collection tracker, with an optional public profile',
-  'Community contributions - add lights or suggest edits, checked through a review queue',
-  'Light and dark themes (light / dark / follow system / auto by time of day)',
-  'Installs like a real app on phone, tablet and desktop, and keeps working offline',
-  'Privacy-first: no tracking, cookieless by default',
+// What the site does, in plain language - one short title + a fuller explanation.
+const FEATURES: { title: string; body: string }[] = [
+  {
+    title: 'Complete catalog',
+    body: 'A growing database of flashlights kept deliberately complete - discontinued, out-of-stock and older models all stay listed, because this is a reference wiki, not a shop.',
+  },
+  {
+    title: 'Deep filtering',
+    body: 'Narrow the catalog by brand, category, battery type, LED / emitter, lumen range, price range, charging method and country of manufacture. Options that would return nothing are hidden automatically.',
+  },
+  {
+    title: 'Flexible sorting',
+    body: 'Order by lumens, price, beam distance, weight or name. The home page reshuffles into a fresh random order every day, so you keep running into lights you have not seen.',
+  },
+  {
+    title: 'Side-by-side compare',
+    body: 'Pick up to four lights and see every spec lined up in one table to settle which one actually wins.',
+  },
+  {
+    title: 'Full spec sheets',
+    body: 'Each light has complete specifications, the manufacturer manual (PDF) and a curated set of trustworthy review links - written, video and forum.',
+  },
+  {
+    title: 'Wishlist & collection',
+    body: 'Sign in to keep a wishlist and log the lights you own, with purchase price, material, colour and date. Your collection stays private unless you choose to show it.',
+  },
+  {
+    title: 'Public profile',
+    body: 'An optional public profile shows the lights you have contributed and, if you opt in, your collection - quantities only, never prices or dates.',
+  },
+  {
+    title: 'Community contributions',
+    body: 'Add new flashlights or suggest edits to existing ones. Everything passes through a moderated review queue before it goes live, so the data stays trustworthy.',
+  },
+  {
+    title: 'Light & dark themes',
+    body: 'Four display modes: light, dark, follow your system, or switch automatically by the time of day.',
+  },
+  {
+    title: 'Installable app (PWA)',
+    body: 'Add it to your phone, tablet or desktop and it opens full-screen like a native app, launches faster, and keeps working offline for pages you have already opened.',
+  },
+  {
+    title: 'Privacy-first',
+    body: 'No tracking and no third-party ads. Cookieless by default, and no personal data is stored beyond the email and nickname an account needs.',
+  },
+  {
+    title: 'Open & reusable',
+    body: 'The code is open source under MIT and the original content is shared under CC BY 4.0 - reuse it freely with credit.',
+  },
 ]
 
 // The tech it runs on, with a one-line "what it does".
@@ -52,10 +90,10 @@ export default function LogPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-3xl mx-auto px-6 py-10 sm:py-14">
+      <div className="max-w-5xl mx-auto px-6 py-10 sm:py-14">
 
         {/* Header + version */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-[-0.02em]">Log</h1>
           <p className="mt-3 text-ink-3 text-[15px] leading-relaxed max-w-2xl mx-auto">
             What torch.EDC.wiki is, how it is built, and everything that has changed.
@@ -71,37 +109,35 @@ export default function LogPage() {
           </a>
         </div>
 
-        {/* Features */}
-        <section className="mb-12">
-          <h2 className="text-lg font-bold text-ink mb-4">What you can do</h2>
-          <div className="bg-panel border border-line rounded-2xl p-6 sm:p-7">
-            <ul className="space-y-2">
-              {FEATURES.map(f => (
-                <li key={f} className="flex gap-2.5 text-[13px] text-ink-2 leading-relaxed">
-                  <span className="text-brand-500 shrink-0 mt-0.5">–</span>
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
+        {/* Features - detailed, two columns on desktop */}
+        <section className="mb-14">
+          <h2 className="text-lg font-bold text-ink mb-5">Features</h2>
+          <div className="grid md:grid-cols-2 gap-3">
+            {FEATURES.map(f => (
+              <div key={f.title} className="bg-panel border border-line rounded-xl p-5">
+                <h3 className="text-sm font-bold text-ink mb-1.5">{f.title}</h3>
+                <p className="text-[13px] text-ink-3 leading-relaxed">{f.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* Stack */}
         <section className="mb-14">
-          <h2 className="text-lg font-bold text-ink mb-4">Built with</h2>
-          <div className="bg-panel border border-line rounded-2xl p-6 sm:p-7 space-y-3">
+          <h2 className="text-lg font-bold text-ink mb-5">Built with</h2>
+          <div className="grid md:grid-cols-2 gap-3">
             {STACK.map(s => (
-              <div key={s.name} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-                <span className="text-sm font-semibold text-ink shrink-0 sm:w-64">{s.name}</span>
+              <div key={s.name} className="bg-panel border border-line rounded-xl p-5">
+                <span className="block text-sm font-semibold text-ink mb-1">{s.name}</span>
                 <span className="text-[13px] text-ink-3 leading-relaxed">{s.note}</span>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Changelog */}
+        {/* Changelog - chronological, kept single-column for readability */}
         <h2 className="text-lg font-bold text-ink mb-5">Changelog</h2>
-        <div className="relative bg-panel border border-line rounded-2xl p-6 sm:p-8">
+        <div className="relative bg-panel border border-line rounded-2xl p-6 sm:p-8 max-w-3xl">
           <div className="absolute left-6 sm:left-8 top-8 bottom-8 w-px bg-line" />
 
           <div className="space-y-10 pl-8">
