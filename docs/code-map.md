@@ -1,7 +1,5 @@
 # Code map — key components, pages & API routes
 
-> Per-file navigation index. ARCHITECTURE.md has the high-level directory map; this is the detailed version.
-
 ## Key Components & Pages
 
 | File | Purpose |

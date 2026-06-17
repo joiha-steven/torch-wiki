@@ -1,8 +1,5 @@
 # Database (Supabase) — schema, migrations, indexes, RPCs
 
-> Detail doc. Source of truth referenced from CLAUDE.md. Schema *summary* lives in CLAUDE.md;
-> this file holds the full column list, all run-once migration SQL, indexes and RPC definitions.
-
 
 Key tables:
 - `flashlights` — main product table. **RLS enabled, public SELECT policy `public read flashlights` (`using (true)`); no write policy → anon/authenticated can read but not write** (writes go through the service role, which bypasses RLS). This closed a real hole: anon/authenticated held INSERT/UPDATE/DELETE grants while RLS was off, so the public anon key could mutate the table via PostgREST (migration `enable_rls_public_read_flashlights_images_reviews`). Same fix applied to `flashlight_images` and `reviews`. Key columns:

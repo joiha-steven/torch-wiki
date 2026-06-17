@@ -1,7 +1,6 @@
 # Glossary — flashlight domain terms
 
-So an AI (or anyone) uses the right term when reading specs, writing copy, or naming things.
-These map to columns on the `flashlights` table (see `docs/database.md`).
+Terms → `flashlights` columns (see `docs/database.md`).
 
 | Term | Meaning |
 |------|---------|

@@ -23,8 +23,6 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 
 ## Where to read more (`docs/`)
 
-CLAUDE.md stays lean on purpose. Open the topic file when you work on that area:
-
 | Topic | File |
 |-------|------|
 | Full DB schema, every migration SQL, indexes, RPCs, emitter naming | `docs/database.md` |
@@ -97,6 +95,7 @@ API routes validate input via the shared helpers in `lib/validate.ts` (`readJson
 
 ### Documentation
 13. New table/column → `docs/database.md`. New env var → **Environment Variables** above. New component/route → `docs/code-map.md`. New gotcha → `06_Wiki/gotchas.md` (workspace repo).
+14. **Write all docs/`.md`/code-comments terse, for AI not humans** (owner never reads them; uses Claude Code 100%). Dense facts, tables/lists/keywords, no decorative or "why-it-matters" prose. Comments: keep only load-bearing gotchas, drop obvious narration. Exception: **user-facing text stays human** — `/log` changelog, `/guide`, error messages, UI copy.
 
 ## Testing
 
