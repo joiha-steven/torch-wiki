@@ -67,7 +67,7 @@
   --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 48%);
   --pill-bg: rgba(255, 255, 255, 0.72);
   --pill-edge: rgba(255, 255, 255, 0.75);
-  --nav-bg: rgba(16, 17, 21, 0.60);   /* translucent → real frosted glass over the page */
+  --nav-bg: rgba(15, 16, 20, 0.80);   /* frosted but kept dark (lower alpha looked washed/bright over the light page) */
 
   /* dropdown / menu surfaces */
   --menu-bg: #ffffff;
@@ -115,7 +115,7 @@
   --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0) 48%);
   --pill-bg: rgba(255, 255, 255, 0.05);
   --pill-edge: rgba(255, 255, 255, 0.10);
-  --nav-bg: rgba(0, 0, 0, 0.52);   /* translucent black → frosted over the dark page */
+  --nav-bg: rgba(0, 0, 0, 0.62);   /* translucent black → frosted over the dark page */
 
   --menu-bg: #212327;
   --menu-border: #34363c;
@@ -236,8 +236,10 @@ h1, h2, h3 {
    Just a faint edge + soft drop shadow; no directional rim line. */
 .floating-nav {
   background: var(--nav-bg);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
-  backdrop-filter: blur(28px) saturate(150%);
+  /* lighter blur, no saturate → much cheaper to repaint while keeping the frost
+     (kept on mobile too). Higher --nav-bg alpha keeps it dark, not washed-out. */
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
 }
