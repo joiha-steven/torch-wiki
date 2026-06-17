@@ -86,7 +86,7 @@ API routes validate input via the shared helpers in `lib/validate.ts` (`readJson
 6. User-uploaded / user-authored content is sanitized before storage.
 
 ### Code Quality
-7. Prefer files under ~400 lines; split oversized files into components. As of 2026-06-14 every source file is ≤400 — the former offenders were split: `AdminDashboard`→`components/admin/*`, `SubmitFlashlightForm`→`components/submit/*`, `account/page`→`components/account/*`. Keep it that way.
+7. **Every source file ≤400 lines (hard gate). When a file approaches the cap, SPLIT it — never trim comments / blank lines to squeeze under.** Gaming the number is forbidden; the cap exists to keep files small enough for an AI to load and edit cheaply/accurately as the project grows. **The project scales by adding files, not by growing them.** Split via these seams, in order: ① extract a UI section into its own component (`components/<area>/*`); ② extract stateful logic into a hook (`use*`) so the component is thin JSX; ③ extract pure helpers into `lib/`; ④ extract constants/config/types into their own file. The big file becomes a thin orchestrator that composes the small ones. Past splits: `AdminDashboard`→`components/admin/*`, `SubmitFlashlightForm`→`components/submit/*`, `account/page`→`components/account/*`. (`SubmitFlashlightForm` currently sits at the cap — when it next needs a field, extract a `useFlashlightForm` hook rather than trimming.)
 8. Every mutation (INSERT/UPDATE/DELETE) is in try/catch with a user-friendly error message.
 9. No dead code — delete instead of commenting out (git history preserves it).
 10. New user-facing pages/endpoints get a URL added to `scripts/smoke.mjs`.
@@ -97,7 +97,7 @@ API routes validate input via the shared helpers in `lib/validate.ts` (`readJson
 
 ### Documentation
 13. New table/column → `docs/database.md`. New env var → **Environment Variables** above. New component/route → `docs/code-map.md`. New gotcha → `06_Wiki/gotchas.md` (workspace repo).
-14. **Write all docs/`.md`/code-comments terse, for AI not humans** (owner never reads them; uses Claude Code 100%). Dense facts, tables/lists/keywords, no decorative or "why-it-matters" prose. Comments: keep only load-bearing gotchas, drop obvious narration. Exception: **user-facing text stays human** — `/log` changelog, `/guide`, error messages, UI copy.
+14. **Every file is written in English, for AI — never the owner.** Owner doesn't code; the project is maintained 100% via Claude Code and the owner only ever reads the **shipped frontend**. So all code, comments, docs, `.md`, commit messages, identifiers, test names, and workspace notes are **English** (so any AI model parses them cleanly) and **terse**: dense facts, tables/lists/keywords, no decorative or "why-it-matters" prose; comments keep only load-bearing gotchas, drop obvious narration. **Only exception — human-facing surfaces stay human and may be localized:** the shipped UI copy, `/log` changelog, `/guide`, `/privacy`, `/terms`, error messages. (Never write Vietnamese or other non-English text inside repo files; chat with the owner is separate and stays in his language.)
 
 ## Testing
 
