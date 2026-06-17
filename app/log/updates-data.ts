@@ -28,6 +28,7 @@ export const UPDATES: UpdateEntry[] = [
       "Redesigned this Log page into two tabs - \"About\" (what the site does and what it's built with, as a tidy card grid) and \"Changelog\" - and the changelog now collapses by day, with the newest day open and older days a tap away, so the page stays short instead of one endless column",
       "Fixed a sneaky bug in the contribute/edit forms: scrolling the page while your cursor sat over a number field (like Price) would quietly change the value - type 349 then scroll and it became 348, 347... Number fields now ignore the mouse wheel, so what you type is what gets saved",
       "Added the 10880 cell to the battery options",
+      "Tidied the filter sidebar: the Sort by control is now a clean bordered dropdown (no more doubled-up underlines near Brand), and the divider line above the credits at the bottom is gone",
       "Moved the site credits/licensing line back to the bottom of the filter column where it belongs",
       "Made the Browse filter sidebar much more compact: each filter group now collapses (Lumens, Price and Category open by default, the rest a tap away), and long lists like Brand, Battery and LED/Emitter show the top few with a \"Show more\" - a count next to a collapsed group still tells you it's filtering. Far less scrolling to reach what you want",
       "Behind the scenes: closed a database permission gap so the catalog tables are read-only to the public (edits still go through the proper review/admin paths) and tightened a few internal database functions",

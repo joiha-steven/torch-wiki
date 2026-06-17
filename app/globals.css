@@ -365,6 +365,21 @@ h1, h2, h3 {
   border-bottom-color: var(--accent);
 }
 
+/* Boxed native select - bordered rounded control with a custom chevron */
+.box-select {
+  appearance: none;
+  background-color: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%239b9b94' stroke-width='2'><path d='M2 4l4 4 4-4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding: 0 30px 0 12px;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.box-select:hover { border-color: var(--border-hover); }
+.box-select:focus { outline: none; border-color: var(--accent); }
+
 /* Custom checkbox / radio - flat */
 .cb {
   appearance: none;

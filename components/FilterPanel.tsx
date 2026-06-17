@@ -195,13 +195,13 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         )}
       </div>
 
-      {/* Sort - minimal underline select (kept inline, not collapsible) */}
-      <div className="border-b border-line pb-3">
+      {/* Sort - boxed select (kept inline, not collapsible) */}
+      <div className="pb-1">
         <p className="text-[12px] font-semibold text-ink-2 mb-2">Sort by</p>
         <select
           value={filters.sortBy}
           onChange={e => onChange({ ...filters, sortBy: e.target.value })}
-          className="mini-select w-full text-[13.5px] text-ink py-1.5 cursor-pointer"
+          className="box-select w-full h-9 text-[13.5px] text-ink cursor-pointer"
         >
           {SORT_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -280,7 +280,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
         </div>
       </Section>
 
-      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-line">
+      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-2">
         © 2026 torch.edc.wiki - a non-commercial reference project, not affiliated with any brand.{' '}
         Original content &amp; data compilation:{' '}
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
