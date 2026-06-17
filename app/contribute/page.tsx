@@ -218,6 +218,9 @@ export default function ContributePage() {
                 ? <SuccessScreen onAnother={resetAdd} onView={() => setTab('submissions')} />
                 : (
                   <div className="bg-panel rounded-2xl border border-line p-6 sm:p-7">
+                    <div className="mb-5 text-[13px] text-ink-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 leading-relaxed">
+                      Please verify the details before adding to the database. <b>Don&apos;t add a duplicate</b> — duplicates won&apos;t be approved, so search the catalog first to make sure it isn&apos;t already listed. Fields marked <span className="text-red-400">*</span> are required.
+                    </div>
                     <SubmitFlashlightForm
                       mode="new"
                       onSuccess={(slug) => slug ? router.push(`/${slug}`) : setSubmitted(true)}

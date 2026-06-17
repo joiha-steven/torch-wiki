@@ -56,10 +56,11 @@ export default function BasicFields({ data, set, num, currentSlug }: Props) {
   const brand = (data.brand ?? '').trim()
   const model = (data.model ?? '').trim()
 
-  // Models already attached to the typed brand (so the Model suggestions are scoped).
+  // Model suggestions: scoped to the typed brand once there is one; before a brand
+  // is entered, suggest across all models so the field still helps / surfaces matches.
   const brandModels = brand
     ? Array.from(new Set(catalog.filter(c => c.brand.toLowerCase() === brand.toLowerCase()).map(c => c.model)))
-    : []
+    : Array.from(new Set(catalog.map(c => c.model)))
 
   // Duplicate: same brand + model already in the catalog (case-insensitive),
   // excluding the row being edited.
