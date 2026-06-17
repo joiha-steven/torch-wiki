@@ -55,7 +55,18 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+
+  // Attach the submitter's nickname so the review queue shows who filed each one.
+  // (user_id and profiles.id both reference auth.users — no PostgREST FK to embed,
+  // so resolve nicknames in a single follow-up query and map them on.)
+  const ids = [...new Set((data ?? []).map(s => s.user_id).filter(Boolean))]
+  const nameById = new Map<string, string | null>()
+  if (ids.length) {
+    const { data: profs } = await admin.from('profiles').select('id, nickname').in('id', ids)
+    for (const p of profs ?? []) nameById.set(p.id, p.nickname)
+  }
+  const enriched = (data ?? []).map(s => ({ ...s, submitter_nickname: nameById.get(s.user_id) ?? null }))
+  return NextResponse.json(enriched)
 }
 
 export async function PATCH(request: Request) {
@@ -79,8 +90,11 @@ export async function PATCH(request: Request) {
       // Record BOTH parties: updated_by = the admin/mod who approved, and
       // submitted_by = the original contributor (from the submission row).
       const reviewerId = user.id
-      const { data: sub } = await admin.from('flashlight_submissions').select('user_id').eq('id', id).single()
+      const { data: sub } = await admin.from('flashlight_submissions').select('user_id, created_at').eq('id', id).single()
       const submittedBy = sub?.user_id ?? null
+      // The displayed "added"/"updated" time is when the user submitted, not when
+      // it was approved (a submission can sit in the queue for hours/days).
+      const submittedAt = sub?.created_at ?? new Date().toISOString()
 
       // Helper: insert non-primary submission images into flashlight_images
       async function insertExtraImages(
@@ -124,7 +138,7 @@ export async function PATCH(request: Request) {
         await movePdfs(d, slug)
         const { data: newFl } = await admin
           .from('flashlights')
-          .insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: reviewerId, submitted_by: submittedBy })
+          .insert({ ...d, slug, image_url: primaryImg?.url ?? null, updated_by: reviewerId, submitted_by: submittedBy, created_at: submittedAt, updated_at: submittedAt })
           .select('id')
           .single()
 
@@ -176,7 +190,7 @@ export async function PATCH(request: Request) {
         }
 
         // `slug` last so it overrides the stale slug the form carries in `d`
-        const updateData: Record<string, unknown> = { ...d, slug, updated_by: reviewerId, submitted_by: submittedBy, updated_at: new Date().toISOString() }
+        const updateData: Record<string, unknown> = { ...d, slug, updated_by: reviewerId, submitted_by: submittedBy, updated_at: submittedAt }
 
         // Primary image: use explicit directive if set, else fall back to newly uploaded primary
         const imgs = (submissionImages ?? []) as { url: string; sort_order: number; is_primary: boolean }[]

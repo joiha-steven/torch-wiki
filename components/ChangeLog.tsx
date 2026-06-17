@@ -9,6 +9,7 @@ export type ChangeEvent = {
   kind: 'flashlight_create' | 'flashlight_edit' | 'brand_create' | 'brand_edit'
   model?: string | null
   slug?: string | null
+  is_staff?: boolean
 }
 
 // GMT+7 (Asia/Bangkok, no DST) - matches the /data-log page.
@@ -40,8 +41,15 @@ export default function ChangeLog({ events, context }: { events: ChangeEvent[]; 
   return (
     <div className="space-y-1 text-xs text-ink-3">
       {shown.map((e, i) => {
+        // Staff (admin/mod) contributors render in amber; regular users in
+        // strong dark gray so the two are visually distinct at a glance.
         const who = e.nickname
-          ? <Link href={`/u/${e.nickname}`} className="text-brand-600 font-medium hover:text-brand-500">{e.nickname}</Link>
+          ? <Link
+              href={`/u/${e.nickname}`}
+              className={e.is_staff
+                ? 'text-brand-600 font-medium hover:text-brand-500'
+                : 'text-ink-2 font-semibold hover:text-ink'}
+            >{e.nickname}</Link>
           : <span className="text-ink-2">system</span>
         const showModel = context === 'brand' && (e.kind === 'flashlight_create' || e.kind === 'flashlight_edit')
         return (

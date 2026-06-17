@@ -6,7 +6,7 @@ import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { Flashlight, BatteryOption } from '@/lib/types'
 import MarkdownEditor from '@/components/MarkdownEditor'
-import { useIsAdmin } from '@/lib/use-is-admin'
+import { useAuth } from '@/lib/auth-context'
 import { batteryOptions } from '@/lib/battery'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
 import { Field, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
@@ -30,7 +30,10 @@ type Props = {
 }
 
 export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onSuccess, onCancel }: Props) {
-  const isAdmin = useIsAdmin()
+  // Staff (admin OR mod) auto-approve. Read from the global auth context, not a
+  // per-mount fetch (the old useIsAdmin race could send a fast "new" to pending).
+  const { isAdmin: isAdminRole, isModerator, loading: authLoading } = useAuth()
+  const isAdmin = isAdminRole || isModerator
   const [data, setData] = useState<Partial<Flashlight>>({
     brand: '', model: '', category: null, year: null,
     max_lumens: null, min_lumens: null, beam_distance_m: null, candela: null, beam_type: null,
@@ -178,12 +181,13 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (authLoading) { setError('Loading your account - try again in a moment.'); return } // staff role must resolve first
     if (!data.brand?.trim() || !data.model?.trim()) { setError('Brand and Model are required.'); return }
     if (!isAdmin && !captchaToken) { setError('Please complete the captcha.'); return }
     setSubmitting(true)
     setError(null)
     try {
-      // 0. Verify captcha (skipped for admin/mod)
+      // Verify captcha (skipped for staff)
       if (!isAdmin) {
         const captchaRes = await fetch('/api/captcha-verify', {
           method: 'POST',
@@ -247,17 +251,15 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: false } : i))
       }
 
-      // For edit mode: compute final primary URL and extras to remove
+      // For edit mode: compute final primary URL (existing keeps its url; a new
+      // upload uses its blob url) and extras to remove.
       let _primaryImageUrl: string | null | undefined = undefined
       if (mode === 'edit') {
         const primaryEntry = images.find(i => i.isPrimary)
         if (!primaryEntry) {
           _primaryImageUrl = null
-        } else if (!primaryEntry.isExisting) {
-          _primaryImageUrl = uploadedUrlById.get(primaryEntry.id) ?? null
         } else {
-          // Existing image (primary or promoted extra)
-          _primaryImageUrl = primaryEntry.url
+          _primaryImageUrl = primaryEntry.isExisting ? primaryEntry.url : (uploadedUrlById.get(primaryEntry.id) ?? null)
         }
       }
 
@@ -281,11 +283,9 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         } : {}),
       }
 
-      // 2b. Persist image directives into the submission row (for both admin and pending paths)
-      //     so that when a mod approves a pending edit the image changes are applied correctly.
-      // Persist directives for BOTH modes so a mod approving later from the
-      // pending queue applies the same image + review changes (new mode needs
-      // this for _reviews; edit mode also for the image directives).
+      // 2b. Persist directives for BOTH modes so a mod approving later from the
+      // pending queue applies the same image + review changes (new needs _reviews;
+      // edit also needs the image directives).
       await supabase.from('flashlight_submissions').update({ data: finalSubmissionData }).eq('id', sub.id)
 
       // 3. Admin/mod: auto-approve - apply changes immediately

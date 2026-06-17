@@ -61,6 +61,12 @@ export default function Header() {
             )
           })}
           <InfoMenu />
+          <Link
+            href="/contribute"
+            className="glass-dark ml-1 text-sm font-medium px-3.5 py-1.5 rounded-full text-[#f3f3f0]/90 hover:text-[#f3f3f0] transition-colors"
+          >
+            Submit
+          </Link>
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
@@ -106,6 +112,13 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
+          <Link
+            href="/contribute"
+            onClick={() => setOpen(false)}
+            className="text-sm py-2.5 mt-1 font-medium text-[#eba00b]"
+          >
+            Submit a flashlight
+          </Link>
         </nav>
       )}
     </header>

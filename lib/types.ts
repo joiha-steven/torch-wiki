@@ -123,6 +123,7 @@ export type FlashlightSubmission = {
   reviewed_at: string | null
   submission_images?: SubmissionImage[]
   flashlights?: Flashlight | null         // joined for edit — the original
+  submitter_nickname?: string | null      // resolved by the admin GET (who filed it)
 }
 
 export type FilterState = {

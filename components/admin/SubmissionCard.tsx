@@ -112,7 +112,12 @@ export default function SubmissionCard({ sub, onAction }: { sub: FlashlightSubmi
             <span className="font-semibold text-ink">{(sub.data.brand ?? '') + ' ' + (sub.data.model ?? '')}</span>
             {sub.type === 'edit' && <span className="text-xs text-ink-3">({changed.length} field{changed.length !== 1 ? 's' : ''} changed)</span>}
           </div>
-          <p className="text-xs text-ink-3 mt-0.5">{formatDate(sub.created_at)}</p>
+          <p className="text-xs text-ink-3 mt-0.5">
+            {sub.submitter_nickname
+              ? <>by <span className="font-medium text-ink-2">{sub.submitter_nickname}</span> · </>
+              : null}
+            {formatDate(sub.created_at)}
+          </p>
           {sub.note && <p className="text-sm text-ink-2 mt-1 italic">&ldquo;{sub.note}&rdquo;</p>}
         </div>
         <button onClick={() => setExpanded(e => !e)} className="text-ink-3 hover:text-ink-2 shrink-0 mt-1">

@@ -61,6 +61,12 @@ export default function BrowseHeader({
             )
           })}
           <InfoMenu />
+          <Link
+            href="/contribute"
+            className="glass-dark ml-1 px-3.5 py-1.5 rounded-full text-[#f3f3f0]/90 hover:text-[#f3f3f0] transition-colors"
+          >
+            Submit
+          </Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <div className="glass-dark hidden sm:flex items-center gap-2 rounded-full px-3.5 h-[34px] w-60">
@@ -118,6 +124,10 @@ export default function BrowseHeader({
               {n.label}
             </Link>
           ))}
+          <Link href="/contribute" onClick={() => setNavOpen(false)}
+            className="text-sm font-medium text-[#eba00b] py-2.5 mt-1">
+            Submit a flashlight
+          </Link>
         </nav>
       )}
     </header>
