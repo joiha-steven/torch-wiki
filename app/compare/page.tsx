@@ -136,9 +136,16 @@ export default function ComparePage() {
                 })
                 if (values.every(v => v == null)) return null
 
-                const hasHighlight = ['max_lumens', 'beam_distance_m'].includes(row.key)
-                const numericVals = flashlights.map(f => Number(f[row.key as keyof Flashlight]))
-                const maxVal = hasHighlight ? Math.max(...numericVals.filter(v => !isNaN(v))) : null
+                // Highlight the best value per row when the spec has a clear winning
+                // direction. Higher wins for output/throw; lower wins for weight/price.
+                // Only highlight when >1 light actually has a comparable value.
+                const higherBetter = ['max_lumens', 'beam_distance_m', 'candela'].includes(row.key)
+                const lowerBetter = ['weight_g', 'price_usd'].includes(row.key)
+                const hasHighlight = higherBetter || lowerBetter
+                const numericVals = flashlights.map(f => Number(f[row.key as keyof Flashlight])).filter(v => !isNaN(v) && v > 0)
+                const bestVal = hasHighlight && numericVals.length > 1
+                  ? (higherBetter ? Math.max(...numericVals) : Math.min(...numericVals))
+                  : null
 
                 return (
                   <tr key={row.key} className="border-t border-line">
@@ -146,7 +153,7 @@ export default function ComparePage() {
                     {flashlights.map((f, fi) => {
                       const val = values[fi]
                       const numVal = Number(f[row.key as keyof Flashlight])
-                      const isBest = hasHighlight && maxVal !== null && numVal === maxVal && !isNaN(numVal)
+                      const isBest = bestVal !== null && numVal === bestVal && !isNaN(numVal) && numVal > 0
                       return (
                         <td key={f.id} className={`px-4 py-2.5 text-center font-mono text-xs border-l border-line ${
                           isBest ? 'text-brand-600 font-bold' : 'text-ink-2'
