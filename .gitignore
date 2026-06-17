@@ -47,5 +47,6 @@ scripts/.nextorch-raw/
 # (04_Codebase/scrapers/), symlinked into scripts/ so they still run locally. They
 # must never be published to this public repo. Run with: node --preserve-symlinks scripts/<name>.mjs
 scripts/seed-*.mjs
+scripts/*-images.mjs
 scripts/add-coolfall-trek.mjs
 scripts/*-data.json
