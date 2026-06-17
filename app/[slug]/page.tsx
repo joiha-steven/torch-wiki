@@ -87,31 +87,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function FlashlightPage({ params }: Props) {
   const { slug } = await params
+  // Change history only needs the slug, so fire it in parallel with the row fetch.
+  const clPromise = supabase.rpc('flashlight_change_log', { p_slug: slug })
   const flashlight = await getFlashlight(slug)
 
   if (!flashlight) notFound()
 
-  // Brand-level metadata (origin + manufacturing country) - looked up by brand name
-  const { data: brandInfo } = await supabase
-    .from('brands')
-    .select('country, made_in')
-    .eq('name', flashlight.brand)
-    .maybeSingle()
+  // Brand metadata + submitter profile are independent of each other - run together.
+  const [{ data: brandInfo }, profileRes] = await Promise.all([
+    supabase.from('brands').select('country, made_in').eq('name', flashlight.brand).maybeSingle(),
+    flashlight.updated_by
+      ? supabase.from('profiles').select('nickname').eq('id', flashlight.updated_by).single()
+      : Promise.resolve({ data: null }),
+  ])
 
   // Determine attribution:
   // updated_by set + updated_at == created_at → user submitted this as new
   // updated_by set + updated_at != created_at → user edited an existing one
   const addedByUser = !!flashlight.updated_by && flashlight.updated_at === flashlight.created_at
-
-  let updatedByNickname: string | null = null
-  if (flashlight.updated_by) {
-    const { data: profile } = await supabase
-      .from('profiles').select('nickname').eq('id', flashlight.updated_by).single()
-    updatedByNickname = profile?.nickname ?? null
-  }
+  const updatedByNickname = (profileRes.data as { nickname: string | null } | null)?.nickname ?? null
 
   // Full public change history (every approved create/edit for this flashlight).
-  const { data: clRows } = await supabase.rpc('flashlight_change_log', { p_slug: slug })
+  const { data: clRows } = await clPromise
   const changeEvents = (clRows ?? []) as ChangeEvent[]
   // System-seeded lights have no submission row → add a base "Added" entry so the
   // history always shows where the record came from.
