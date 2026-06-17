@@ -39,7 +39,7 @@ export default function BrowseHeader({
       className="floating-nav lg-surface sticky top-4 z-50 mx-auto mt-4 rounded-[28px] text-[#f3f3f0]"
       style={{ width: 'min(1280px, calc(100% - 40px))' }}
     >
-      <div className="relative z-[1] flex items-center gap-8 px-6 h-16">
+      <div className="relative z-[1] flex items-center gap-8 px-6 h-14">
         <Link href="/" className="font-extrabold text-[19px] tracking-[-0.02em] shrink-0" onClick={() => setNavOpen(false)}>
           <span style={{ color: '#eba00b' }}>torch</span><span className="text-[#f3f3f0]">.EDC.wiki</span>
         </Link>
@@ -69,7 +69,7 @@ export default function BrowseHeader({
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <div className="glass-dark hidden sm:flex items-center gap-2 rounded-full px-3.5 h-[34px] w-60">
+          <div className="glass-dark hidden sm:flex items-center gap-2 rounded-full px-3.5 h-[34px] w-[168px]">
             <Search size={15} className="text-[#f3f3f0]/65 shrink-0" />
             <input
               ref={searchRef}

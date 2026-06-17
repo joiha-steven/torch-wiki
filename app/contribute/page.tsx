@@ -160,7 +160,7 @@ export default function ContributePage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1232px] mx-auto px-7 py-8">
+      <div className="max-w-[1242px] mx-auto px-7 py-8">
         <div className="max-w-3xl mx-auto">
 
         <div className="text-center mb-10">

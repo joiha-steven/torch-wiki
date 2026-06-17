@@ -33,7 +33,7 @@ export default function TermsPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1232px] mx-auto px-7 py-8">
+      <div className="max-w-[1242px] mx-auto px-7 py-8">
         <div className="text-center mb-10">
           <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Terms of Use</h1>
           <p className="mt-2 text-[13px] text-ink-2">

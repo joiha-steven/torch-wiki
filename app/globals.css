@@ -67,7 +67,7 @@
   --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 48%);
   --pill-bg: rgba(255, 255, 255, 0.72);
   --pill-edge: rgba(255, 255, 255, 0.75);
-  --nav-bg: rgba(31, 33, 38, 0.92);   /* lighter graphite capsule (was near-black) */
+  --nav-bg: rgba(16, 17, 21, 0.95);   /* near-black graphite, flat */
 
   /* dropdown / menu surfaces */
   --menu-bg: #ffffff;
@@ -115,7 +115,7 @@
   --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0) 48%);
   --pill-bg: rgba(255, 255, 255, 0.05);
   --pill-edge: rgba(255, 255, 255, 0.10);
-  --nav-bg: rgba(37, 39, 44, 0.92);   /* lighter than page so the capsule still floats */
+  --nav-bg: rgba(28, 30, 35, 0.92);   /* still lighter than the dark page so it floats */
 
   --menu-bg: #212327;
   --menu-border: #34363c;
@@ -231,21 +231,14 @@ h1, h2, h3 {
   font-weight: 600;
 }
 
-/* Floating dark-glass nav capsule */
+/* Floating dark nav capsule - flat modern glass (no glossy top sheen / bevel) */
 .floating-nav {
-  /* solid-ish dark base for depth, a top sheen, and a bright top rim */
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 50%),
-    var(--nav-bg);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  /* layered shadow → the capsule floats with real presence (not flat) */
-  box-shadow:
-    0 12px 34px rgba(0, 0, 0, 0.24),
-    0 2px 8px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.26),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  backdrop-filter: blur(20px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  /* one soft, low shadow → sits on the page without the old 3D/bubble look */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
 }
 
 /* Liquid-glass specular - a soft light blob that follows the cursor across a
@@ -290,7 +283,7 @@ h1, h2, h3 {
   .glass,
   .glass-card { background: rgba(255, 255, 255, 0.9); }
   .glass-pill { background: rgba(255, 255, 255, 0.92); }
-  .floating-nav { background: rgba(14, 14, 16, 0.92); }
+  .floating-nav { background: rgba(16, 17, 21, 0.96); }
   .glass-dark { background: rgba(255, 255, 255, 0.22); }
 
   :root[data-theme="dark"] .glass,
