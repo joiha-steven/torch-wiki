@@ -148,7 +148,7 @@ export default async function UserProfilePage({ params }: Props) {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1280px] mx-auto px-7 py-8">
+      <div className="max-w-[1232px] mx-auto px-7 py-8">
         <div className="max-w-3xl mx-auto">
 
         {/* Profile header */}

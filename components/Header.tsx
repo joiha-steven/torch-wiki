@@ -30,7 +30,7 @@ export default function Header() {
       ref={navRef}
       onPointerMove={trackPointer}
       className="floating-nav lg-surface sticky top-4 z-50 mx-auto mt-4 rounded-[28px] text-[#f3f3f0]"
-      style={{ width: 'min(1320px, calc(100% - 24px))' }}
+      style={{ width: 'min(1280px, calc(100% - 40px))' }}
     >
       <div className="relative z-[1] flex items-center gap-8 px-6 h-16">
         <Link

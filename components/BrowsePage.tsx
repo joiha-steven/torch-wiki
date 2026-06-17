@@ -250,7 +250,7 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
         onSearchChange={(v) => setFilters(f => ({ ...f, search: v }))}
       />
 
-      <div className="max-w-[1280px] mx-auto px-7 py-7 flex gap-10">
+      <div className="max-w-[1232px] mx-auto px-7 py-7 flex gap-10">
         <div className="hidden md:block">
           <FilterPanel
             filters={filters}
