@@ -44,7 +44,7 @@ export default async function BrandsPage() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-[1242px] mx-auto px-7 py-8">
+      <div className="max-w-[1250px] mx-auto px-7 py-8">
 
         <div className="text-center mb-10">
           <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em]">Brands &amp; makers</h1>

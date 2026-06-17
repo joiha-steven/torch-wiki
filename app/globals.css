@@ -115,7 +115,7 @@
   --glass-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0) 48%);
   --pill-bg: rgba(255, 255, 255, 0.05);
   --pill-edge: rgba(255, 255, 255, 0.10);
-  --nav-bg: rgba(28, 30, 35, 0.92);   /* still lighter than the dark page so it floats */
+  --nav-bg: rgba(0, 0, 0, 0.8);   /* pure black in dark mode; the light rim makes it read */
 
   --menu-bg: #212327;
   --menu-border: #34363c;
@@ -231,14 +231,16 @@ h1, h2, h3 {
   font-weight: 600;
 }
 
-/* Floating dark nav capsule - flat modern glass (no glossy top sheen / bevel) */
+/* Floating dark nav capsule - flat glass with a crisp light rim (not the old 3D gloss) */
 .floating-nav {
   background: var(--nav-bg);
   -webkit-backdrop-filter: blur(20px) saturate(135%);
   backdrop-filter: blur(20px) saturate(135%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  /* one soft, low shadow → sits on the page without the old 3D/bubble look */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  /* a clean edge line all around + a thin bright top rim → reads as glass, stays flat */
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 /* Liquid-glass specular - a soft light blob that follows the cursor across a
@@ -289,7 +291,7 @@ h1, h2, h3 {
   :root[data-theme="dark"] .glass,
   :root[data-theme="dark"] .glass-card { background: #1f2125; }
   :root[data-theme="dark"] .glass-pill { background: #26282d; }
-  :root[data-theme="dark"] .floating-nav { background: rgba(37, 39, 44, 0.98); }
+  :root[data-theme="dark"] .floating-nav { background: rgba(0, 0, 0, 0.92); }
   :root[data-theme="dark"] .glass-dark { background: rgba(255, 255, 255, 0.08); }
 }
 

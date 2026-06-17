@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="max-w-[1242px] mx-auto px-7 py-8">
+      <div className="max-w-[1250px] mx-auto px-7 py-8">
 
         {/* Top bar: section switcher (centered) + force clear (right) */}
         <div className="relative flex justify-center mb-8">
