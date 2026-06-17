@@ -279,6 +279,17 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
           ))}
         </div>
       </Section>
+
+      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-line">
+        © 2026 torch.edc.wiki - a non-commercial reference project, not affiliated with any brand.{' '}
+        Original content &amp; data compilation:{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
+        {' '}· Code:{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">MIT</a>
+        {' '}·{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">GitHub</a>.{' '}
+        Product specs are factual data; product images belong to their respective manufacturers.
+      </p>
     </aside>
   )
 }

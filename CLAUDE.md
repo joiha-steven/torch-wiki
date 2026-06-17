@@ -8,7 +8,7 @@ Flashlight database web app. Live at **https://torch.edc.wiki**.
 > layout, request/data flow, subsystems). This file is the **operating manual**: the rules
 > every change must follow, a schema summary, and pointers into `docs/` for deep detail.
 
-**Licensing (layered):** code → MIT (`LICENSE`); original content & data compilation → CC BY 4.0 (`LICENSE-CONTENT.md`, incl. sui generis database right); factual specs → not copyrightable; product images → property of their manufacturers, non-commercial reference use only, **never CC-licensed**, notice-and-takedown. Keep the "non-commercial reference project, not affiliated with any brand" framing (it's the fair-use shield for brand images). Footer (in `BrowsePage.tsx`) and README carry the dual CC BY 4.0 / MIT notice.
+**Licensing (layered):** code → MIT (`LICENSE`); original content & data compilation → CC BY 4.0 (`LICENSE-CONTENT.md`, incl. sui generis database right); factual specs → not copyrightable; product images → property of their manufacturers, non-commercial reference use only, **never CC-licensed**, notice-and-takedown. Keep the "non-commercial reference project, not affiliated with any brand" framing (it's the fair-use shield for brand images). Footer (in `FilterPanel.tsx`) and README carry the dual CC BY 4.0 / MIT notice.
 
 ## Definition of Done (every change)
 
