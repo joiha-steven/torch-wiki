@@ -111,6 +111,22 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
     } catch {}
   }, [])
 
+  // Remember the active filters for this session, so navigating to a light and
+  // hitting Back restores them instead of resetting. Restore after mount (SSR-safe);
+  // the filter-change effect below then refetches for the restored filters.
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('browseFilters')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (stored) setFilters(JSON.parse(stored))
+    } catch {}
+  }, [])
+  const skipFirstFilterWrite = useRef(true)
+  useEffect(() => {
+    if (skipFirstFilterWrite.current) { skipFirstFilterWrite.current = false; return }
+    try { sessionStorage.setItem('browseFilters', JSON.stringify(filters)) } catch {}
+  }, [filters])
+
   // Load facet data once (after first paint - doesn't block the seeded grid).
   useEffect(() => {
     fetchFacetRows().then(setFacetRows).catch(() => {})

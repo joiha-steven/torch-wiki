@@ -1,10 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { FilterState } from '@/lib/types'
 import { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
+
+// Which facet groups start expanded. Brand is open by default (people pick it often).
+// Persisted per-session under OPEN_KEY so the expand/collapse choices survive navigation;
+// "Clear all" resets back to this.
+const DEFAULT_OPEN: Record<string, boolean> = {
+  Brand: true, Lumens: true, Price: true, Category: true,
+  'Made in': false, Battery: false, 'LED / Emitter': false, Charging: false,
+}
+const OPEN_KEY = 'browseFacetsOpen'
 
 const SORT_OPTIONS = [
   { value: 'random',      label: 'Random' },
@@ -54,16 +63,18 @@ function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: ()
   )
 }
 
-// Collapsible facet group (native <details>, 0-JS). `count` shows how many options
-// in the group are active so a collapsed section still signals it's filtering.
-function Section({ title, count = 0, defaultOpen, children }: {
+// Collapsible facet group. Controlled (open + onToggle) so the expand/collapse state
+// can be remembered + reset. `count` shows how many options in the group are active.
+function Section({ title, count = 0, open, onToggle, children }: {
   title: string
   count?: number
-  defaultOpen?: boolean
+  open: boolean
+  onToggle: (open: boolean) => void
   children: React.ReactNode
 }) {
   return (
-    <details className="group border-b border-line pb-3" open={defaultOpen}>
+    <details className="group border-b border-line pb-3" open={open}
+      onToggle={e => onToggle((e.currentTarget as HTMLDetailsElement).open)}>
       <summary className="flex items-center justify-between cursor-pointer select-none list-none py-0.5 [&::-webkit-details-marker]:hidden">
         <span className="text-[12px] font-semibold text-ink-2">
           {title}{count > 0 && <span className="ml-1.5 text-brand-500">{count}</span>}
@@ -183,14 +194,34 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
     filters.maxPrice < PRICE_MAX ||
     filters.chargingType !== null
 
-  const clearAll = () => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], minLumens: 0, maxLumens: LUMEN_MAX, minPrice: 0, maxPrice: PRICE_MAX, chargingType: null })
+  // Remember which groups are expanded (per session). Restored after mount (SSR-safe).
+  const [open, setOpen] = useState<Record<string, boolean>>(DEFAULT_OPEN)
+  useEffect(() => {
+    try {
+      const s = sessionStorage.getItem(OPEN_KEY)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (s) setOpen({ ...DEFAULT_OPEN, ...JSON.parse(s) })
+    } catch {}
+  }, [])
+  const skipFirstOpenWrite = useRef(true)
+  useEffect(() => {
+    if (skipFirstOpenWrite.current) { skipFirstOpenWrite.current = false; return }
+    try { sessionStorage.setItem(OPEN_KEY, JSON.stringify(open)) } catch {}
+  }, [open])
+  const toggleSection = (title: string, isOpen: boolean) =>
+    setOpen(o => o[title] === isOpen ? o : { ...o, [title]: isOpen })
+
+  const clearAll = () => {
+    onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], minLumens: 0, maxLumens: LUMEN_MAX, minPrice: 0, maxPrice: PRICE_MAX, chargingType: null })
+    setOpen(DEFAULT_OPEN)  // back to the default expand/collapse layout
+  }
 
   return (
     <aside className="w-[226px] shrink-0 space-y-3 text-[13px]">
 
       {/* Rail head */}
-      <div className="flex items-baseline justify-between pb-1">
-        <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-ink">Filters</h2>
+      <div className="flex items-center justify-between pb-2 mb-1 border-b border-line-strong">
+        <h2 className="text-[17px] font-bold tracking-[-0.02em] text-ink">Filters</h2>
         {hasActiveFilters && (
           <button onClick={clearAll} className="text-[12px] text-ink-3 hover:text-brand-500 transition-colors">Clear all</button>
         )}
@@ -212,14 +243,14 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Brands */}
       {availableBrands.length > 0 && (
-        <Section title="Brand" count={filters.brands.length}>
+        <Section title="Brand" count={filters.brands.length} open={open.Brand} onToggle={v => toggleSection('Brand', v)}>
           <CheckList items={availableBrands} selected={filters.brands}
             onToggle={v => onChange({ ...filters, brands: toggle(filters.brands, v) })} />
         </Section>
       )}
 
       {/* Lumens */}
-      <Section title="Lumens" count={filters.minLumens > 0 || filters.maxLumens < LUMEN_MAX ? 1 : 0} defaultOpen>
+      <Section title="Lumens" count={filters.minLumens > 0 || filters.maxLumens < LUMEN_MAX ? 1 : 0} open={open.Lumens} onToggle={v => toggleSection('Lumens', v)}>
         <RangeSlider
           floor={0} ceil={LUMEN_MAX} step={100}
           lo={filters.minLumens} hi={Math.min(filters.maxLumens, LUMEN_MAX)}
@@ -229,7 +260,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       </Section>
 
       {/* Price Range */}
-      <Section title="Price" count={filters.minPrice > 0 || filters.maxPrice < PRICE_MAX ? 1 : 0} defaultOpen>
+      <Section title="Price" count={filters.minPrice > 0 || filters.maxPrice < PRICE_MAX ? 1 : 0} open={open.Price} onToggle={v => toggleSection('Price', v)}>
         <RangeSlider
           floor={0} ceil={PRICE_CEIL} step={25}
           lo={filters.minPrice} hi={Math.min(filters.maxPrice, PRICE_CEIL)}
@@ -240,7 +271,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Category */}
       {categories.length > 0 && (
-        <Section title="Category" count={filters.categories.length} defaultOpen>
+        <Section title="Category" count={filters.categories.length} open={open.Category} onToggle={v => toggleSection('Category', v)}>
           <CheckList items={categories} selected={filters.categories} limit={20}
             onToggle={v => onChange({ ...filters, categories: toggle(filters.categories, v) })} />
         </Section>
@@ -248,7 +279,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Made in */}
       {availableMadeIn.length > 0 && (
-        <Section title="Made in" count={filters.madeIn.length}>
+        <Section title="Made in" count={filters.madeIn.length} open={open['Made in']} onToggle={v => toggleSection('Made in', v)}>
           <CheckList items={availableMadeIn} selected={filters.madeIn}
             onToggle={v => onChange({ ...filters, madeIn: toggle(filters.madeIn, v) })} />
         </Section>
@@ -256,7 +287,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Battery */}
       {batteryTypes.length > 0 && (
-        <Section title="Battery" count={filters.batteryTypes.length}>
+        <Section title="Battery" count={filters.batteryTypes.length} open={open.Battery} onToggle={v => toggleSection('Battery', v)}>
           <CheckList items={batteryTypes} selected={filters.batteryTypes}
             onToggle={v => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, v) })} />
         </Section>
@@ -264,14 +295,14 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Emitters */}
       {availableEmitters.length > 0 && (
-        <Section title="LED / Emitter" count={filters.emitters.length}>
+        <Section title="LED / Emitter" count={filters.emitters.length} open={open['LED / Emitter']} onToggle={v => toggleSection('LED / Emitter', v)}>
           <CheckList items={availableEmitters} selected={filters.emitters}
             onToggle={v => onChange({ ...filters, emitters: toggle(filters.emitters, v) })} />
         </Section>
       )}
 
       {/* Charging */}
-      <Section title="Charging" count={filters.chargingType !== null ? 1 : 0}>
+      <Section title="Charging" count={filters.chargingType !== null ? 1 : 0} open={open.Charging} onToggle={v => toggleSection('Charging', v)}>
         <div className="space-y-[3px]">
           {CHARGING_OPTIONS.map(({ value, label }) => (
             <RadioRow key={label} checked={filters.chargingType === value}
