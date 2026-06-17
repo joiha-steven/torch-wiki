@@ -12,6 +12,8 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 17, 2026",
     "title": "EagleTac, HDS & Olight added, public change history & slider filters",
     "items": [
+      "You can now pick a username when you sign up (optional) - it checks availability as you type and becomes your public @handle right away, instead of having to set it later in Account",
+      "The homepage \"users\" count now counts every registered account, including ones that haven't set a username yet",
       "Added a Submit button in the top bar for quickly contributing a flashlight",
       "Change history now tells team and community edits apart: moderator and admin contributors show in amber, regular members in strong grey",
       "Change history now timestamps each entry by when it was submitted, not when it was approved - so a light that waited in the review queue still shows the real add/edit time",

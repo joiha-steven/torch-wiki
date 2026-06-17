@@ -54,13 +54,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [wRes, cRes, pRes] = await Promise.all([
       supabase.from('user_wishlists').select('flashlight_id').eq('user_id', userId),
       supabase.from('user_collections').select('flashlight_id').eq('user_id', userId),
-      supabase.from('profiles').select('nickname, is_admin, is_moderator').eq('id', userId).single(),
+      supabase.from('profiles').select('nickname, is_admin, is_moderator').eq('id', userId).maybeSingle(),
     ])
     setWishlistIds(new Set(wRes.data?.map((r) => r.flashlight_id) ?? []))
     setCollectionIds(new Set(cRes.data?.map((r) => r.flashlight_id) ?? []))
-    setNickname(pRes.data?.nickname ?? null)
-    setIsAdmin(pRes.data?.is_admin ?? false)
-    setIsModerator(pRes.data?.is_moderator ?? false)
+
+    let profile = pRes.data
+    // First sign-in after sign-up: if there's no profile row yet but the user
+    // picked a username at sign-up (stored in auth metadata), create the profile
+    // with that nickname. If the name was taken meanwhile the upsert errors on the
+    // unique constraint and we just leave it unset (they can pick one in Account).
+    if (!profile) {
+      const { data: { user } } = await supabase.auth.getUser()
+      const wanted = (user?.user_metadata?.username as string | undefined)?.trim()
+      if (wanted) {
+        const { data: created } = await supabase
+          .from('profiles')
+          .upsert({ id: userId, nickname: wanted, updated_at: new Date().toISOString() })
+          .select('nickname, is_admin, is_moderator')
+          .single()
+        if (created) profile = created
+      }
+    }
+    setNickname(profile?.nickname ?? null)
+    setIsAdmin(profile?.is_admin ?? false)
+    setIsModerator(profile?.is_moderator ?? false)
   }, [])
 
   useEffect(() => {

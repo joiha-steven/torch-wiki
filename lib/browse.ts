@@ -120,12 +120,14 @@ export function madeInBrandNames(filters: FilterState, brandsMeta: BrandMeta[]):
 // paint; also used as a client fallback. Small tables → `exact` counts are cheap
 // and the headline "X flashlights" number stays correct.
 export async function fetchBrowseMeta(): Promise<BrowseMeta> {
-  const [{ data: b }, { data: e }, { data: br }, { count: fCount }, { count: uCount }] = await Promise.all([
+  const [{ data: b }, { data: e }, { data: br }, { count: fCount }, { data: uCount }] = await Promise.all([
     supabase.rpc('get_distinct_brands'),
     supabase.rpc('get_distinct_emitters'),
     supabase.from('brands').select('name, made_in').is('deleted_at', null),
     supabase.from('flashlights').select('id', { count: 'exact', head: true }).is('deleted_at', null),
-    supabase.from('profiles').select('id', { count: 'exact', head: true }),
+    // "X users" counts real auth accounts (auth.users), not just those who set a
+    // nickname — so a sign-up that never finished onboarding is still counted.
+    supabase.rpc('public_user_count'),
   ])
   const brands = (b ?? []).map((r: { brand: string }) => r.brand).filter(Boolean) as string[]
   const emitters = (e ?? []).map((r: { emitter: string }) => r.emitter).filter(Boolean) as string[]
@@ -134,6 +136,6 @@ export async function fetchBrowseMeta(): Promise<BrowseMeta> {
     brands,
     emitters,
     brandsMeta,
-    stats: { flashlights: fCount ?? 0, brands: brands.length, users: uCount ?? 0 },
+    stats: { flashlights: fCount ?? 0, brands: brands.length, users: (uCount as number) ?? 0 },
   }
 }

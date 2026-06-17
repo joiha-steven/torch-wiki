@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
 import { SITE_URL } from '@/lib/seo'
+import { nickError } from '@/components/account/shared'
 
 type Tab = 'signin' | 'signup' | 'forgot' | 'mfa' | 'recovery'
 
@@ -29,6 +30,8 @@ export default function AuthModal() {
   const [tab, setTab]           = useState<Tab>('signin')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
+  const [userAvail, setUserAvail] = useState<'checking' | 'available' | 'taken' | null>(null)
   const [error, setError]       = useState('')
   const [message, setMessage]   = useState('')
   const [loading, setLoading]   = useState(false)
@@ -55,6 +58,19 @@ export default function AuthModal() {
     timerRef.current = setInterval(tick, 1000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [])
+
+  // Live username availability check (sign-up only, optional field)
+  useEffect(() => {
+    const v = username.trim()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (tab !== 'signup' || !v || nickError(v)) { setUserAvail(null); return }
+    setUserAvail('checking')
+    const t = setTimeout(async () => {
+      const { data } = await supabase.from('profiles').select('id').eq('nickname', v).limit(1)
+      setUserAvail(data && data.length ? 'taken' : 'available')
+    }, 400)
+    return () => clearTimeout(t)
+  }, [username, tab])
 
   function reset(next: Tab) {
     setTab(next); setError(''); setMessage('')
@@ -141,6 +157,10 @@ export default function AuthModal() {
   // ── Signup ────────────────────────────────────────────────────────────────
   async function handleSignup() {
     if (!captchaToken) { setError('Please complete the captcha.'); return }
+    const uname = username.trim()
+    if (uname && (nickError(uname) || userAvail === 'taken')) {
+      setError('Fix the username or leave it blank.'); return
+    }
     setLoading(true)
     if (!await verifyCaptcha(captchaToken)) {
       setError('Captcha failed.'); turnstileRef.current?.reset(); setCaptchaToken(null); setLoading(false); return
@@ -148,7 +168,7 @@ export default function AuthModal() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: SITE_URL },
+      options: { emailRedirectTo: SITE_URL, data: uname ? { username: uname } : undefined },
     })
     if (error) setError(error.message)
     else { setMessage('Check your email for a confirmation link.'); trackEvent(AnalyticsEvent.Signup) }
@@ -254,6 +274,25 @@ export default function AuthModal() {
                     placeholder="••••••" />
                 </div>
               )}
+              {tab === 'signup' && (
+                <div>
+                  <label className="block text-xs font-medium text-ink-2 mb-1">
+                    Username <span className="text-ink-3 font-normal">(optional)</span>
+                  </label>
+                  <input type="text" value={username} onChange={e => setUsername(e.target.value)}
+                    className="w-full h-10 border border-line rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                    placeholder="your_handle" autoComplete="off" />
+                  {username.trim() && (
+                    nickError(username.trim())
+                      ? <p className="text-xs text-red-500 mt-1">{nickError(username.trim())}</p>
+                      : userAvail === 'taken'
+                        ? <p className="text-xs text-red-500 mt-1">This username is taken.</p>
+                        : userAvail === 'available'
+                          ? <p className="text-xs text-green-600 mt-1">Available - your profile will be /u/{username.trim()}</p>
+                          : null
+                  )}
+                </div>
+              )}
               {tab === 'signin' && (
                 <div className="text-right">
                   <button type="button" onClick={() => reset('forgot')} className="text-xs text-ink-3 hover:text-ink-2">
@@ -298,7 +337,8 @@ export default function AuthModal() {
                 loading || isLocked ||
                 (tab === 'mfa' && totpCode.length !== 6) ||
                 (tab === 'recovery' && !recoveryCode.trim()) ||
-                ((tab === 'signup' || tab === 'forgot') && !captchaToken)
+                ((tab === 'signup' || tab === 'forgot') && !captchaToken) ||
+                (tab === 'signup' && !!username.trim() && (!!nickError(username.trim()) || userAvail === 'taken' || userAvail === 'checking'))
               }
               className="w-full bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-black font-medium text-sm py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
               {loading && <Loader2 size={14} className="animate-spin" />}
