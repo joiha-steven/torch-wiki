@@ -241,7 +241,11 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [items.length]) // re-attach when list grows so sentinel stays valid
+    // Re-attach when the list grows AND whenever `loading` flips: a filter fetch
+    // swaps the grid for skeletons (sentinel unmounts) then remounts it as a NEW
+    // node - without `loading` here the observer would stay bound to the old,
+    // detached node and infinite scroll would silently stop.
+  }, [items.length, loading])
 
   return (
     <div className="min-h-screen">
