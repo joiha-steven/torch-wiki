@@ -9,7 +9,7 @@ import MarkdownEditor from '@/components/MarkdownEditor'
 import { useAuth } from '@/lib/auth-context'
 import { batteryOptions } from '@/lib/battery'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
-import { Field, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
+import { Field, uploadSubmissionImage, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
 import EmitterInput from '@/components/submit/EmitterInput'
 import BasicFields from '@/components/submit/BasicFields'
 import { OutputBeamFields, DimensionFields } from '@/components/submit/SpecFields'
@@ -231,11 +231,11 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       }).select().single()
       if (subErr) throw subErr
 
-      // 2. Upload NEW images to Vercel Blob, track URLs for approval
+      // 2. Upload NEW images to Vercel Blob, track URLs for approval. Each upload
+      // retries with a fresh token (uploadSubmissionImage) so one flaky image
+      // can't abort the batch and strand a half-uploaded pending submission.
       const uploadedImages: { url: string; sort_order: number; is_primary: boolean }[] = []
       const uploadedUrlById = new Map<string, string>() // img.id → vercel URL
-      const { data: { session: upSession } } = await supabase.auth.getSession()
-      const uploadPayload = JSON.stringify({ session: upSession?.access_token ?? '' })
 
       for (let imgIndex = 0; imgIndex < images.length; imgIndex++) {
         const img = images[imgIndex]
@@ -243,7 +243,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: true } : i))
         const ext = img.file.name.split('.').pop()
         const path = `submissions/${sub.id}/${img.id}.${ext}`
-        const blob = await upload(path, img.file, { access: 'public', handleUploadUrl: '/api/upload', clientPayload: uploadPayload })
+        const blob = await uploadSubmissionImage(path, img.file)
         uploadedUrlById.set(img.id, blob.url)
         const imgRecord = { submission_id: sub.id, url: blob.url, sort_order: imgIndex, is_primary: img.isPrimary }
         await supabase.from('submission_images').insert(imgRecord)

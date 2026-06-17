@@ -1,6 +1,27 @@
 import React from 'react'
+import { upload } from '@vercel/blob/client'
+import { supabase } from '@/lib/supabase'
 
 export { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
+
+// Upload one submission image to Vercel Blob. Fetches a FRESH Supabase access
+// token per attempt (so a token that expired mid-batch is refreshed) and retries
+// transient "Failed to retrieve the client token" errors — one flaky image must
+// not abort the whole submission and strand it as a half-uploaded pending row.
+export async function uploadSubmissionImage(path: string, file: File, tries = 3): Promise<{ url: string }> {
+  let lastErr: unknown
+  for (let attempt = 0; attempt < tries; attempt++) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const clientPayload = JSON.stringify({ session: session?.access_token ?? '' })
+      return await upload(path, file, { access: 'public', handleUploadUrl: '/api/upload', clientPayload })
+    } catch (e) {
+      lastErr = e
+      if (attempt < tries - 1) await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
+    }
+  }
+  throw lastErr
+}
 export const BEAM_TYPES = ['Spot', 'Flood', 'Spot+Flood', 'Thrower']
 export const CHARGING_TYPES = ['usb', 'magnetic', 'none']
 
