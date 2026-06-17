@@ -1,0 +1,330 @@
+'use client'
+
+import { useState, useRef } from 'react'
+import { upload } from '@vercel/blob/client'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
+import { supabase } from '@/lib/supabase'
+import { Flashlight, BatteryOption, MaterialEntry } from '@/lib/types'
+import { useAuth } from '@/lib/auth-context'
+import { batteryOptions } from '@/lib/battery'
+import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
+import { uploadSubmissionImage, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
+import { buildSubmissionData } from '@/lib/submission'
+
+type Args = {
+  mode: 'new' | 'edit'
+  initial: Partial<Flashlight>
+  targetId?: string
+  onSuccess: (slug?: string) => void
+}
+
+// All state + handlers + submit logic for SubmitFlashlightForm, so the component
+// stays thin JSX (CLAUDE.md #7: split, don't trim). Behaviour is unchanged from the
+// previous inline version.
+export function useFlashlightForm({ mode, initial, targetId, onSuccess }: Args) {
+  // Staff (admin OR mod) auto-approve - read from global auth context (not a per-mount fetch; the old useIsAdmin race could send a fast "new" to pending).
+  const { isAdmin: isAdminRole, isModerator, loading: authLoading } = useAuth()
+  const isAdmin = isAdminRole || isModerator
+  const [data, setData] = useState<Partial<Flashlight>>({
+    brand: '', model: '', category: null, year: null,
+    max_lumens: null, min_lumens: null, beam_distance_m: null, candela: null, beam_type: null,
+    emitters: [], led_count: null, driver_type: null, battery_type: null, battery_count: null,
+    charging_type: null, has_usb_charging: false,
+    length_mm: null, head_diameter_mm: null, body_diameter_mm: null, weight_g: null,
+    material: null, ip_rating: null, impact_resistance_m: null,
+    price_usd: null, description: null, manual_url: null,
+    is_discontinued: false,
+    ...initial,
+  })
+  const [emitterInput, setEmitterInput] = useState((initial.emitters ?? []).join(', '))
+  const [materialRows, setMaterialRows] = useState<MaterialEntry[]>(() =>
+    initial.materials?.length ? initial.materials : [{ material: '', finish: null, color: null }])
+  const [batteryRows, setBatteryRows] = useState<BatteryOption[]>(() => {
+    const opts = batteryOptions(initial)
+    return opts.length > 0 ? opts.map(o => ({ type: o.type, count: o.count })) : [{ type: '', count: 1 }]
+  })
+  // Initialise with existing images for edit mode
+  const [images, setImages] = useState<ImageEntry[]>(() => {
+    if (mode !== 'edit') return []
+    const existing: ImageEntry[] = []
+    if (initial?.image_url) {
+      existing.push({ id: 'existing-primary', url: initial.image_url, isPrimary: true, uploading: false, isExisting: true })
+    }
+    const extras = (initial?.flashlight_images ?? []).slice().sort((a, b) => a.sort_order - b.sort_order)
+    for (const img of extras) {
+      existing.push({ id: `existing-${img.id}`, url: img.url, isPrimary: false, uploading: false, isExisting: true, existingDbId: img.id })
+    }
+    return existing
+  })
+  // Track which existing extras were removed (DB ids)
+  const [removedExtraDbIds, setRemovedExtraDbIds] = useState<string[]>([])
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [pdfUploading, setPdfUploading] = useState(false)
+  const [pdfFiles, setPdfFiles] = useState<{ url: string; name: string }[]>(() => {
+    // Use manual_urls if it has entries, else fall back to legacy manual_url
+    const urls = (initial?.manual_urls?.length ? initial.manual_urls : null)
+      ?? (initial?.manual_url ? [initial.manual_url] : [])
+    return urls.map((url, i) => ({ url, name: i === 0 ? 'manual.pdf' : `manual-${i}.pdf` }))
+  })
+  // Review links - paste a URL, the system auto-fills title + post date (editable)
+  const [reviewRows, setReviewRows] = useState<ReviewRow[]>(() =>
+    (initial?.reviews ?? []).map(r => ({
+      url: r.url, title: r.title ?? '', published_at: r.published_at ?? null, type: r.type ?? null, fetching: false,
+    }))
+  )
+  const fileRef = useRef<HTMLInputElement>(null)
+  const pdfRef = useRef<HTMLInputElement>(null)
+  const turnstileRef = useRef<TurnstileInstance>(null)
+
+  const set = (k: keyof Flashlight, v: unknown) => setData(d => ({ ...d, [k]: v }))
+  const num = (v: string) => v === '' ? null : Number(v)
+
+  const updateBatteryRow = (i: number, patch: Partial<BatteryOption>) =>
+    setBatteryRows(rows => rows.map((r, j) => j === i ? { ...r, ...patch } : r))
+  const addBatteryRow = () => setBatteryRows(rows => rows.length >= 4 ? rows : [...rows, { type: '', count: 1 }])
+  const removeBatteryRow = (i: number) => setBatteryRows(rows => rows.filter((_, j) => j !== i))
+
+  async function handleImageFiles(files: FileList) {
+    const newEntries: ImageEntry[] = Array.from(files).map(f => ({
+      id: crypto.randomUUID(), url: URL.createObjectURL(f), file: f,
+      isPrimary: false, uploading: false, isExisting: false,
+    }))
+    if (images.length === 0 && newEntries.length > 0) newEntries[0].isPrimary = true
+    setImages(prev => [...prev, ...newEntries])
+  }
+
+  async function handlePdfFile(file: File) {
+    if (file.type !== 'application/pdf') return
+    setPdfUploading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const blob = await upload(`submissions/manuals/${crypto.randomUUID()}.pdf`, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload-pdf',
+        clientPayload: session?.access_token ?? '',
+      })
+      const newFiles = [...pdfFiles, { url: blob.url, name: file.name }]
+      setPdfFiles(newFiles)
+      setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setPdfUploading(false)
+      if (pdfRef.current) pdfRef.current.value = ''
+    }
+  }
+
+  function removePdf(idx: number) {
+    const newFiles = pdfFiles.filter((_, i) => i !== idx)
+    setPdfFiles(newFiles)
+    setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
+  }
+
+  const updateReview = (i: number, patch: Partial<ReviewRow>) =>
+    setReviewRows(rows => rows.map((r, j) => j === i ? { ...r, ...patch } : r))
+  const addReviewRow = () => setReviewRows(rows => [...rows, { url: '', title: '', published_at: null, type: null }])
+  const removeReviewRow = (i: number) => setReviewRows(rows => rows.filter((_, j) => j !== i))
+
+  // Fetch title + post date for a pasted review URL
+  async function fetchReviewMeta(i: number) {
+    const row = reviewRows[i]
+    if (!row?.url?.trim()) return
+    updateReview(i, { fetching: true })
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/fetch-review-meta', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session?.access_token ?? ''}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: row.url.trim() }),
+      })
+      const meta = await res.json() as { title?: string | null; published_at?: string | null; type?: string | null }
+      updateReview(i, {
+        // Only fill blanks - don't clobber what the user already typed/edited
+        title: row.title?.trim() ? row.title : (meta.title ?? ''),
+        published_at: row.published_at ?? meta.published_at ?? null,
+        type: row.type ?? meta.type ?? null,
+        fetching: false,
+      })
+    } catch {
+      updateReview(i, { fetching: false })
+    }
+  }
+
+  function removeImage(id: string) {
+    const img = images.find(i => i.id === id)
+    if (img?.isExisting && img.existingDbId) {
+      setRemovedExtraDbIds(r => [...r, img.existingDbId!])
+    }
+    setImages(prev => {
+      const next = prev.filter(i => i.id !== id)
+      if (next.length > 0 && !next.some(i => i.isPrimary)) next[0].isPrimary = true
+      return next
+    })
+  }
+
+  function setPrimary(id: string) {
+    setImages(prev => prev.map(i => ({ ...i, isPrimary: i.id === id })))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (authLoading) { setError('Loading your account - try again in a moment.'); return } // staff role must resolve first
+    if (!data.brand?.trim() || !data.model?.trim()) { setError('Brand and Model are required.'); return }
+    if (!isAdmin && !captchaToken) { setError('Please complete the captcha.'); return }
+    setSubmitting(true)
+    setError(null)
+    // Roll back the pending row if the submit fails mid-flight (see catch).
+    let createdSubId: string | null = null
+    let completed = false
+    try {
+      // Verify captcha (skipped for staff)
+      if (!isAdmin) {
+        const captchaRes = await fetch('/api/captcha-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: captchaToken }),
+        })
+        const { success } = await captchaRes.json()
+        if (!success) {
+          setError('Captcha failed - please try again.')
+          turnstileRef.current?.reset()
+          setCaptchaToken(null)
+          setSubmitting(false)
+          return
+        }
+      }
+
+      // 1. Create submission row - always 'pending'; admin PATCH promotes to 'approved'
+      const [{ data: { session } }, { data: { user } }] = await Promise.all([
+        supabase.auth.getSession(),
+        supabase.auth.getUser(),
+      ])
+      if (!user) throw new Error('Not signed in')
+
+      const submissionData = buildSubmissionData(data, batteryRows, emitterInput, materialRows)
+      const { data: sub, error: subErr } = await supabase.from('flashlight_submissions').insert({
+        user_id: user.id, type: mode, status: 'pending',
+        target_id: targetId ?? null, data: submissionData, note: null,
+      }).select().single()
+      if (subErr) throw subErr
+      createdSubId = sub.id
+
+      // 2. Upload NEW images to Vercel Blob, track URLs for approval. Each upload
+      // retries with a fresh token (uploadSubmissionImage) so one flaky image
+      // can't abort the batch and strand a half-uploaded pending submission.
+      const uploadedImages: { url: string; sort_order: number; is_primary: boolean }[] = []
+      const uploadedUrlById = new Map<string, string>() // img.id → vercel URL
+
+      for (let imgIndex = 0; imgIndex < images.length; imgIndex++) {
+        const img = images[imgIndex]
+        if (!img.file || img.isExisting) continue
+        setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: true } : i))
+        const ext = img.file.name.split('.').pop()
+        const path = `submissions/${sub.id}/${img.id}.${ext}`
+        const blob = await uploadSubmissionImage(path, img.file)
+        uploadedUrlById.set(img.id, blob.url)
+        const imgRecord = { submission_id: sub.id, url: blob.url, sort_order: imgIndex, is_primary: img.isPrimary }
+        await supabase.from('submission_images').insert(imgRecord)
+        uploadedImages.push({ url: blob.url, sort_order: imgIndex, is_primary: img.isPrimary })
+        setImages(prev => prev.map(i => i.id === img.id ? { ...i, uploading: false } : i))
+      }
+
+      // For edit mode: compute final primary URL (existing keeps its url; a new
+      // upload uses its blob url) and extras to remove.
+      let _primaryImageUrl: string | null | undefined = undefined
+      if (mode === 'edit') {
+        const primaryEntry = images.find(i => i.isPrimary)
+        if (!primaryEntry) {
+          _primaryImageUrl = null
+        } else {
+          _primaryImageUrl = primaryEntry.isExisting ? primaryEntry.url : (uploadedUrlById.get(primaryEntry.id) ?? null)
+        }
+      }
+
+      // Review links - keep only rows with a URL; trim + carry title/date/type
+      const _reviews = reviewRows
+        .filter(r => r.url.trim())
+        .map(r => ({
+          url: r.url.trim(),
+          title: r.title.trim() || r.url.trim(),
+          published_at: r.published_at,
+          type: r.type,
+        }))
+
+      // Rebuild submissionData with image + review directives
+      const finalSubmissionData = {
+        ...submissionData,
+        _reviews,
+        ...(mode === 'edit' ? {
+          _primaryImageUrl,
+          _removeExtraDbIds: removedExtraDbIds,
+        } : {}),
+      }
+
+      // 2b. Persist directives for BOTH modes so a mod approving later from the
+      // pending queue applies the same image + review changes (new needs _reviews;
+      // edit also needs the image directives).
+      await supabase.from('flashlight_submissions').update({ data: finalSubmissionData }).eq('id', sub.id)
+
+      // 3. Admin/mod: auto-approve - apply changes immediately
+      if (isAdmin) {
+        const token = session?.access_token ?? ''
+        const res = await fetch('/api/admin/submissions', {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: sub.id,
+            action: 'approved',
+            submissionData: { type: mode, data: finalSubmissionData },
+            targetId: targetId ?? null,
+            submissionImages: uploadedImages,
+          }),
+        })
+        const json = await res.json() as { ok?: boolean; slug?: string; error?: string }
+        if (!res.ok) throw new Error(json.error ?? 'Auto-approve failed')
+        completed = true   // approved → row is no longer pending; don't roll back
+        // Edit → revalidate that specific page; new → revalidate browse layout
+        const revalidateBody = mode === 'edit' && json.slug
+          ? { slug: json.slug }
+          : { all: true }
+        await fetch('/api/revalidate', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(revalidateBody) })
+        localStorage.removeItem('meta_cache')
+        // Hard navigate - bypasses Next.js client-side router cache to guarantee fresh page
+        if (json.slug) {
+          window.location.href = `/${json.slug}`
+        } else {
+          onSuccess()
+        }
+        return
+      }
+
+      trackEvent(mode === 'edit' ? AnalyticsEvent.ContributionEdit : AnalyticsEvent.ContributionNew)
+      completed = true   // non-staff: pending row is the intended end state
+      onSuccess()
+    } catch (err: unknown) {
+      // Roll back the orphaned pending row so a failed submit leaves nothing in
+      // the queue (RLS lets the owner delete only their own still-pending row;
+      // submission_images cascades). Best effort - never mask the real error.
+      if (createdSubId && !completed) {
+        await supabase.from('flashlight_submissions').delete().eq('id', createdSubId)
+      }
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return {
+    isAdmin, data, set, num,
+    emitterInput, setEmitterInput,
+    materialRows, setMaterialRows,
+    batteryRows, updateBatteryRow, addBatteryRow, removeBatteryRow,
+    images, fileRef, handleImageFiles, removeImage, setPrimary,
+    pdfFiles, pdfUploading, pdfRef, handlePdfFile, removePdf,
+    reviewRows, updateReview, addReviewRow, removeReviewRow, fetchReviewMeta,
+    submitting, error, captchaToken, setCaptchaToken, turnstileRef,
+    handleSubmit,
+  }
+}
