@@ -285,6 +285,17 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
         </main>
       </div>
 
+      <footer className="max-w-[1280px] mx-auto px-7 pb-10 text-[11px] text-[#b8b8b0] leading-relaxed">
+        © 2026 torch.edc.wiki - a non-commercial reference project, not affiliated with any brand.{' '}
+        Original content &amp; data compilation:{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
+        {' '}· Code:{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">MIT</a>
+        {' '}·{' '}
+        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">GitHub</a>.{' '}
+        Product specs are factual data; product images belong to their respective manufacturers.
+      </footer>
+
       {filterOpen && (
         <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Filters">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFilterOpen(false)} />

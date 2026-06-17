@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { FilterState } from '@/lib/types'
 import { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
 
@@ -28,9 +30,6 @@ const CHARGING_OPTIONS = [
   { value: 'none',      label: 'None' },
 ]
 
-// Shared section title - sentence case, no caps
-const sectionTitle = 'text-[12px] font-semibold text-ink-2 mb-2'
-
 // Shared label wrapper
 function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
@@ -51,6 +50,55 @@ function RadioRow({ checked, onChange, label }: { checked: boolean; onChange: ()
         {label}
       </span>
     </label>
+  )
+}
+
+// Collapsible facet group (native <details>, 0-JS). `count` shows how many options
+// in the group are active so a collapsed section still signals it's filtering.
+function Section({ title, count = 0, defaultOpen, children }: {
+  title: string
+  count?: number
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <details className="group border-b border-line pb-3" open={defaultOpen}>
+      <summary className="flex items-center justify-between cursor-pointer select-none list-none py-0.5 [&::-webkit-details-marker]:hidden">
+        <span className="text-[12px] font-semibold text-ink-2">
+          {title}{count > 0 && <span className="ml-1.5 text-brand-500">{count}</span>}
+        </span>
+        <ChevronDown size={14} className="text-ink-3 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="mt-2.5">{children}</div>
+    </details>
+  )
+}
+
+// Checkbox list that truncates to `limit` rows behind a "Show N more" toggle.
+// Selected options float to the top so a collapsed list still shows what's active.
+function CheckList({ items, selected, onToggle, limit = 8 }: {
+  items: string[]
+  selected: string[]
+  onToggle: (v: string) => void
+  limit?: number
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const ordered = [...items].sort((a, b) => Number(selected.includes(b)) - Number(selected.includes(a)))
+  const shown = expanded ? ordered : ordered.slice(0, limit)
+  return (
+    <div className="space-y-[3px]">
+      {shown.map(it => (
+        <CheckRow key={it} checked={selected.includes(it)} onChange={() => onToggle(it)} label={it} />
+      ))}
+      {items.length > limit && (
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="mt-1 text-[12px] text-ink-3 hover:text-brand-500 transition-colors"
+        >
+          {expanded ? 'Show less' : `Show ${items.length - limit} more`}
+        </button>
+      )}
+    </div>
   )
 }
 
@@ -137,19 +185,19 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
   const clearAll = () => onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], minLumens: 0, maxLumens: LUMEN_MAX, minPrice: 0, maxPrice: PRICE_MAX, chargingType: null })
 
   return (
-    <aside className="w-[226px] shrink-0 space-y-[18px] text-[13px]">
+    <aside className="w-[226px] shrink-0 space-y-3 text-[13px]">
 
       {/* Rail head */}
-      <div className="flex items-baseline justify-between pb-4">
+      <div className="flex items-baseline justify-between pb-1">
         <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-ink">Filters</h2>
         {hasActiveFilters && (
           <button onClick={clearAll} className="text-[12px] text-ink-3 hover:text-brand-500 transition-colors">Clear all</button>
         )}
       </div>
 
-      {/* Sort - minimal underline select */}
-      <div>
-        <p className={sectionTitle}>Sort by</p>
+      {/* Sort - minimal underline select (kept inline, not collapsible) */}
+      <div className="border-b border-line pb-3">
+        <p className="text-[12px] font-semibold text-ink-2 mb-2">Sort by</p>
         <select
           value={filters.sortBy}
           onChange={e => onChange({ ...filters, sortBy: e.target.value })}
@@ -163,102 +211,66 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
 
       {/* Brands */}
       {availableBrands.length > 0 && (
-        <div>
-          <p className={sectionTitle}>Brand</p>
-          <div className="space-y-[3px]">
-            {availableBrands.map(brand => (
-              <CheckRow
-                key={brand}
-                checked={filters.brands.includes(brand)}
-                onChange={() => onChange({ ...filters, brands: toggle(filters.brands, brand) })}
-                label={brand}
-              />
-            ))}
-          </div>
-        </div>
+        <Section title="Brand" count={filters.brands.length}>
+          <CheckList items={availableBrands} selected={filters.brands}
+            onToggle={v => onChange({ ...filters, brands: toggle(filters.brands, v) })} />
+        </Section>
       )}
 
       {/* Lumens */}
-      <div>
-        <p className={sectionTitle}>Lumens</p>
+      <Section title="Lumens" count={filters.minLumens > 0 || filters.maxLumens < LUMEN_MAX ? 1 : 0} defaultOpen>
         <RangeSlider
           floor={0} ceil={LUMEN_MAX} step={100}
           lo={filters.minLumens} hi={Math.min(filters.maxLumens, LUMEN_MAX)}
           onChange={(lo, hi) => onChange({ ...filters, minLumens: lo, maxLumens: hi })}
           format={v => `${v.toLocaleString()}${v >= LUMEN_MAX ? '+' : ''}`}
         />
-      </div>
+      </Section>
 
       {/* Price Range */}
-      <div>
-        <p className={sectionTitle}>Price</p>
+      <Section title="Price" count={filters.minPrice > 0 || filters.maxPrice < PRICE_MAX ? 1 : 0} defaultOpen>
         <RangeSlider
           floor={0} ceil={PRICE_CEIL} step={25}
           lo={filters.minPrice} hi={Math.min(filters.maxPrice, PRICE_CEIL)}
           onChange={(lo, hi) => onChange({ ...filters, minPrice: lo, maxPrice: hi >= PRICE_CEIL ? PRICE_MAX : hi })}
           format={v => `$${v.toLocaleString()}${v >= PRICE_CEIL ? '+' : ''}`}
         />
-      </div>
+      </Section>
 
       {/* Category */}
       {categories.length > 0 && (
-        <div>
-          <p className={sectionTitle}>Category</p>
-          <div className="space-y-[3px]">
-            {categories.map(cat => (
-              <CheckRow key={cat} checked={filters.categories.includes(cat)}
-                onChange={() => onChange({ ...filters, categories: toggle(filters.categories, cat) })}
-                label={cat} />
-            ))}
-          </div>
-        </div>
+        <Section title="Category" count={filters.categories.length} defaultOpen>
+          <CheckList items={categories} selected={filters.categories} limit={20}
+            onToggle={v => onChange({ ...filters, categories: toggle(filters.categories, v) })} />
+        </Section>
       )}
 
       {/* Made in */}
       {availableMadeIn.length > 0 && (
-        <div>
-          <p className={sectionTitle}>Made in</p>
-          <div className="space-y-[3px]">
-            {availableMadeIn.map(c => (
-              <CheckRow key={c} checked={filters.madeIn.includes(c)}
-                onChange={() => onChange({ ...filters, madeIn: toggle(filters.madeIn, c) })}
-                label={c} />
-            ))}
-          </div>
-        </div>
+        <Section title="Made in" count={filters.madeIn.length}>
+          <CheckList items={availableMadeIn} selected={filters.madeIn}
+            onToggle={v => onChange({ ...filters, madeIn: toggle(filters.madeIn, v) })} />
+        </Section>
       )}
 
       {/* Battery */}
       {batteryTypes.length > 0 && (
-        <div>
-          <p className={sectionTitle}>Battery</p>
-          <div className="space-y-[3px]">
-            {batteryTypes.map(bt => (
-              <CheckRow key={bt} checked={filters.batteryTypes.includes(bt)}
-                onChange={() => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, bt) })}
-                label={bt} />
-            ))}
-          </div>
-        </div>
+        <Section title="Battery" count={filters.batteryTypes.length}>
+          <CheckList items={batteryTypes} selected={filters.batteryTypes}
+            onToggle={v => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, v) })} />
+        </Section>
       )}
 
       {/* Emitters */}
       {availableEmitters.length > 0 && (
-        <div>
-          <p className={sectionTitle}>LED / Emitter</p>
-          <div className="space-y-[3px]">
-            {availableEmitters.map(e => (
-              <CheckRow key={e} checked={filters.emitters.includes(e)}
-                onChange={() => onChange({ ...filters, emitters: toggle(filters.emitters, e) })}
-                label={e} />
-            ))}
-          </div>
-        </div>
+        <Section title="LED / Emitter" count={filters.emitters.length}>
+          <CheckList items={availableEmitters} selected={filters.emitters}
+            onToggle={v => onChange({ ...filters, emitters: toggle(filters.emitters, v) })} />
+        </Section>
       )}
 
       {/* Charging */}
-      <div>
-        <p className={sectionTitle}>Charging</p>
+      <Section title="Charging" count={filters.chargingType !== null ? 1 : 0}>
         <div className="space-y-[3px]">
           {CHARGING_OPTIONS.map(({ value, label }) => (
             <RadioRow key={label} checked={filters.chargingType === value}
@@ -266,18 +278,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
               label={label} />
           ))}
         </div>
-      </div>
-
-      <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-4 border-t border-line">
-        © 2026 torch.edc.wiki - a non-commercial reference project, not affiliated with any brand.{' '}
-        Original content &amp; data compilation:{' '}
-        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
-        {' '}· Code:{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">MIT</a>
-        {' '}·{' '}
-        <a href="https://github.com/joiha-steven/torch-wiki" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">GitHub</a>.{' '}
-        Product specs are factual data; product images belong to their respective manufacturers.
-      </p>
+      </Section>
     </aside>
   )
 }
