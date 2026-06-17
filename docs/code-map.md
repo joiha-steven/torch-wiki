@@ -72,5 +72,6 @@
 | `lib/analytics.ts` | `trackEvent()` wrapper + `AnalyticsEvent` names for Vercel Analytics custom events / conversion goals (Signup, Collection/Wishlist Add, Contribution New/Edit). Contribution events fire only on the non-admin submit path |
 | `lib/use-consent.ts` | `useConsent()` (SSR-safe via `useSyncExternalStore`) + `getConsent`/`setConsent`; localStorage key `torch-cookie-consent`, syncs same-tab via custom event and cross-tab via storage event |
 | `app/privacy/page.tsx` | `/privacy` — Privacy & Cookies page (essential vs analytics cookies, cookieless Vercel Analytics, account data, images, notice-and-takedown) |
+| `app/terms/page.tsx` | `/terms` — Terms of Use (acceptance, who-can-use, community rules, contribution licensing CC BY 4.0, IP, notice-and-takedown, no-warranty, liability). Implied-consent notices (no checkbox) on signup (`AuthModal`), contribute (`FormFooter`) and `/report`. Linked in `INFO_NAV` + FilterPanel footer |
 | `app/[slug]/page.tsx` | Flashlight detail — `generateMetadata` (dynamic title/description/OG), JSON-LD Product schema |
 

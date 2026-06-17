@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 
 type Props = {
@@ -12,7 +13,9 @@ export default function FormFooter({ isAdmin, mode, submitting, captchaToken, on
   return (
     <>
       <p className="text-[11px] text-ink-3 leading-relaxed">
-        By submitting, you agree your contribution is factual data from legitimate sources, and any original text you write is licensed under{' '}
+        By submitting, you agree to our{' '}
+        <Link href="/terms" target="_blank" className="underline underline-offset-2 hover:text-ink-2">Terms of Use</Link>
+        {', '}that your contribution is factual data from legitimate sources, and that any original text you write is licensed under{' '}
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-2">CC BY 4.0</a>.
       </p>
 

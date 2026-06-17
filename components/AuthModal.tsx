@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { X, Loader2, Check } from 'lucide-react'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
@@ -349,6 +350,14 @@ export default function AuthModal() {
                 : tab === 'mfa'      ? 'Verify'
                 : 'Use recovery code'}
             </button>
+          )}
+
+          {tab === 'signup' && !submitted && (
+            <p className="text-[11px] text-ink-3 leading-relaxed text-center">
+              By creating an account, you agree to our{' '}
+              <Link href="/terms" target="_blank" className="underline underline-offset-2 hover:text-ink-2">Terms of Use</Link>{' '}and{' '}
+              <Link href="/privacy" target="_blank" className="underline underline-offset-2 hover:text-ink-2">Privacy Policy</Link>.
+            </p>
           )}
 
           {/* Footer links */}

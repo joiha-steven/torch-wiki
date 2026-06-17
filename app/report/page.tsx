@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useRef } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Upload, X, Loader2, Check } from 'lucide-react'
 import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
@@ -202,6 +203,11 @@ export default function ReportPage() {
                   {submitting && <Loader2 size={14} className="animate-spin" />}
                   {submitting ? 'Submitting…' : 'Submit report'}
                 </button>
+
+                <p className="text-[11px] text-ink-3 leading-relaxed text-center">
+                  By submitting, you agree to our{' '}
+                  <Link href="/terms" target="_blank" className="underline underline-offset-2 hover:text-ink-2">Terms of Use</Link>.
+                </p>
               </form>
             </>
           )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { FilterState } from '@/lib/types'
 import { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
@@ -281,6 +282,10 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       </Section>
 
       <p className="text-[11px] text-[#b8b8b0] leading-relaxed pt-2">
+        <Link href="/terms" className="hover:text-ink-3 underline underline-offset-2">Terms</Link>
+        {' '}·{' '}
+        <Link href="/privacy" className="hover:text-ink-3 underline underline-offset-2">Privacy</Link>
+        <br />
         © 2026 torch.edc.wiki - a non-commercial reference project, not affiliated with any brand.{' '}
         Original content &amp; data compilation:{' '}
         <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-ink-3 underline underline-offset-2">CC BY 4.0</a>
