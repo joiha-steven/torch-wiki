@@ -26,6 +26,7 @@ export const UPDATES: UpdateEntry[] = [
       "The review queue now shows who submitted each entry",
       "Fixed a bug where a moderator adding a new flashlight could still land in the review queue instead of publishing right away",
       "Fixed image uploads failing partway through with a \"Failed to retrieve the client token\" error when adding a flashlight with several photos - each image now retries on its own, so one hiccup no longer fails the whole submission (which used to leave it stuck waiting for review)",
+      "A submission that fails partway through now cleans itself up instead of leaving a half-finished, empty draft sitting in the review queue - so the queue only ever shows real, complete submissions and there's no need to double-check whether a light already exists",
       "Browse now has a grid/list toggle (top-right of the results). List view shows a thin row per light with a larger preview image and the key specs inline - lumens, throw, battery and weight - so you can scan and compare more at a glance. Your choice is remembered",
       "Added HDS Systems - 5 hand-built EDC lights (the EDC v4 Executive, LE, Rotary and Tactical, plus the EDC Bicycle) from the US maker known for ultra-reliable, user-programmable everyday-carry lights",
       "The Specifications section now also covers beam intensity (candela), number of LEDs, and driver type - on every flashlight page, the side-by-side Compare, and the contribute/edit form. EagleTac's candela figures are filled in; the rest can be added over time",

@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth-context'
 import { batteryOptions } from '@/lib/battery'
 import { trackEvent, AnalyticsEvent } from '@/lib/analytics'
 import { Field, uploadSubmissionImage, type ImageEntry, type ReviewRow } from '@/components/submit/shared'
+import { buildSubmissionData } from '@/lib/submission'
 import EmitterInput from '@/components/submit/EmitterInput'
 import BasicFields from '@/components/submit/BasicFields'
 import { OutputBeamFields, DimensionFields } from '@/components/submit/SpecFields'
@@ -186,6 +187,9 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     if (!isAdmin && !captchaToken) { setError('Please complete the captcha.'); return }
     setSubmitting(true)
     setError(null)
+    // Roll back the pending row if the submit fails mid-flight (see catch).
+    let createdSubId: string | null = null
+    let completed = false
     try {
       // Verify captcha (skipped for staff)
       if (!isAdmin) {
@@ -211,25 +215,13 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       ])
       if (!user) throw new Error('Not signed in')
 
-      // Strip join fields (reviews, flashlight_images) - not DB columns, would cause update to fail
-      const { reviews: _r, flashlight_images: _fi, ...cleanData } = data as Record<string, unknown>
-      const battery_options = batteryRows
-        .filter(r => r.type)
-        .map(r => ({ type: r.type, count: r.count > 0 ? r.count : 1 }))
-      const battery_types = battery_options.map(o => o.type)
-      const submissionData = {
-        ...cleanData,
-        emitters: emitterInput.split(',').map(s => s.trim()).filter(Boolean),
-        battery_options,
-        battery_types,
-        battery_type: battery_options[0]?.type ?? null,   // legacy mirror
-        battery_count: battery_options[0]?.count ?? null,  // legacy mirror
-      }
+      const submissionData = buildSubmissionData(data, batteryRows, emitterInput)
       const { data: sub, error: subErr } = await supabase.from('flashlight_submissions').insert({
         user_id: user.id, type: mode, status: 'pending',
         target_id: targetId ?? null, data: submissionData, note: null,
       }).select().single()
       if (subErr) throw subErr
+      createdSubId = sub.id
 
       // 2. Upload NEW images to Vercel Blob, track URLs for approval. Each upload
       // retries with a fresh token (uploadSubmissionImage) so one flaky image
@@ -304,6 +296,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
         })
         const json = await res.json() as { ok?: boolean; slug?: string; error?: string }
         if (!res.ok) throw new Error(json.error ?? 'Auto-approve failed')
+        completed = true   // approved → row is no longer pending; don't roll back
         // Edit → revalidate that specific page; new → revalidate browse layout
         const revalidateBody = mode === 'edit' && json.slug
           ? { slug: json.slug }
@@ -320,8 +313,15 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       }
 
       trackEvent(mode === 'edit' ? AnalyticsEvent.ContributionEdit : AnalyticsEvent.ContributionNew)
+      completed = true   // non-staff: pending row is the intended end state
       onSuccess()
     } catch (err: unknown) {
+      // Roll back the orphaned pending row so a failed submit leaves nothing in
+      // the queue (RLS lets the owner delete only their own still-pending row;
+      // submission_images cascades). Best effort - never mask the real error.
+      if (createdSubId && !completed) {
+        await supabase.from('flashlight_submissions').delete().eq('id', createdSubId)
+      }
       setError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setSubmitting(false)
