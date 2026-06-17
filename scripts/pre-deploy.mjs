@@ -4,7 +4,7 @@
 // verifies the *deployed* site, so it runs AFTER deploy (npm run smoke; see
 // 06_Wiki/runbook.md). Exits 1 if any gate fails.
 //
-// Gates: build · typecheck · tests · zero `any` types · every source file ≤400 lines.
+// Gates: build · typecheck · lint · tests · zero `any` types · every source file ≤400 lines.
 
 import { execSync } from 'node:child_process'
 import { readFileSync, globSync } from 'node:fs'
@@ -28,6 +28,7 @@ function sh(cmd) {
 
 run('Build (next build)', () => sh('npm run build'))
 run('Type check (tsc --noEmit)', () => sh('npm run typecheck'))
+run('Lint (eslint)', () => sh('npm run lint'))
 run('Unit tests (vitest)', () => sh('npm test'))
 
 run('No `any` types', () => {
