@@ -53,13 +53,14 @@ export type ReviewRow = {
   fetching?: boolean
 }
 
-export function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+export function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="block text-xs font-medium text-ink-2 mb-1">
         {label}{required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}
+      {hint && <p className="mt-1 text-[11px] text-ink-3 leading-snug">{hint}</p>}
     </div>
   )
 }

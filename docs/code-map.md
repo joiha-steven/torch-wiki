@@ -20,7 +20,8 @@
 | `components/FlashlightCard.tsx` | Grid card with compare + wishlist/collection buttons. `memo`-wrapped; takes `isSelected: boolean` (not the compareIds array) so only the toggled card re-renders. |
 | `components/ErrorState.tsx` | Shared on-brand error UI used by `app/error.tsx` + `app/[slug]/error.tsx` error boundaries |
 | `lib/verify-admin.ts` | `getAdminUser(request)` — shared bearer-token admin/mod auth for API routes (see Security) |
-| `components/SubmitFlashlightForm.tsx` | Full spec form — image/PDF management, Markdown description, Turnstile captcha (skipped for admin), admin auto-approve |
+| `components/SubmitFlashlightForm.tsx` | Full spec form — image/PDF management, Markdown description, Turnstile captcha (skipped for admin), admin auto-approve. Split into `components/submit/*`. Per-field `hint` text encodes naming/format conventions (`Field` supports `hint`). |
+| `components/submit/SuggestInput.tsx` | Single-value typeahead (Brand, Model) suggesting existing DB values; BasicFields warns when brand+model duplicates an existing flashlight (excludes self in edit). Brands from `brands`; models/dup from a session-cached `flashlights(brand,model,slug)` fetch |
 | `components/MarkdownContent.tsx` | Renders Markdown with Tailwind styles — used in flashlight detail and form preview |
 | `components/SuggestEditButton.tsx` | Smart "Suggest an edit" / "Edit" link — shows "Edit" for admin/mod, "Suggest an edit" for users |
 | `lib/use-is-admin.ts` | `useIsAdmin()` hook — checks `profiles.is_admin/is_moderator` client-side |

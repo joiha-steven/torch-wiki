@@ -330,10 +330,10 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <BasicFields data={data} set={set} num={num} />
+      <BasicFields data={data} set={set} num={num} currentSlug={mode === 'edit' ? (data.slug as string | undefined) : undefined} />
 
       <OutputBeamFields data={data} set={set} num={num} />
-      <Field label="LED / Emitters (comma-separated if multiple)">
+      <Field label="LED / Emitters (comma-separated if multiple)" hint="Brand + model in proper case, e.g. Nichia 519A, Cree XHP-70.3 HI. Don't add CRI, colour temp or tint (no 'R9080 4000K High CRI'). Pick a suggestion when it exists. Use UV / IR / Laser / LEP as-is.">
         <EmitterInput value={emitterInput} onChange={setEmitterInput} />
       </Field>
 

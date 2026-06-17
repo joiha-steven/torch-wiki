@@ -12,16 +12,16 @@ export function OutputBeamFields({ data, set, num }: Props) {
     <div>
       <p className="text-[13px] font-semibold text-ink-2 mb-3">Output & Beam</p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Field label="Max Lumens">
+        <Field label="Max Lumens" hint="Number only, no unit (lumens)">
           <NumberInput className={input} value={data.max_lumens ?? ''} onChange={e => set('max_lumens', num(e.target.value))} placeholder="e.g. 1000" />
         </Field>
-        <Field label="Min Lumens">
+        <Field label="Min Lumens" hint="Number only, no unit (lumens)">
           <NumberInput className={input} value={data.min_lumens ?? ''} onChange={e => set('min_lumens', num(e.target.value))} placeholder="e.g. 5" />
         </Field>
-        <Field label="Beam Distance (m)">
+        <Field label="Beam Distance (m)" hint="Number only, in metres - ANSI throw">
           <NumberInput className={input} value={data.beam_distance_m ?? ''} onChange={e => set('beam_distance_m', num(e.target.value))} placeholder="e.g. 300" />
         </Field>
-        <Field label="Candela (cd)">
+        <Field label="Candela (cd)" hint="Number only - peak intensity, not lumens">
           <NumberInput className={input} value={data.candela ?? ''} onChange={e => set('candela', num(e.target.value))} placeholder="e.g. 22500" />
         </Field>
         <Field label="Beam Type">
@@ -33,7 +33,7 @@ export function OutputBeamFields({ data, set, num }: Props) {
         <Field label="Number of LEDs">
           <NumberInput className={input} value={data.led_count ?? ''} onChange={e => set('led_count', num(e.target.value))} placeholder="e.g. 1" />
         </Field>
-        <Field label="Driver">
+        <Field label="Driver" hint="e.g. Buck, FET, Linear, Boost, H17Fx, MTN 15DD">
           <input className={input} value={data.driver_type ?? ''} onChange={e => set('driver_type', e.target.value || null)} placeholder="e.g. Buck, FET, Linear" />
         </Field>
       </div>
@@ -72,7 +72,7 @@ export function DimensionFields({ data, set, num }: Props) {
         <Field label="Impact Resistance (m)">
           <NumberInput className={input} value={data.impact_resistance_m ?? ''} onChange={e => set('impact_resistance_m', num(e.target.value))} />
         </Field>
-        <Field label="Est. Retail Price (USD)">
+        <Field label="Est. Retail Price (USD)" hint="Number only, no symbol - approx. retail in USD">
           <NumberInput className={input} value={data.price_usd ?? ''} onChange={e => set('price_usd', num(e.target.value))} placeholder="e.g. 349" />
         </Field>
       </div>
