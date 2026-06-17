@@ -38,8 +38,11 @@ export default function ThemeToggle() {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  // hydrate stored mode (data-theme was already set by the inline FOUC script)
+  // hydrate stored mode (data-theme was already set by the inline FOUC script).
+  // localStorage is unreadable on the server, so this must run post-mount - lazy
+  // init would cause a hydration mismatch. The cascading-render hint doesn't apply.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMode((localStorage.getItem(STORAGE_KEY) as Mode) || 'light')
   }, [])
 

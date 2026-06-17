@@ -9,6 +9,9 @@ export function useIsAdmin() {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
+    // Reset on sign-out is an intentional post-render sync (user comes from context,
+    // not derivable at render time) - the cascading-render hint doesn't apply.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!user) { setIsAdmin(false); return }
     // Admin/mod is derived from the profiles table — the bootstrap ADMIN_EMAIL
     // check lives server-side only so the admin's email never ships in client JS.
