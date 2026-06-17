@@ -9,6 +9,17 @@ export type UpdateEntry = {
 
 export const UPDATES: UpdateEntry[] = [
   {
+    "date": "June 18, 2026",
+    "title": "Frosted nav, remembered filters & a Terms of Use page",
+    "items": [
+      "Refreshed the top navigation bar into dark frosted glass - the page content softly blurs behind it as you scroll, with a clean edge and a soft drop shadow (no more glossy 3D look), tuned to stay light on performance. It's a touch slimmer, sits slightly wider than the page content (with comfortable margins on mobile), and the search box is more compact",
+      "Browse now remembers your filters: pick brands, ranges and so on, open a light, hit Back, and your filters - plus which filter groups you'd expanded and any \"Show more\" lists you'd opened - are still there instead of resetting. The Brand group is open by default, the Filters heading stands out more, and Clear all resets everything to default",
+      "Added a Terms of Use page (under Information, and linked in the footer) covering how to use the site, the community rules, how contributions are licensed (CC BY 4.0), product-image ownership, and notice-and-takedown. Signing up, contributing or sending a report now shows a short line noting you agree to the Terms - no extra checkbox to tick",
+      "Fixed infinite scroll on Browse not loading more results after the page refreshed its list (e.g. when your remembered filters reloaded)",
+      "Behind the scenes: tightened the project's own engineering rules so it can grow long-term and stay easy for the AI that builds it to maintain (small files split into more files rather than padded, a consistent English house style), and refactored the contribute form along those lines with no change to how it works"
+    ]
+  },
+  {
     "date": "June 17, 2026",
     "title": "Public change history, grid/list browse & slider filters",
     "items": [
@@ -28,11 +39,6 @@ export const UPDATES: UpdateEntry[] = [
       "Redesigned this Log page into two tabs - \"About\" (what the site does and what it's built with, as a tidy card grid) and \"Changelog\" - and the changelog now collapses by day, with the newest day open and older days a tap away, so the page stays short instead of one endless column",
       "Fixed a sneaky bug in the contribute/edit forms: scrolling the page while your cursor sat over a number field (like Price) would quietly change the value - type 349 then scroll and it became 348, 347... Number fields now ignore the mouse wheel, so what you type is what gets saved",
       "Added the 10880 cell to the battery options",
-      "Behind the scenes: tightened the project's own engineering rules so it can grow long-term and stay easy for the AI that builds it to maintain (every file kept small by splitting into more files rather than padding, and a consistent house style), and refactored the contribute form along those lines (no change to how it works)",
-      "Fixed infinite scroll on Browse not loading more results after the page refreshed its list (e.g. when your remembered filters reloaded)",
-      "Refreshed the top navigation bar into dark frosted glass - the page content softly blurs behind it as you scroll, with just a clean edge and a soft drop shadow (no more glossy 3D look), tuned to stay light on performance, a touch slimmer, pure black in dark mode, and sitting slightly wider than the page content (with comfortable margins on mobile). The search box is more compact too. Browse also remembers when you've hit \"Show more\" in a filter group (e.g. the full Brand list)",
-      "Browse now remembers your filters: pick brands, ranges and so on, open a light, hit Back, and your filters (and which filter groups you'd expanded) are still there instead of resetting. The Brand group is open by default now, the Filters heading stands out more, and Clear all resets everything to default",
-      "Added a Terms of Use page (under Information, and linked in the footer) covering how to use the site, the community rules, how contributions are licensed (CC BY 4.0), product-image ownership, and notice-and-takedown. Signing up, contributing or sending a report now shows a short line noting you agree to the Terms - no extra checkbox to tick",
       "Material is now structured instead of free text: pick up to 3 materials, each with a finish (e.g. anodized, stonewashed, PVD) and - where it applies - a colour, so specs read consistently (e.g. \"Aluminum · Anodized · Black + Titanium · Stonewashed\"). Damasteel lets you choose the pattern and whether it's etched. Existing flashlights keep their current material text until they're edited",
       "Added a short notice at the top of the add-a-flashlight form: verify details first, don't add duplicates (they won't be approved - search the catalog first), and fields marked * are required. The Model field now also suggests matches before you've picked a brand",
       "The contribute/edit form now guides you as you go: Brand and Model suggest existing entries as you type (so you reuse the right name), and if a flashlight with the same brand + model already exists it warns you with a link to it before you add a duplicate. Each field also has a short hint - e.g. enter numbers only for lumens/candela/price (no units), and how to name LEDs cleanly (brand + model, no CRI or colour temp)",
