@@ -22,6 +22,8 @@
 | `lib/verify-admin.ts` | `getAdminUser(request)` — shared bearer-token admin/mod auth for API routes (see Security) |
 | `components/SubmitFlashlightForm.tsx` | Full spec form — image/PDF management, Markdown description, Turnstile captcha (skipped for admin), admin auto-approve. Split into `components/submit/*`. Per-field `hint` text encodes naming/format conventions (`Field` supports `hint`). |
 | `components/submit/SuggestInput.tsx` | Single-value typeahead (Brand, Model) suggesting existing DB values; BasicFields warns when brand+model duplicates an existing flashlight (excludes self in edit). Brands from `brands`; models/dup from a session-cached `flashlights(brand,model,slug)` fetch |
+| `components/submit/MaterialSection.tsx` | Up to 3 structured material rows (Material ▸ Finish ▸ Colour). Finish list + colour visibility driven by `lib/materials.ts`; Damasteel's colour slot = etch state. Self-managed (emits `MaterialEntry[]`) |
+| `lib/materials.ts` | Material vocabulary: `MATERIALS`, per-material `FINISHES`, `COLOR_BEARING`, `COLORS` (30), Damasteel patterns/states, `showsColor`/`defaultFinish`/`defaultColor`, `formatMaterials()` for display |
 | `components/MarkdownContent.tsx` | Renders Markdown with Tailwind styles — used in flashlight detail and form preview |
 | `components/SuggestEditButton.tsx` | Smart "Suggest an edit" / "Edit" link — shows "Edit" for admin/mod, "Suggest an edit" for users |
 | `lib/use-is-admin.ts` | `useIsAdmin()` hook — checks `profiles.is_admin/is_moderator` client-side |

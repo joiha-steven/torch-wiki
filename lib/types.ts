@@ -3,6 +3,14 @@ export type BatteryOption = {
   count: number
 }
 
+// Structured material: base material + finish + colour (or, for Damasteel, the
+// "colour" slot holds the etch state). Up to 3 per flashlight. See lib/materials.ts.
+export type MaterialEntry = {
+  material: string
+  finish: string | null
+  color: string | null
+}
+
 export type Brand = {
   name: string
   country: string | null   // where the brand is from, e.g. China, USA, Germany
@@ -52,7 +60,8 @@ export type Flashlight = {
   head_diameter_mm: number | null
   body_diameter_mm: number | null
   weight_g: number | null
-  material: string | null
+  material: string | null            // legacy free-text (kept as display fallback)
+  materials?: MaterialEntry[] | null // canonical structured materials (up to 3)
   ip_rating: string | null
   impact_resistance_m: number | null
   category: string | null

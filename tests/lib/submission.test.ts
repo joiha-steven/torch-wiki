@@ -27,6 +27,25 @@ describe('buildSubmissionData', () => {
     expect(out.battery_count).toBeNull()
   })
 
+  it('keeps material rows with a material, drops blanks, mirrors legacy material', () => {
+    const out = buildSubmissionData({} as Partial<Flashlight>, [], '', [
+      { material: 'Aluminum', finish: 'Anodized', color: 'Black' },
+      { material: '', finish: null, color: null },
+      { material: 'Titanium', finish: 'Stonewashed', color: null },
+    ])
+    expect(out.materials).toEqual([
+      { material: 'Aluminum', finish: 'Anodized', color: 'Black' },
+      { material: 'Titanium', finish: 'Stonewashed', color: null },
+    ])
+    expect(out.material).toBe('Aluminum, Titanium')
+  })
+
+  it('nulls legacy material when no material rows', () => {
+    const out = buildSubmissionData({} as Partial<Flashlight>, [], '')
+    expect(out.materials).toEqual([])
+    expect(out.material).toBeNull()
+  })
+
   it('strips join fields (reviews, flashlight_images) but keeps real columns', () => {
     const out = buildSubmissionData(
       { brand: 'Reylight', model: 'Crusader', reviews: [{}], flashlight_images: [{}] } as unknown as Partial<Flashlight>,

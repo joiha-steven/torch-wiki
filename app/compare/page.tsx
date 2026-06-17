@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Flashlight } from '@/lib/types'
 import { formatBatteries } from '@/lib/battery'
+import { formatMaterials } from '@/lib/materials'
 import { Check, X } from 'lucide-react'
 import Header from '@/components/Header'
 
@@ -28,7 +29,7 @@ const SPEC_ROWS = [
   { label: 'Length',            key: 'length_mm',          format: (v: number) => `${v} mm` },
   { label: 'Head Diameter',     key: 'head_diameter_mm',   format: (v: number) => `${v} mm` },
   { label: 'Weight',            key: 'weight_g',           format: (v: number) => `${v} g` },
-  { label: 'Material',          key: 'material' },
+  { label: 'Material',          key: 'material',           render: (f: Flashlight) => formatMaterials(f.materials) ?? f.material },
   { label: 'IP Rating',         key: 'ip_rating' },
   { label: 'Impact Resistance', key: 'impact_resistance_m', format: (v: number) => `${v} m` },
   { label: 'Price',             key: 'price_usd',          format: (v: number) => `$${v.toLocaleString()}` },

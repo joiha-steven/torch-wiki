@@ -90,6 +90,8 @@ SET battery_options = jsonb_build_array(jsonb_build_object('type', battery_type,
 WHERE battery_type IS NOT NULL AND (battery_options IS NULL OR battery_options = '[]');
 ```
 
+**Materials** (`materials jsonb`, added 2026-06-17 — `alter table flashlights add column if not exists materials jsonb`): canonical structured materials, up to 3 entries `{ material, finish, color }`. Vocabulary + finish/colour rules live in **`lib/materials.ts`** (`MATERIALS`, per-material `FINISHES`, `COLOR_BEARING`, 30 `COLORS`; Damasteel's `color` slot holds the etch state). Legacy free-text `material` column kept and still set (joined base names) as a display fallback for un-migrated rows; `formatMaterials()` renders the structured value on detail/compare. Edit a light to populate it; old rows fall back to `material`. (Bulk migration of the legacy free-text values is a TODO.)
+
 **Emitter naming convention** (so duplicates don't fragment the `get_distinct_emitters` filter list):
 - Brand name in **proper case**, never ALL-CAPS: `Cree` (not CREE), `Luxeon` (not LUXEON), `Luminus`, `Nichia`, `Osram`. Always include the brand prefix (`Luminus SST-36R`, not bare `SST-36R`).
 - Cree **XHP** series gets a hyphen: `Cree XHP-70.2`, `Cree XHP-70.3 HI`, `Cree XHP-50.3 HI`. XP-series already hyphenated: `Cree XP-L`, `Cree XP-LR`.

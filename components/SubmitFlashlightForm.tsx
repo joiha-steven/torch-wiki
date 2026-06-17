@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { upload } from '@vercel/blob/client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
-import { Flashlight, BatteryOption } from '@/lib/types'
+import { Flashlight, BatteryOption, MaterialEntry } from '@/lib/types'
 import MarkdownEditor from '@/components/MarkdownEditor'
 import { useAuth } from '@/lib/auth-context'
 import { batteryOptions } from '@/lib/battery'
@@ -15,6 +15,7 @@ import EmitterInput from '@/components/submit/EmitterInput'
 import BasicFields from '@/components/submit/BasicFields'
 import { OutputBeamFields, DimensionFields } from '@/components/submit/SpecFields'
 import BatterySection from '@/components/submit/BatterySection'
+import MaterialSection from '@/components/submit/MaterialSection'
 import PdfSection from '@/components/submit/PdfSection'
 import ReviewsSection from '@/components/submit/ReviewsSection'
 import ImagesSection from '@/components/submit/ImagesSection'
@@ -31,8 +32,7 @@ type Props = {
 }
 
 export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onSuccess, onCancel }: Props) {
-  // Staff (admin OR mod) auto-approve. Read from the global auth context, not a
-  // per-mount fetch (the old useIsAdmin race could send a fast "new" to pending).
+  // Staff (admin OR mod) auto-approve - read from global auth context (not a per-mount fetch; the old useIsAdmin race could send a fast "new" to pending).
   const { isAdmin: isAdminRole, isModerator, loading: authLoading } = useAuth()
   const isAdmin = isAdminRole || isModerator
   const [data, setData] = useState<Partial<Flashlight>>({
@@ -47,7 +47,8 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     ...initial,
   })
   const [emitterInput, setEmitterInput] = useState((initial.emitters ?? []).join(', '))
-  // Battery configurations - each row is a { type, count } pair (e.g. 2×18350 OR 1×18650)
+  const [materialRows, setMaterialRows] = useState<MaterialEntry[]>(() =>
+    initial.materials?.length ? initial.materials : [{ material: '', finish: null, color: null }])
   const [batteryRows, setBatteryRows] = useState<BatteryOption[]>(() => {
     const opts = batteryOptions(initial)
     return opts.length > 0 ? opts.map(o => ({ type: o.type, count: o.count })) : [{ type: '', count: 1 }]
@@ -117,7 +118,6 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       })
       const newFiles = [...pdfFiles, { url: blob.url, name: file.name }]
       setPdfFiles(newFiles)
-      // sync manual_urls into form data
       setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
     } catch (e) {
       setError((e as Error).message)
@@ -133,7 +133,6 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
     setData(d => ({ ...d, manual_urls: newFiles.map(f => f.url), manual_url: newFiles[0]?.url ?? null }))
   }
 
-  // ── Review links ──
   const updateReview = (i: number, patch: Partial<ReviewRow>) =>
     setReviewRows(rows => rows.map((r, j) => j === i ? { ...r, ...patch } : r))
   const addReviewRow = () => setReviewRows(rows => [...rows, { url: '', title: '', published_at: null, type: null }])
@@ -215,7 +214,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       ])
       if (!user) throw new Error('Not signed in')
 
-      const submissionData = buildSubmissionData(data, batteryRows, emitterInput)
+      const submissionData = buildSubmissionData(data, batteryRows, emitterInput, materialRows)
       const { data: sub, error: subErr } = await supabase.from('flashlight_submissions').insert({
         user_id: user.id, type: mode, status: 'pending',
         target_id: targetId ?? null, data: submissionData, note: null,
@@ -347,6 +346,7 @@ export default function SubmitFlashlightForm({ mode, initial = {}, targetId, onS
       />
 
       <DimensionFields data={data} set={set} num={num} />
+      <MaterialSection rows={materialRows} onChange={setMaterialRows} />
 
       {/* Text fields */}
       <MarkdownEditor label="Description" value={data.description ?? ''} onChange={v => set('description', v || null)} />

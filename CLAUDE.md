@@ -134,7 +134,7 @@ convention live in **`docs/database.md`**. Quick map of the tables:
 
 | Table | Purpose / key notes |
 |-------|---------------------|
-| `flashlights` | Main product table. RLS: public SELECT, no write policy (writes via service role). Soft delete via `deleted_at` (null = live). **Any new public read MUST filter `.is('deleted_at', null)`.** `emitters` (text[]) + `battery_options` (jsonb) are canonical; legacy single-value columns kept for back-compat. `sort_seed` backs the random browse order (nightly pg_cron reshuffle). |
+| `flashlights` | Main product table. RLS: public SELECT, no write policy (writes via service role). Soft delete via `deleted_at` (null = live). **Any new public read MUST filter `.is('deleted_at', null)`.** `emitters` (text[]), `battery_options` (jsonb) + `materials` (jsonb, structured material/finish/colour) are canonical; legacy single-value columns (`emitter`, `battery_type`, `material`) kept for back-compat/display fallback. `sort_seed` backs the random browse order (nightly pg_cron reshuffle). |
 | `flashlight_images` | Extra images per light (`url`, `sort_order`). |
 | `reviews` | Review links per light (`title`, `url`, `type`, `published_at`). |
 | `brands` | Per-brand metadata (`name` pk must match `flashlights.brand`, `country`, `made_in`, …). Soft delete via `deleted_at`. |

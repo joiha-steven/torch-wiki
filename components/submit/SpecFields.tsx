@@ -63,9 +63,6 @@ export function DimensionFields({ data, set, num }: Props) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Field label="Material">
-          <input className={input} value={data.material ?? ''} onChange={e => set('material', e.target.value || null)} placeholder="e.g. Aluminum" />
-        </Field>
         <Field label="IP Rating">
           <input className={input} value={data.ip_rating ?? ''} onChange={e => set('ip_rating', e.target.value || null)} placeholder="e.g. IPX8" />
         </Field>

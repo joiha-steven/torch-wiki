@@ -7,6 +7,7 @@ import { formatBatteries } from '@/lib/battery'
 import type { FlashlightImage } from '@/lib/types'
 import { ExternalLink, Video, FileText } from 'lucide-react'
 import { brandSlug } from '@/lib/brand'
+import { formatMaterials } from '@/lib/materials'
 import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
@@ -31,7 +32,7 @@ const getFlashlight = cache(async (slug: string) => {
   // types - which also makes tsc flag any field the page reads but didn't select.
   const { data } = await supabase
     .from('flashlights')
-    .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,candela,beam_type,emitters,led_count,driver_type,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
+    .select('id,slug,brand,model,year,price_usd,max_lumens,min_lumens,beam_distance_m,candela,beam_type,emitters,led_count,driver_type,battery_type,battery_count,battery_options,charging_type,length_mm,head_diameter_mm,body_diameter_mm,weight_g,material,materials,ip_rating,impact_resistance_m,category,image_url,description,manual_url,manual_urls,is_discontinued,created_at,updated_at,updated_by, reviews(*), flashlight_images(*)')
     .eq('slug', slug)
     .is('deleted_at', null)
     .single()
@@ -141,7 +142,7 @@ export default async function FlashlightPage({ params }: Props) {
     { label: 'Head Diameter', value: flashlight.head_diameter_mm ? `${flashlight.head_diameter_mm} mm` : null },
     { label: 'Body Diameter', value: flashlight.body_diameter_mm ? `${flashlight.body_diameter_mm} mm` : null },
     { label: 'Weight', value: flashlight.weight_g ? `${flashlight.weight_g} g` : null },
-    { label: 'Material', value: flashlight.material },
+    { label: 'Material', value: formatMaterials(flashlight.materials) ?? flashlight.material },
     { label: 'IP Rating', value: flashlight.ip_rating },
     { label: 'Impact Resistance', value: flashlight.impact_resistance_m ? `${flashlight.impact_resistance_m} m` : null },
     { label: 'Est. Retail Price', value: flashlight.price_usd ? `$${flashlight.price_usd}` : null },
