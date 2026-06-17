@@ -38,23 +38,6 @@ const getFlashlight = cache(async (slug: string) => {
   return data
 })
 
-// Catalog-wide max beam distance, for the "Beam reach" bar's scale. Memoized at the
-// module level so the whole static build shares one query (react `cache` only dedupes
-// within a single page render, not across all the prerendered detail pages).
-let maxBeamPromise: Promise<number | null> | null = null
-function getMaxBeam(): Promise<number | null> {
-  return (maxBeamPromise ??= (async () => {
-    const { data } = await supabase
-      .from('flashlights')
-      .select('beam_distance_m')
-      .is('deleted_at', null)
-      .order('beam_distance_m', { ascending: false, nullsFirst: false })
-      .limit(1)
-      .single()
-    return data?.beam_distance_m ?? null
-  })())
-}
-
 export async function generateStaticParams() {
   const { data } = await supabase.from('flashlights').select('slug').is('deleted_at', null)
   return (data ?? []).map(f => ({ slug: f.slug }))
@@ -109,13 +92,6 @@ export default async function FlashlightPage({ params }: Props) {
   const flashlight = await getFlashlight(slug)
 
   if (!flashlight) notFound()
-
-  // "Beam reach" bar scale: this light's throw as a fraction of the catalog's
-  // farthest thrower (only when this light actually has a throw figure).
-  const maxBeam = flashlight.beam_distance_m ? await getMaxBeam() : null
-  const beamPct = flashlight.beam_distance_m && maxBeam
-    ? Math.max(4, Math.round((flashlight.beam_distance_m / maxBeam) * 100))
-    : 0
 
   // Brand metadata + submitter profile are independent of each other - run together.
   const [{ data: brandInfo }, profileRes] = await Promise.all([
@@ -270,20 +246,6 @@ export default async function FlashlightPage({ params }: Props) {
         {flashlight.description && (
           <div className="mt-10 bg-panel border border-line rounded-2xl p-6 sm:p-7 max-w-[760px]">
             <MarkdownContent className="text-[15px] leading-[1.7] text-ink-2">{flashlight.description}</MarkdownContent>
-          </div>
-        )}
-
-        {/* Beam reach - this light's throw vs the catalog's farthest thrower */}
-        {flashlight.beam_distance_m && maxBeam && (
-          <div className="mt-10 flex items-center gap-4">
-            <span className="text-[12px] font-semibold text-ink-2 whitespace-nowrap">Beam reach</span>
-            <div className="flex-1 relative h-2.5 rounded-full bg-line overflow-hidden">
-              <div
-                className="absolute inset-y-0 left-0 rounded-full"
-                style={{ width: `${beamPct}%`, background: 'linear-gradient(90deg, var(--accent), rgba(235,160,11,0.3))' }}
-              />
-            </div>
-            <span className="text-[13px] font-mono font-semibold text-ink whitespace-nowrap">{flashlight.beam_distance_m} m</span>
           </div>
         )}
 

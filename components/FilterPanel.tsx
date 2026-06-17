@@ -64,13 +64,8 @@ function Section({ title, count = 0, defaultOpen, children }: {
   return (
     <details className="group border-b border-line pb-3" open={defaultOpen}>
       <summary className="flex items-center justify-between cursor-pointer select-none list-none py-0.5 [&::-webkit-details-marker]:hidden">
-        <span className="text-[12px] font-semibold text-ink-2 flex items-center gap-1.5">
-          {title}
-          {count > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[17px] h-[17px] px-1 rounded-full bg-accent-soft text-brand-600 text-[10.5px] font-bold leading-none">
-              {count}
-            </span>
-          )}
+        <span className="text-[12px] font-semibold text-ink-2">
+          {title}{count > 0 && <span className="ml-1.5 text-brand-500">{count}</span>}
         </span>
         <ChevronDown size={14} className="text-ink-3 transition-transform group-open:rotate-180" />
       </summary>

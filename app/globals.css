@@ -33,8 +33,6 @@
   --color-surface:     var(--bg);
   --color-plate:       var(--card-plate);
   --color-panel:       var(--panel);
-  --color-accent:      var(--accent);
-  --color-accent-soft: var(--accent-soft);
 }
 
 :root {
@@ -47,7 +45,6 @@
   --ink-3: #9b9b94;
   --accent: #eba00b;
   --accent-ink: #1d1604;
-  --accent-soft: rgba(235, 160, 11, 0.13);   /* soft amber wash for selected chips/badges */
 
   /* page wash + product-image plate */
   --bg-top: #fbfbf9;
@@ -103,7 +100,6 @@
 
   --accent: #f4a820;  /* brand-400 - one step brighter for dark backgrounds */
   --accent-ink: #1d1604;
-  --accent-soft: rgba(244, 168, 32, 0.16);
 
   --card-plate: #e9e9e5;   /* soft light plate keeps product photos legible */
   --panel: #212327;        /* dark surface for cards/panels/modals/inputs */
@@ -163,13 +159,11 @@ body {
      spacing/jank on body copy; kerning above gives the nice spacing without it. */
 }
 
-/* Crisp, tighter display rendering for headings. Default negative tracking gives
-   the "designed" look; components that need a specific value still override inline. */
+/* Crisp, tighter display rendering for headings */
 h1, h2, h3 {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  letter-spacing: -0.02em;
 }
 
 /* Numeric displays (lumens, prices, dimensions) - Inter with aligned tabular figures */
