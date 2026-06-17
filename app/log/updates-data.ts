@@ -12,6 +12,8 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 17, 2026",
     "title": "EagleTac, HDS & Olight added, public change history & slider filters",
     "items": [
+      "Added Zebralight - 46 lights from the US maker famous for ultra-efficient, compact headlamps and EDC lights: the angle-head H-series headlamps and SC-series pocket lights, with class-leading runtime, programmable levels down to true sub-lumen moonlight, and high-CRI / high-intensity emitter options. Full specs are in; product photos are coming soon",
+      "Added Sunwayman - 34 lights from the (now largely retired) Chinese maker known for its magnetic control-ring brightness dial, spanning compact CR123A/16340 and AA EDC lights, tactical models and a few floodlights. Specs are in; photos coming soon",
       "You can now pick a username when you sign up (optional) - it checks availability as you type and becomes your public @handle right away, instead of having to set it later in Account",
       "The homepage \"users\" count now counts every registered account, including ones that haven't set a username yet",
       "Added a Submit button in the top bar for quickly contributing a flashlight",
