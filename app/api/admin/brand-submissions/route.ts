@@ -66,6 +66,7 @@ export async function PATCH(request: Request) {
   if (action === 'approve') {
     revalidatePath(`/brand/${brandSlug(sub.brand_name)}`)
     revalidatePath('/', 'layout')
+    revalidatePath('/data-log')
   }
 
   return NextResponse.json({ ok: true })

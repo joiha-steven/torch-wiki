@@ -11,8 +11,9 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/data-log` },
 }
 
-// Always fresh - this is a live audit feed.
-export const dynamic = 'force-dynamic'
+// Audit feed - data only changes when a submission is approved, so edge-cache it
+// (ISR 5 min) and revalidate on approval instead of running 2 RPCs on every hit.
+export const revalidate = 300
 
 const PAGE_SIZE = 500
 
