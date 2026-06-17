@@ -41,7 +41,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
 - **Vercel Blob** — image storage with global CDN
-- **Vercel** — hosting, Analytics, Speed Insights. Function region: `iad1` (US East, set in `vercel.json`)
+- **Vercel** — hosting, Analytics (`@vercel/analytics`). Function region: `iad1` (US East, set in `vercel.json`). **No Speed Insights** — `@vercel/speed-insights` was removed on purpose (billed; don't re-add).
 - **Supabase Auth** — email/password + TOTP 2FA
 - **Cloudflare Turnstile** — captcha on signup, forgot password, and contribution forms
 
@@ -59,6 +59,8 @@ TURNSTILE_SECRET_KEY=...
 NEXT_PUBLIC_ADMIN_EMAIL=...
 REVALIDATE_SECRET=...   # shared secret for /api/revalidate from scripts/curl (any long random string)
 CRON_SECRET=...         # required for the daily trash auto-purge cron (/api/cron/purge-trash). Set this in Vercel → Vercel sends it as `Authorization: Bearer <CRON_SECRET>`; without it that route returns 503 (the admin Trash view still purges expired items opportunistically).
+NEXT_PUBLIC_CDN_DOMAIN=...  # optional: Cloudflare CDN proxy for Blob PDF URLs (lib/cdn.ts). Unset → serves the raw Blob URL.
+ADMIN_EMAIL=...             # optional server-side fallback for NEXT_PUBLIC_ADMIN_EMAIL in the bootstrap admin check (lib/verify-admin.ts).
 ```
 
 **After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
