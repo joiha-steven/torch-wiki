@@ -3,7 +3,8 @@
 A high-level map of how the app is put together. This is the **living overview**;
 the source code is the truth, and deeper specifics live elsewhere:
 
-- **`CLAUDE.md`** — DB schema, conventions, design system, caching rules (source of truth for details).
+- **`CLAUDE.md`** — the operating manual: Definition of Done, the rules every change must follow, a schema summary, and an index into `docs/`.
+- **`docs/`** — one short file per subsystem (database, auth-admin-contrib, security, images, caching, ui, pwa, code-map, glossary). Open the one for the area you're touching; CLAUDE.md's pointer table lists them.
 - **`AGENTS.md`** — this is a customized Next.js 16 build; read `node_modules/next/dist/docs/` before Next-specific code.
 - **`README.md`** — project intro + licensing. (The data-import/scraping playbook + brand scrapers are kept in the private maintenance workspace, not this repo.)
 
@@ -81,7 +82,7 @@ write:  client → /api/* (validate → verify-admin → service-role Supabase) 
   `/api/upload*` (auth- or Turnstile-gated, content-type + size + magic-byte checks). Always set
   `image_url` in the same insert (SSG freezes null otherwise).
 - **Caching** — SSG for catalog pages; `s-maxage` edge cache for dynamic JSON (e.g.
-  `/api/ga-settings`); on-demand revalidation on approve/edit. Details in `CLAUDE.md`.
+  `/api/ga-settings`); on-demand revalidation on approve/edit. Details in `docs/caching.md`.
 - **Governance/tooling** — `lib/validate.ts` (input guards), pre-commit hook (eslint + `tsc`),
   `npm run smoke|health|audit-rls`. Every source file is kept ≤400 lines.
 

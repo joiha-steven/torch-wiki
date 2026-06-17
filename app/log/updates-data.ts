@@ -31,7 +31,8 @@ export const UPDATES: UpdateEntry[] = [
       "Added Olight's flashlight line-up - 42 models across EDC, tactical, weapon lights, throwers, floodlights, keychain lights and headlamps: the flat ArkPro and Arkfeld EDC lights, the Baton pocket family, the Warrior and Odin tactical lights, the Baldr and PL weapon lights, the Marauder and Javelot throwers, the Seeker floodlights, the i-series keychain lights, the Oclip clip lights and the Perun headlamps",
       "As always for a wiki, discontinued and out-of-stock Olight models are kept, and colour/material variants are merged into one entry",
       "Olight publishes its detailed specs only inside images rather than as text, so a few technical figures (throw, runtime, dimensions) start out blank - they can be filled in over time via \"Suggest an edit\"",
-      "Behind the scenes: the Database updates page is now edge-cached so it loads instantly (it refreshes whenever a change is approved), flashlight pages build a little faster, and lint now runs in the pre-deploy quality gate"
+      "Behind the scenes: the Database updates page is now edge-cached so it loads instantly (it refreshes whenever a change is approved), flashlight pages build a little faster, and lint now runs in the pre-deploy quality gate",
+      "Behind the scenes: reorganized the internal project documentation so it stays easy to navigate as the project grows - the main guide is now a lean rules-and-index file pointing to focused topic docs (database, auth, caching, UI, images, a glossary, and a code map)"
     ]
   },
   {
