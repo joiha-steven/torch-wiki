@@ -14,6 +14,7 @@ const DEFAULT_OPEN: Record<string, boolean> = {
   'Made in': false, Battery: false, 'LED / Emitter': false, Charging: false,
 }
 const OPEN_KEY = 'browseFacetsOpen'
+const MORE_KEY = 'browseFacetsMore'   // per-group "Show more" expanded state
 
 const SORT_OPTIONS = [
   { value: 'random',      label: 'Random' },
@@ -88,13 +89,15 @@ function Section({ title, count = 0, open, onToggle, children }: {
 
 // Checkbox list that truncates to `limit` rows behind a "Show N more" toggle.
 // Selected options float to the top so a collapsed list still shows what's active.
-function CheckList({ items, selected, onToggle, limit = 8 }: {
+// `expanded`/`onExpand` are controlled by the parent so the choice can be remembered.
+function CheckList({ items, selected, onToggle, limit = 8, expanded = false, onExpand }: {
   items: string[]
   selected: string[]
   onToggle: (v: string) => void
   limit?: number
+  expanded?: boolean
+  onExpand?: (v: boolean) => void
 }) {
-  const [expanded, setExpanded] = useState(false)
   const ordered = [...items].sort((a, b) => Number(selected.includes(b)) - Number(selected.includes(a)))
   const shown = expanded ? ordered : ordered.slice(0, limit)
   return (
@@ -104,7 +107,7 @@ function CheckList({ items, selected, onToggle, limit = 8 }: {
       ))}
       {items.length > limit && (
         <button
-          onClick={() => setExpanded(e => !e)}
+          onClick={() => onExpand?.(!expanded)}
           className="mt-1 text-[12px] text-ink-3 hover:text-brand-500 transition-colors"
         >
           {expanded ? 'Show less' : `Show ${items.length - limit} more`}
@@ -211,9 +214,27 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
   const toggleSection = (title: string, isOpen: boolean) =>
     setOpen(o => o[title] === isOpen ? o : { ...o, [title]: isOpen })
 
+  // Remember per-group "Show more" expansion (e.g. the full Brand list).
+  const [more, setMore] = useState<Record<string, boolean>>({})
+  useEffect(() => {
+    try {
+      const s = sessionStorage.getItem(MORE_KEY)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (s) setMore(JSON.parse(s))
+    } catch {}
+  }, [])
+  const skipFirstMoreWrite = useRef(true)
+  useEffect(() => {
+    if (skipFirstMoreWrite.current) { skipFirstMoreWrite.current = false; return }
+    try { sessionStorage.setItem(MORE_KEY, JSON.stringify(more)) } catch {}
+  }, [more])
+  const setMoreFor = (title: string, v: boolean) =>
+    setMore(m => m[title] === v ? m : { ...m, [title]: v })
+
   const clearAll = () => {
     onChange({ ...filters, brands: [], categories: [], batteryTypes: [], emitters: [], madeIn: [], minLumens: 0, maxLumens: LUMEN_MAX, minPrice: 0, maxPrice: PRICE_MAX, chargingType: null })
     setOpen(DEFAULT_OPEN)  // back to the default expand/collapse layout
+    setMore({})            // and collapse all "Show more" lists
   }
 
   return (
@@ -244,7 +265,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Brands */}
       {availableBrands.length > 0 && (
         <Section title="Brand" count={filters.brands.length} open={open.Brand} onToggle={v => toggleSection('Brand', v)}>
-          <CheckList items={availableBrands} selected={filters.brands}
+          <CheckList items={availableBrands} selected={filters.brands} expanded={!!more.Brand} onExpand={v => setMoreFor('Brand', v)}
             onToggle={v => onChange({ ...filters, brands: toggle(filters.brands, v) })} />
         </Section>
       )}
@@ -272,7 +293,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Category */}
       {categories.length > 0 && (
         <Section title="Category" count={filters.categories.length} open={open.Category} onToggle={v => toggleSection('Category', v)}>
-          <CheckList items={categories} selected={filters.categories} limit={20}
+          <CheckList items={categories} selected={filters.categories} limit={20} expanded={!!more.Category} onExpand={v => setMoreFor('Category', v)}
             onToggle={v => onChange({ ...filters, categories: toggle(filters.categories, v) })} />
         </Section>
       )}
@@ -280,7 +301,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Made in */}
       {availableMadeIn.length > 0 && (
         <Section title="Made in" count={filters.madeIn.length} open={open['Made in']} onToggle={v => toggleSection('Made in', v)}>
-          <CheckList items={availableMadeIn} selected={filters.madeIn}
+          <CheckList items={availableMadeIn} selected={filters.madeIn} expanded={!!more['Made in']} onExpand={v => setMoreFor('Made in', v)}
             onToggle={v => onChange({ ...filters, madeIn: toggle(filters.madeIn, v) })} />
         </Section>
       )}
@@ -288,7 +309,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Battery */}
       {batteryTypes.length > 0 && (
         <Section title="Battery" count={filters.batteryTypes.length} open={open.Battery} onToggle={v => toggleSection('Battery', v)}>
-          <CheckList items={batteryTypes} selected={filters.batteryTypes}
+          <CheckList items={batteryTypes} selected={filters.batteryTypes} expanded={!!more.Battery} onExpand={v => setMoreFor('Battery', v)}
             onToggle={v => onChange({ ...filters, batteryTypes: toggle(filters.batteryTypes, v) })} />
         </Section>
       )}
@@ -296,7 +317,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Emitters */}
       {availableEmitters.length > 0 && (
         <Section title="LED / Emitter" count={filters.emitters.length} open={open['LED / Emitter']} onToggle={v => toggleSection('LED / Emitter', v)}>
-          <CheckList items={availableEmitters} selected={filters.emitters}
+          <CheckList items={availableEmitters} selected={filters.emitters} expanded={!!more['LED / Emitter']} onExpand={v => setMoreFor('LED / Emitter', v)}
             onToggle={v => onChange({ ...filters, emitters: toggle(filters.emitters, v) })} />
         </Section>
       )}

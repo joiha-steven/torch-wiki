@@ -36,11 +36,11 @@ export default function BrowseHeader({
     <header
       ref={headerRef}
       onPointerMove={trackHeaderPointer}
-      className="floating-nav lg-surface sticky top-4 z-50 mx-auto mt-4 rounded-[22px] text-[#f3f3f0]"
-      style={{ width: 'min(1224px, calc(100% - 56px))' }}
+      className="floating-nav lg-surface sticky top-4 z-50 mx-auto mt-4 rounded-[28px] text-[#f3f3f0]"
+      style={{ width: 'min(1320px, calc(100% - 24px))' }}
     >
-      <div className="relative z-[1] flex items-center gap-8 px-[22px] h-14">
-        <Link href="/" className="font-extrabold text-[17px] tracking-[-0.02em] shrink-0" onClick={() => setNavOpen(false)}>
+      <div className="relative z-[1] flex items-center gap-8 px-6 h-16">
+        <Link href="/" className="font-extrabold text-[19px] tracking-[-0.02em] shrink-0" onClick={() => setNavOpen(false)}>
           <span style={{ color: '#eba00b' }}>torch</span><span className="text-[#f3f3f0]">.EDC.wiki</span>
         </Link>
         <nav className="hidden sm:flex gap-0.5 text-sm font-medium">
