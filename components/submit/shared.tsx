@@ -27,6 +27,14 @@ export const CHARGING_TYPES = ['usb', 'magnetic', 'none']
 
 export const input = "w-full h-10 text-sm border border-line rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-panel"
 
+// Number input that ignores the mouse wheel. Native <input type="number"> changes
+// its value when you scroll the wheel over a focused field — contributors typing a
+// price like 349 then scrolling the page would silently get 348/347. Blurring on
+// wheel kills that (the page still scrolls). Use this for every numeric field.
+export function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} type="number" onWheel={e => e.currentTarget.blur()} />
+}
+
 export type ImageEntry = {
   id: string           // 'existing-primary' | 'existing-{dbId}' | uuid for new
   url: string          // Vercel Blob URL for existing, object URL for new

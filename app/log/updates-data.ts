@@ -26,6 +26,8 @@ export const UPDATES: UpdateEntry[] = [
       "Every flashlight and brand page now shows its full Change history - who added or edited it and when (GMT+7), newest first, with a \"See more\" button when there are more than 5 entries. Edits are public and on the record",
       "The Lumens and Price filters are now drag sliders instead of fixed buckets, so you can dial in any range - drag the max thumb to the end for \"no upper limit\"",
       "Redesigned this Log page into two tabs - \"About\" (what the site does and what it's built with, as a tidy card grid) and \"Changelog\" - and the changelog now collapses by day, with the newest day open and older days a tap away, so the page stays short instead of one endless column",
+      "Fixed a sneaky bug in the contribute/edit forms: scrolling the page while your cursor sat over a number field (like Price) would quietly change the value - type 349 then scroll and it became 348, 347... Number fields now ignore the mouse wheel, so what you type is what gets saved",
+      "Added the 10880 cell to the battery options",
       "Behind the scenes: closed a database permission gap so the catalog tables are read-only to the public (edits still go through the proper review/admin paths) and tightened a few internal database functions",
       "Behind the scenes: the brand data-import scripts and the scraping playbook are now kept in our private workspace rather than the public code repo - they're a maintenance tool, not part of the site",
       "Behind the scenes: the Database updates page is now edge-cached so it loads instantly (it refreshes whenever a change is approved), flashlight pages build a little faster, and lint now runs in the pre-deploy quality gate",

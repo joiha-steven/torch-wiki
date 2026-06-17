@@ -98,7 +98,7 @@ export default function BrandEditForm({ name, initial, onClose, onSaved }: Props
             </div>
             <div>
               <label className="block text-xs font-medium text-ink-2 mb-1">Founded (year)</label>
-              <input className={input} type="number" value={foundedYear} onChange={e => setFoundedYear(e.target.value)} placeholder="e.g. 2017" />
+              <input className={input} type="number" onWheel={e => e.currentTarget.blur()} value={foundedYear} onChange={e => setFoundedYear(e.target.value)} placeholder="e.g. 2017" />
             </div>
             <div>
               <label className="block text-xs font-medium text-ink-2 mb-1">Headquarters</label>

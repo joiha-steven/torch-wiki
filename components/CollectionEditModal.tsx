@@ -83,6 +83,7 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3 text-sm">$</span>
                 <input
                   type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
                   min="0"
                   step="0.01"
                   value={purchasePrice}
@@ -96,6 +97,7 @@ export default function CollectionEditModal({ item, onClose, onSave }: Props) {
               <label className="block text-xs font-medium text-ink-2 mb-1">Quantity</label>
               <input
                 type="number"
+                onWheel={(e) => e.currentTarget.blur()}
                 min="1"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}

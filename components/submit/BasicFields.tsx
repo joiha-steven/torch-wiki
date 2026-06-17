@@ -1,5 +1,5 @@
 import { Flashlight } from '@/lib/types'
-import { Field, input, CATEGORIES } from './shared'
+import { Field, input, NumberInput, CATEGORIES } from './shared'
 
 type Props = {
   data: Partial<Flashlight>
@@ -23,7 +23,7 @@ export default function BasicFields({ data, set, num }: Props) {
         </select>
       </Field>
       <Field label="Year">
-        <input className={input} type="number" value={data.year ?? ''} onChange={e => set('year', num(e.target.value))} placeholder="e.g. 2023" />
+        <NumberInput className={input} value={data.year ?? ''} onChange={e => set('year', num(e.target.value))} placeholder="e.g. 2023" />
       </Field>
     </div>
   )
