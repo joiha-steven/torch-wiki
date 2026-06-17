@@ -10,14 +10,8 @@ export type UpdateEntry = {
 export const UPDATES: UpdateEntry[] = [
   {
     "date": "June 17, 2026",
-    "title": "EagleTac, HDS & Olight added, public change history & slider filters",
+    "title": "Public change history, grid/list browse & slider filters",
     "items": [
-      "Added Convoy's H-series right-angle headlamps (H1, H2, H3, H4) and the zoomable Z1, with photos. (The L21, 4X18 and 3X21 collections were already part of the earlier L-series import.)",
-      "Added Convoy's L-series - 11 high-output lights with photos: the L2/L6/L7/L8 and L21A/L21B big throwers, plus the multi-emitter 3X21 (A/B/C/D, three 21700s, up to 15,000 lumens) and the 4X18A. (The S21, S26, M21 and M26 collections were already covered in the earlier Convoy imports.)",
-      "Expanded Convoy with the C8, T, AAA and M series - 33 more lights, with photos. Covers the C8/C8+ throwers, the AA-sized T2-T5, the keychain AAA, and the M family (M1/M2/M3 throwers, the M21 21700 line and the M26 26650 lights). Special-finish and premium hosts are their own entries - MAO editions (M21B/F/H and C8+), the titanium/copper T3 and T4, and copper-head versions - while plain aluminium colours stay merged into one entry per finish",
-      "Added Convoy - 29 lights from the S-series of the popular, highly modular Chinese brand, now with product photos. Covers the compact S2+ and the 21700 S21 family (S21A/B/D/E/F/G), the S3/S6/S8/S9/S10/S11/S12/S15/S16 and the big S26A. Premium hosts are listed as their own entries - the S2+ in brass, copper and six titanium finishes (glossy, stonewash, circuit-board, circuit-texture, ink-dot and colourful-texture), plus the S21G stonewash and copper-head editions - while plain colour options stay merged into one entry per finish",
-      "Added Zebralight - 46 lights from the US maker famous for ultra-efficient, compact headlamps and EDC lights: the angle-head H-series headlamps and SC-series pocket lights, with class-leading runtime, programmable levels down to true sub-lumen moonlight, and high-CRI / high-intensity emitter options. Full specs are in; product photos are coming soon",
-      "Added Sunwayman - 34 lights from the (now largely retired) Chinese maker known for its magnetic control-ring brightness dial, spanning compact CR123A/16340 and AA EDC lights, tactical models and a few floodlights. Specs are in; photos coming soon",
       "You can now pick a username when you sign up (optional) - it checks availability as you type and becomes your public @handle right away, instead of having to set it later in Account",
       "The homepage \"users\" count now counts every registered account, including ones that haven't set a username yet",
       "Added a Submit button in the top bar for quickly contributing a flashlight",
@@ -28,23 +22,18 @@ export const UPDATES: UpdateEntry[] = [
       "Fixed image uploads failing partway through with a \"Failed to retrieve the client token\" error when adding a flashlight with several photos - each image now retries on its own, so one hiccup no longer fails the whole submission (which used to leave it stuck waiting for review)",
       "A submission that fails partway through now cleans itself up instead of leaving a half-finished, empty draft sitting in the review queue - so the queue only ever shows real, complete submissions and there's no need to double-check whether a light already exists",
       "Browse now has a grid/list toggle (top-right of the results). List view shows a thin row per light with a larger preview image and the key specs inline - lumens, throw, battery and weight - so you can scan and compare more at a glance. Your choice is remembered",
-      "Added HDS Systems - 5 hand-built EDC lights (the EDC v4 Executive, LE, Rotary and Tactical, plus the EDC Bicycle) from the US maker known for ultra-reliable, user-programmable everyday-carry lights",
-      "The Specifications section now also covers beam intensity (candela), number of LEDs, and driver type - on every flashlight page, the side-by-side Compare, and the contribute/edit form. EagleTac's candela figures are filled in; the rest can be added over time",
-      "Added EagleTac - 96 flashlights with full specs (lumens, throw, battery, dimensions, weight, IP rating, year), from the D25 Clicky pocket series and the P/T duty lights to the MX/SX multi-emitter high-power lights and long-throw spotlights. Product photos are coming soon",
+      "The Specifications section now also covers beam intensity (candela), number of LEDs, and driver type - on every flashlight page, the side-by-side Compare, and the contribute/edit form",
       "Every flashlight and brand page now shows its full Change history - who added or edited it and when (GMT+7), newest first, with a \"See more\" button when there are more than 5 entries. Edits are public and on the record",
       "The Lumens and Price filters are now drag sliders instead of fixed buckets, so you can dial in any range - drag the max thumb to the end for \"no upper limit\"",
       "Behind the scenes: closed a database permission gap so the catalog tables are read-only to the public (edits still go through the proper review/admin paths) and tightened a few internal database functions",
       "Behind the scenes: the brand data-import scripts and the scraping playbook are now kept in our private workspace rather than the public code repo - they're a maintenance tool, not part of the site",
-      "Added Olight's flashlight line-up - 42 models across EDC, tactical, weapon lights, throwers, floodlights, keychain lights and headlamps: the flat ArkPro and Arkfeld EDC lights, the Baton pocket family, the Warrior and Odin tactical lights, the Baldr and PL weapon lights, the Marauder and Javelot throwers, the Seeker floodlights, the i-series keychain lights, the Oclip clip lights and the Perun headlamps",
-      "As always for a wiki, discontinued and out-of-stock Olight models are kept, and colour/material variants are merged into one entry",
-      "Olight publishes its detailed specs only inside images rather than as text, so a few technical figures (throw, runtime, dimensions) start out blank - they can be filled in over time via \"Suggest an edit\"",
       "Behind the scenes: the Database updates page is now edge-cached so it loads instantly (it refreshes whenever a change is approved), flashlight pages build a little faster, and lint now runs in the pre-deploy quality gate",
       "Behind the scenes: reorganized the internal project documentation so it stays easy to navigate as the project grows - the main guide is now a lean rules-and-index file pointing to focused topic docs (database, auth, caching, UI, images, a glossary, and a code map)"
     ]
   },
   {
     "date": "June 16, 2026",
-    "title": "Lumintop catalog, installable app, a new Guide & lots of fixes",
+    "title": "Installable app, a new Guide, admin delete tools & fixes",
     "items": [
       "Behind the scenes: public profile pages are now edge-cached for a minute, so they load faster on repeat visits",
       "Browse cards now quietly preload a flashlight page the moment you hover over it, so opening it feels instant - without slowing the initial page load (nothing is preloaded until you show interest)",
@@ -66,13 +55,7 @@ export const UPDATES: UpdateEntry[] = [
       "When adding or editing a flashlight, the LED / Emitter field now suggests existing emitters as you type, so names stay consistent and typos don’t fragment the list",
       "Fixed scroll-to-load-more sometimes stopping early (on the home page and especially after filtering) - the full set of results now loads as you scroll",
       "The filter rail now hides options that would return no results, so the Category, Battery, LED and Brand lists stay relevant to what you're looking at",
-      "Added Lumintop's full LED flashlight range - 133 more models across EDC, high-power, camping/area and headlamp lights, from the tiny Tool AA and EDC pocket lights to the big Mach and Tiger high-power throwers",
-      "Together with the LEP lasers from earlier, Lumintop now has nearly 150 lights in the database",
-      "As always for a wiki, discontinued and out-of-stock models are kept; colour and metal variants are merged into one entry with the materials noted",
       "The “Discontinued” tag on browse cards now spells out the full word (was a clipped “Disc.”) and uses a lighter chip in the bottom corner of the photo, matching the rest of the design",
-      "Added Lumintop's full LEP (\"white laser\") flashlight line - 13 models including the Thor series (Thor I, II, II V2, 3, 4, 5, Mini), the Thanos 2.0 and Thanos 23 high-power throwers, the Petal, the pocket W1/W3 lasers and the tiny Ant Man",
-      "As a wiki we keep the record complete: discontinued and out-of-stock models are included too",
-      "Metal variants (e.g. aluminum vs titanium) are kept as one entry with the materials noted in the description",
       "torch.EDC.wiki now installs as a proper app - on iPhone tap Share → \"Add to Home Screen\", on Android use \"Install app\" - and opens full-screen with no browser bars",
       "No more black flash when it opens: the launch screen now matches the app, in light or dark mode",
       "Opens faster every time and keeps working offline - if you lose signal, the pages you’ve already visited still load, with a tidy offline screen otherwise",
@@ -112,7 +95,7 @@ export const UPDATES: UpdateEntry[] = [
   },
   {
     "date": "June 12, 2026",
-    "title": "NEXTORCH catalog, browse sorting, security & privacy",
+    "title": "Browse sorting, security & privacy",
     "items": [
       "Browse now defaults to a Random order that reshuffles every day - so every brand gets a fair turn near the top instead of always being listed A–Z",
       "New \"Random\" option in the Sort by menu; you can still switch to Model, Lumens, Price, Beam distance or Weight anytime",
@@ -128,7 +111,6 @@ export const UPDATES: UpdateEntry[] = [
       "Friendly error screens with a one-tap \"Try again\" if something goes wrong",
       "Accessibility: a skip-to-content link, clearer labels on icon buttons, and screen-reader improvements on the filters and the compare table",
       "Approved contributions now credit both the original contributor and the reviewer who approved them",
-      "NEXTORCH added - 72 flashlights across tactical, duty, EDC, weapon lights, headlamps, penlights and search lights, with full specs and product galleries",
       "Clear, layered licensing: the site code is MIT and our original content & data compilation is CC BY 4.0, while product specs stay factual data and product images remain the property of their respective manufacturers (non-commercial reference use, with notice-and-takedown)",
       "New cookie consent banner - Google Analytics now loads only after you accept, and a new Privacy & Cookies page explains exactly what is and isn’t collected",
       "Footer now states the project’s licensing and non-commercial, brand-independent status",
@@ -137,9 +119,8 @@ export const UPDATES: UpdateEntry[] = [
   },
   {
     "date": "June 11, 2026",
-    "title": "Reviews, brand pages, new makers & Liquid Glass redesign",
+    "title": "Reviews, brand pages & Liquid Glass redesign",
     "items": [
-      "Two new makers added - Prometheus Lights (Alpha, Beta, Delta) and Foursevens (Quark, Mini, Preon, Maelstrom), 13 lights in all",
       "Each flashlight can now list multiple review links - paste a URL and the title and post date are fetched automatically (works with YouTube, Vimeo and articles)",
       "Reviews now show below the user manual on each page, newest first",
       "Per-brand pages now carry maker info and history, plus an \"Added by / Updated by\" credit like flashlight pages",
@@ -163,9 +144,8 @@ export const UPDATES: UpdateEntry[] = [
   },
   {
     "date": "June 3, 2026",
-    "title": "Acebeam catalog, multi-battery support & public collections",
+    "title": "Multi-battery support & public collections",
     "items": [
-      "81 Acebeam flashlights added - EDC, tactical, headlamps, high-power searchlights, LEP throwers and dive lights",
       "Flashlights can now list multiple battery options - e.g. \"2× 18350 or 1× 18650\" - with per-type cell counts",
       "New \"Made in\" filter, plus brand origin and country of manufacture shown on each flashlight page",
       "New Diving category and 16340 battery type added to filters",
@@ -192,7 +172,6 @@ export const UPDATES: UpdateEntry[] = [
       "User profile pages at /u/[username] - shows flashlights added and edit contributions",
       "Attribution on flashlight pages now links to contributor profile",
       "\"Added by system\" shows actual contributor name when a user submitted the flashlight",
-      "Cool Fall Tri-V and Trek added to the database",
       "\"Edit\" button on flashlight pages for admin/mod - skips review queue and saves directly",
       "Regular users still submit edits for review via \"Suggest an edit\"",
       "Edit form shows existing images - hover to remove or set as primary, add new images",
@@ -200,7 +179,6 @@ export const UPDATES: UpdateEntry[] = [
       "All image changes (removals, primary swap) applied correctly on approval for pending submissions",
       "Description field supports Markdown - bold, italic, lists, headings, links",
       "Write/Preview toggle on the description field",
-      "Cool Fall Trek added to the database",
       "Top Lists page - Recently Added, Newest Release, Most Expensive, Best Value (top 10 each)",
       "Nav active state - current page highlighted in header across all pages",
       "User Manual upload - attach one or more PDF manuals when submitting a flashlight",
@@ -213,7 +191,7 @@ export const UPDATES: UpdateEntry[] = [
   },
   {
     "date": "June 1, 2026",
-    "title": "Accounts, contributions, admin panel, SEO & LED Lenser catalog",
+    "title": "Accounts, contributions, admin panel & SEO",
     "items": [
       "Infinite scroll - browse page loads more flashlights automatically as you scroll down",
       "Skeleton loading - browse grid shows shimmer placeholders while data loads",
@@ -222,8 +200,6 @@ export const UPDATES: UpdateEntry[] = [
       "Daily Supabase ping via Vercel Cron to prevent database from pausing on free tier",
       "Results count shown above flashlight grid",
       "Brand/emitter filter cache reduced to 5 minutes; cleared immediately when admin adds flashlights",
-      "60+ LED Lenser flashlights, headlamps and area lights added",
-      "Scraped from ledlenserusa.com - specs, pricing and images imported automatically",
       "Admin panel moved to /admin - moderator role added (review only, no settings)",
       "Two-factor authentication now required to access the admin panel",
       "User management - admin can search users, reset passwords, ban or delete accounts",
@@ -281,8 +257,7 @@ export const UPDATES: UpdateEntry[] = [
       "Flashlight database with specs, images, and filters",
       "Browse, search, and filter by brand, category, battery, lumens, price",
       "Flashlight detail pages with full specifications",
-      "Compare up to 4 flashlights side by side",
-      "First data: Surefire, Malkoff, Weltool"
+      "Compare up to 4 flashlights side by side"
     ]
   }
 ]
