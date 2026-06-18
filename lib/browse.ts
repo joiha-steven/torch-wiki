@@ -120,6 +120,26 @@ export async function fetchFacetRows(): Promise<FacetRow[]> {
   return all
 }
 
+// Every live flashlight's slug + updated_at, paged past the 1000-row PostgREST cap.
+// Backs the sitemap and detail-page generateStaticParams - a plain select() there
+// silently stopped at 1000, dropping ~600 lights from the sitemap / prerender set.
+export async function fetchAllFlashlightSlugs(): Promise<{ slug: string; updated_at: string }[]> {
+  const CHUNK = 1000
+  const all: { slug: string; updated_at: string }[] = []
+  for (let from = 0; ; from += CHUNK) {
+    const { data } = await supabase
+      .from('flashlights')
+      .select('slug, updated_at')
+      .is('deleted_at', null)
+      .order('updated_at', { ascending: false })
+      .range(from, from + CHUNK - 1)
+    const rows = (data ?? []) as { slug: string; updated_at: string }[]
+    all.push(...rows)
+    if (rows.length < CHUNK) break
+  }
+  return all
+}
+
 // Resolve the "Made in" filter (a brands-table attribute) to the set of brand names to match on.
 // Returns null when the filter is inactive (no constraint).
 export function madeInBrandNames(filters: FilterState, brandsMeta: BrandMeta[]): string[] | null {

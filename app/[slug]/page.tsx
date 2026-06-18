@@ -9,6 +9,7 @@ import { ExternalLink, Video, FileText } from 'lucide-react'
 import { brandSlug } from '@/lib/brand'
 import { formatMaterials } from '@/lib/materials'
 import { SITE_URL as BASE, OG_IMAGE } from '@/lib/seo'
+import { fetchAllFlashlightSlugs } from '@/lib/browse'
 import ImageGallery from './ImageGallery'
 import WishlistButtons from './WishlistButtons'
 import ManualSection from '@/components/ManualSection'
@@ -40,8 +41,9 @@ const getFlashlight = cache(async (slug: string) => {
 })
 
 export async function generateStaticParams() {
-  const { data } = await supabase.from('flashlights').select('slug').is('deleted_at', null)
-  return (data ?? []).map(f => ({ slug: f.slug }))
+  // Paged - a plain select() stops at 1000 rows, leaving ~600 lights un-prerendered.
+  const rows = await fetchAllFlashlightSlugs()
+  return rows.map(f => ({ slug: f.slug }))
 }
 
 type Props = { params: Promise<{ slug: string }> }
@@ -54,16 +56,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${f.brand} ${f.model}`
   const ogTitle = `${f.brand} ${f.model} - torch.EDC.wiki`
 
-  // Build a short spec summary for description
+  // Build a short spec summary for description (lumens, throw, emitter, battery, price).
   const parts: string[] = []
-  if (f.max_lumens)      parts.push(`${f.max_lumens.toLocaleString()} lumens`)
+  if (f.max_lumens)      parts.push(`${f.max_lumens.toLocaleString()} lm`)
   if (f.beam_distance_m) parts.push(`${f.beam_distance_m}m throw`)
-  if (f.battery_type)    parts.push(`${f.battery_type} battery`)
-  if (f.category)        parts.push(f.category)
+  if (f.emitters?.length) parts.push(f.emitters[0])
+  if (f.battery_type)    parts.push(`${f.battery_type}`)
+  if (f.price_usd)       parts.push(`$${f.price_usd.toLocaleString()}`)
+  const specSummary = `${f.brand} ${f.model}${parts.length ? ' - ' + parts.join(', ') : ''}. Full specs, reviews and images on torch.EDC.wiki.`
 
-  const description = f.description
-    ? f.description.slice(0, 155)
-    : `${f.brand} ${f.model}${parts.length ? ' - ' + parts.join(', ') : ''}. Full specs, reviews and images on torch.EDC.wiki.`
+  // Prefer a real editorial description, but only when it's substantive - some
+  // lights carry a stub like "Convoy S2+." (just the name) which made a useless
+  // OG/meta description that duplicated the title. Fall back to the spec summary.
+  const editorial = f.description?.trim()
+  const description = editorial && editorial.length > title.length + 12
+    ? editorial.slice(0, 160)
+    : specSummary
 
   return {
     title,

@@ -2,17 +2,15 @@ import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
 import { brandSlug } from '@/lib/brand'
 import { SITE_URL as BASE } from '@/lib/seo'
+import { fetchAllFlashlightSlugs } from '@/lib/browse'
 
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { data } = await supabase
-    .from('flashlights')
-    .select('slug, updated_at')
-    .is('deleted_at', null)
-    .order('updated_at', { ascending: false })
+  // Paged fetch - a plain select() caps at 1000 rows and dropped ~600 lights.
+  const data = await fetchAllFlashlightSlugs()
 
-  const flashlightUrls: MetadataRoute.Sitemap = (data ?? []).map(f => ({
+  const flashlightUrls: MetadataRoute.Sitemap = data.map(f => ({
     url: `${BASE}/${f.slug}`,
     lastModified: new Date(f.updated_at),
     changeFrequency: 'monthly',

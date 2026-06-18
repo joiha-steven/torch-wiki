@@ -12,6 +12,8 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 18, 2026",
     "title": "Frosted nav, remembered filters & a Terms of Use page",
     "items": [
+      "Fixed the sitemap and page pre-rendering only covering the first 1,000 flashlights - all 1,600+ are now included, so search engines can find every light",
+      "Improved the share/SEO description on flashlight pages: lights that only had their name as a description now get an auto-generated spec line instead (e.g. \"600 lm, Cree XP-L HI, 18650, $20\") so link previews and search snippets are actually useful",
       "Made flashlight photos on the cards bigger - the image frame now sits closer to the card edges, and in dark mode its backing plate is a touch darker so photos sit more comfortably",
       "Folded the Database updates feed into this Log page as a third \"Database\" tab, so the community change history lives in one tidy place instead of a separate page (the old /data-log address now redirects here)",
       "The Brand and Category filters now show how many lights match each option as a faded count aligned to the right - and the numbers update as you narrow the other filters, so you can see at a glance where the catalog is deep",
