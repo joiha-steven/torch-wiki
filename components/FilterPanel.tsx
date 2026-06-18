@@ -46,10 +46,10 @@ function CheckRow({ checked, onChange, label, count }: { checked: boolean; onCha
   return (
     <label className="flex items-center gap-2.5 cursor-pointer group leading-[1.4]">
       <input type="checkbox" checked={checked} onChange={onChange} className="cb" />
-      <span className={`text-[13px] transition-colors ${checked ? 'text-ink font-medium' : 'text-ink-2 group-hover:text-ink'}`}>
+      <span className={`flex-1 min-w-0 text-[13px] transition-colors ${checked ? 'text-ink font-medium' : 'text-ink-2 group-hover:text-ink'}`}>
         {label}
-        {count != null && <span className="ml-1 text-[11px] text-ink-3 font-normal">({count})</span>}
       </span>
+      {count != null && <span className="shrink-0 text-[11px] text-ink-3 tabular-nums">{count}</span>}
     </label>
   )
 }

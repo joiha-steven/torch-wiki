@@ -102,11 +102,22 @@ export type FacetRow = {
   charging_type: string | null
 }
 export async function fetchFacetRows(): Promise<FacetRow[]> {
-  const { data } = await supabase
-    .from('flashlights')
-    .select('brand,category,battery_types,emitters,max_lumens,price_usd,charging_type')
-    .is('deleted_at', null)
-  return (data ?? []) as FacetRow[]
+  // PostgREST caps a single select at 1000 rows; the catalog is larger, so page
+  // through in chunks until a short page signals the end. Undercounting here would
+  // make the Brand/Category tallies (and zero-result hiding) wrong.
+  const CHUNK = 1000
+  const all: FacetRow[] = []
+  for (let from = 0; ; from += CHUNK) {
+    const { data } = await supabase
+      .from('flashlights')
+      .select('brand,category,battery_types,emitters,max_lumens,price_usd,charging_type')
+      .is('deleted_at', null)
+      .range(from, from + CHUNK - 1)
+    const rows = (data ?? []) as FacetRow[]
+    all.push(...rows)
+    if (rows.length < CHUNK) break
+  }
+  return all
 }
 
 // Resolve the "Made in" filter (a brands-table attribute) to the set of brand names to match on.

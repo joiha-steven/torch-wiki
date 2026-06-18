@@ -12,7 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 18, 2026",
     "title": "Frosted nav, remembered filters & a Terms of Use page",
     "items": [
-      "The Brand and Category filters now show how many lights match each option, in faded brackets after the name (e.g. \"Nitecore (219)\") - and the numbers update as you narrow the other filters, so you can see at a glance where the catalog is deep",
+      "The Brand and Category filters now show how many lights match each option as a faded count aligned to the right - and the numbers update as you narrow the other filters, so you can see at a glance where the catalog is deep",
       "Added a Tumbled finish option for Aluminum, Stainless Steel and Titanium in the contribute form's material picker",
       "Refreshed the top navigation bar into dark frosted glass - the page content softly blurs behind it as you scroll, with a clean edge and a soft drop shadow (no more glossy 3D look), tuned to stay light on performance. It's a touch slimmer, sits slightly wider than the page content (with comfortable margins on mobile), and the search box is more compact",
       "Browse now remembers your filters: pick brands, ranges and so on, open a light, hit Back, and your filters - plus which filter groups you'd expanded and any \"Show more\" lists you'd opened - are still there instead of resetting. The Brand group is open by default, the Filters heading stands out more, and Clear all resets everything to default",
