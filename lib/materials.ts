@@ -16,12 +16,12 @@ export const DAMASTEEL = 'Damasteel'
 
 // Finish options per material (first entry is the default).
 export const FINISHES: Record<string, string[]> = {
-  'Aluminum': ['Anodized', 'Cerakote', 'PVD', 'Powder-coated', 'Bead-blasted', 'Raw'],
-  'Titanium': ['Raw', 'Stonewashed', 'Bead-blasted', 'Polished', 'Anodized', 'PVD', 'Acid-etched'],
+  'Aluminum': ['Anodized', 'Cerakote', 'PVD', 'Powder-coated', 'Bead-blasted', 'Tumbled', 'Raw'],
+  'Titanium': ['Raw', 'Stonewashed', 'Bead-blasted', 'Tumbled', 'Polished', 'Anodized', 'PVD', 'Acid-etched'],
   'Copper': ['Raw', 'Patina'],
   'Brass': ['Raw', 'Patina'],
   'Bronze': ['Raw', 'Patina'],
-  'Stainless Steel': ['Raw', 'Bead-blasted', 'Stonewashed', 'Polished', 'PVD'],
+  'Stainless Steel': ['Raw', 'Bead-blasted', 'Stonewashed', 'Tumbled', 'Polished', 'PVD'],
   'Magnesium': ['Raw', 'Anodized', 'Cerakote'],
   'Zinc Alloy': ['Raw', 'Painted', 'Plated'],
   'Polymer / Nylon': ['Molded'],

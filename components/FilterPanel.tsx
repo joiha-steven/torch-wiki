@@ -41,13 +41,14 @@ const CHARGING_OPTIONS = [
   { value: 'none',      label: 'None' },
 ]
 
-// Shared label wrapper
-function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+// Shared label wrapper. `count` (optional) shows the matching-light tally dimly after the label.
+function CheckRow({ checked, onChange, label, count }: { checked: boolean; onChange: () => void; label: string; count?: number }) {
   return (
     <label className="flex items-center gap-2.5 cursor-pointer group leading-[1.4]">
       <input type="checkbox" checked={checked} onChange={onChange} className="cb" />
       <span className={`text-[13px] transition-colors ${checked ? 'text-ink font-medium' : 'text-ink-2 group-hover:text-ink'}`}>
         {label}
+        {count != null && <span className="ml-1 text-[11px] text-ink-3 font-normal">({count})</span>}
       </span>
     </label>
   )
@@ -90,20 +91,21 @@ function Section({ title, count = 0, open, onToggle, children }: {
 // Checkbox list that truncates to `limit` rows behind a "Show N more" toggle.
 // Selected options float to the top so a collapsed list still shows what's active.
 // `expanded`/`onExpand` are controlled by the parent so the choice can be remembered.
-function CheckList({ items, selected, onToggle, limit = 8, expanded = false, onExpand }: {
+function CheckList({ items, selected, onToggle, limit = 8, expanded = false, onExpand, counts }: {
   items: string[]
   selected: string[]
   onToggle: (v: string) => void
   limit?: number
   expanded?: boolean
   onExpand?: (v: boolean) => void
+  counts?: Record<string, number>
 }) {
   const ordered = [...items].sort((a, b) => Number(selected.includes(b)) - Number(selected.includes(a)))
   const shown = expanded ? ordered : ordered.slice(0, limit)
   return (
     <div className="space-y-[3px]">
       {shown.map(it => (
-        <CheckRow key={it} checked={selected.includes(it)} onChange={() => onToggle(it)} label={it} />
+        <CheckRow key={it} checked={selected.includes(it)} onChange={() => onToggle(it)} label={it} count={counts?.[it]} />
       ))}
       {items.length > limit && (
         <button
@@ -170,9 +172,12 @@ type Props = {
   // zero-result options are hidden. Undefined = facet data not loaded → show all.
   availableCategories?: string[]
   availableBatteryTypes?: string[]
+  // Per-option light counts (shown dimly after the label). Undefined until facet data loads.
+  brandCounts?: Record<string, number>
+  categoryCounts?: Record<string, number>
 }
 
-export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [], availableCategories, availableBatteryTypes }: Props) {
+export default function FilterPanel({ filters, onChange, availableBrands, availableEmitters, availableMadeIn = [], availableCategories, availableBatteryTypes, brandCounts, categoryCounts }: Props) {
   const toggle = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
 
@@ -265,7 +270,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Brands */}
       {availableBrands.length > 0 && (
         <Section title="Brand" count={filters.brands.length} open={open.Brand} onToggle={v => toggleSection('Brand', v)}>
-          <CheckList items={availableBrands} selected={filters.brands} expanded={!!more.Brand} onExpand={v => setMoreFor('Brand', v)}
+          <CheckList items={availableBrands} selected={filters.brands} expanded={!!more.Brand} onExpand={v => setMoreFor('Brand', v)} counts={brandCounts}
             onToggle={v => onChange({ ...filters, brands: toggle(filters.brands, v) })} />
         </Section>
       )}
@@ -293,7 +298,7 @@ export default function FilterPanel({ filters, onChange, availableBrands, availa
       {/* Category */}
       {categories.length > 0 && (
         <Section title="Category" count={filters.categories.length} open={open.Category} onToggle={v => toggleSection('Category', v)}>
-          <CheckList items={categories} selected={filters.categories} limit={20} expanded={!!more.Category} onExpand={v => setMoreFor('Category', v)}
+          <CheckList items={categories} selected={filters.categories} limit={20} expanded={!!more.Category} onExpand={v => setMoreFor('Category', v)} counts={categoryCounts}
             onToggle={v => onChange({ ...filters, categories: toggle(filters.categories, v) })} />
         </Section>
       )}

@@ -198,13 +198,14 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
       return true
     }
     const cat = new Set<string>(), bat = new Set<string>(), emi = new Set<string>(), brd = new Set<string>()
+    const brdCount = new Map<string, number>(), catCount = new Map<string, number>()
     for (const r of facetRows) {
-      if (match(r, 'category') && r.category) cat.add(r.category)
-      if (match(r, 'brand') && r.brand) brd.add(r.brand)
+      if (match(r, 'category') && r.category) { cat.add(r.category); catCount.set(r.category, (catCount.get(r.category) ?? 0) + 1) }
+      if (match(r, 'brand') && r.brand) { brd.add(r.brand); brdCount.set(r.brand, (brdCount.get(r.brand) ?? 0) + 1) }
       if (match(r, 'battery')) (r.battery_types ?? []).forEach(x => bat.add(x))
       if (match(r, 'emitter')) (r.emitters ?? []).forEach(x => emi.add(x))
     }
-    return { cat, bat, emi, brd }
+    return { cat, bat, emi, brd, brdCount, catCount }
   }, [facetRows, filters, brandsMeta])
 
   // Narrow the rail lists to available options (always keep a currently-selected
@@ -213,6 +214,9 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
   const emittersToShow = facets ? availableEmitters.filter(e => facets.emi.has(e) || filters.emitters.includes(e)) : availableEmitters
   const categoriesToShow = facets ? Array.from(new Set([...facets.cat, ...filters.categories])) : undefined
   const batteryTypesToShow = facets ? Array.from(new Set([...facets.bat, ...filters.batteryTypes])) : undefined
+  // Per-option light counts for the Brand/Category lists (shown dimly after the label).
+  const brandCounts = facets ? Object.fromEntries(facets.brdCount) : undefined
+  const categoryCounts = facets ? Object.fromEntries(facets.catCount) : undefined
 
   // Infinite scroll - observe sentinel div at bottom of list
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -264,6 +268,8 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
             availableMadeIn={availableMadeIn}
             availableCategories={categoriesToShow}
             availableBatteryTypes={batteryTypesToShow}
+            brandCounts={brandCounts}
+            categoryCounts={categoryCounts}
           />
         </div>
 
@@ -321,6 +327,8 @@ export default function BrowsePage({ initialItems, initialCount, initialMeta }: 
               availableMadeIn={availableMadeIn}
               availableCategories={categoriesToShow}
               availableBatteryTypes={batteryTypesToShow}
+              brandCounts={brandCounts}
+              categoryCounts={categoryCounts}
             />
           </div>
         </div>
