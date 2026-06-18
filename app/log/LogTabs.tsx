@@ -2,24 +2,29 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { UpdateEntry } from './updates-data'
+import DataUpdatesTab, { type LogRow } from './DataUpdatesTab'
 
 type Feature = { title: string; body: string }
 type Stack = { name: string; note: string }
 
-// Tabbed Log: "About" (features + stack as cards) vs "Changelog" (full-width
-// accordion, one day open at a time, newest open by default). Keeps the page to
-// roughly one screen instead of an endless single column.
-export default function LogTabs({ features, stack, updates }: {
-  features: Feature[]; stack: Stack[]; updates: UpdateEntry[]
+const TAB_LABEL = { about: 'About', changelog: 'Changelog', data: 'Database' } as const
+type Tab = keyof typeof TAB_LABEL
+
+// Tabbed Log: "About" (features + stack as cards), "Changelog" (full-width accordion,
+// one day open at a time, newest open by default), and "Database" (the community
+// data-change feed, folded in from the old /data-log page). Keeps everything in one
+// tidy place instead of separate routes.
+export default function LogTabs({ features, stack, updates, dataEvents, dataCount }: {
+  features: Feature[]; stack: Stack[]; updates: UpdateEntry[]; dataEvents: LogRow[]; dataCount: number
 }) {
-  const [tab, setTab] = useState<'about' | 'changelog'>('changelog')
+  const [tab, setTab] = useState<Tab>('changelog')
   const [open, setOpen] = useState(0) // expanded day index; -1 = all collapsed
 
   return (
     <div>
       <div className="flex justify-center mb-10">
         <div className="inline-flex p-1 bg-panel border border-line rounded-full">
-          {(['about', 'changelog'] as const).map(t => (
+          {(['about', 'changelog', 'data'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -27,13 +32,15 @@ export default function LogTabs({ features, stack, updates }: {
                 tab === t ? 'bg-brand-500 text-black' : 'text-ink-2 hover:text-ink'
               }`}
             >
-              {t === 'about' ? 'About' : 'Changelog'}
+              {TAB_LABEL[t]}
             </button>
           ))}
         </div>
       </div>
 
-      {tab === 'about' ? (
+      {tab === 'data' ? (
+        <DataUpdatesTab events={dataEvents} count={dataCount} />
+      ) : tab === 'about' ? (
         <div className="space-y-12">
           <section>
             <h2 className="text-lg font-bold text-ink mb-5">Features</h2>

@@ -2,22 +2,30 @@ import type { Metadata } from 'next'
 import { SITE_URL, OG_IMAGE } from '@/lib/seo'
 import Header from '@/components/Header'
 import { Code2 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 import { UPDATES } from './updates-data'
 import LogTabs from './LogTabs'
+import type { LogRow } from './DataUpdatesTab'
 
 export const metadata: Metadata = {
   title: 'Log',
-  description: 'What torch.EDC.wiki is, how it is built, and a changelog of every update.',
+  description: 'What torch.EDC.wiki is, how it is built, a changelog of every update, and the community database-change feed.',
   alternates: { canonical: `${SITE_URL}/log` },
   openGraph: {
     title: 'Log - torch.EDC.wiki',
-    description: 'What torch.EDC.wiki is, how it is built, and a changelog of every update.',
+    description: 'What torch.EDC.wiki is, how it is built, a changelog of every update, and the community database-change feed.',
     url: `${SITE_URL}/log`,
     siteName: 'torch.EDC.wiki',
     type: 'website',
     images: [OG_IMAGE],
   },
 }
+
+// The Database tab pulls the community data-change feed. ISR (5 min); approving a
+// submission calls revalidatePath('/log') so the feed stays fresh. The feed is
+// short (~100s) so a single page covers it - no in-tab pagination needed.
+export const revalidate = 300
+const DATA_FEED_LIMIT = 500
 
 const REPO = 'https://github.com/joiha-steven/torch-wiki'
 // Vercel injects the deployed commit SHA at build time.
@@ -86,7 +94,14 @@ const STACK: { name: string; note: string }[] = [
   { name: 'Cloudflare Turnstile', note: 'A privacy-friendly captcha that keeps out spam and bots' },
 ]
 
-export default function LogPage() {
+export default async function LogPage() {
+  const [{ data: rows }, { data: total }] = await Promise.all([
+    supabase.rpc('data_change_log', { p_limit: DATA_FEED_LIMIT, p_offset: 0 }),
+    supabase.rpc('data_change_log_count'),
+  ])
+  const dataEvents = (rows ?? []) as LogRow[]
+  const dataCount = (total ?? 0) as number
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -110,7 +125,7 @@ export default function LogPage() {
           </a>
         </div>
 
-        <LogTabs features={FEATURES} stack={STACK} updates={UPDATES} />
+        <LogTabs features={FEATURES} stack={STACK} updates={UPDATES} dataEvents={dataEvents} dataCount={dataCount} />
       </div>
     </div>
   )

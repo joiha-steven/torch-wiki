@@ -233,7 +233,8 @@ export async function PATCH(request: Request) {
     console.error('[submissions PATCH] status update error:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-  // Approval adds a row to the public data-log (now ISR-cached) - clear it.
-  if (action === 'approved') revalidatePath('/data-log')
+  // Approval adds a row to the public data-change feed (the /log Database tab,
+  // ISR-cached) - clear it.
+  if (action === 'approved') revalidatePath('/log')
   return NextResponse.json({ ok: true, slug: responseSlug })
 }

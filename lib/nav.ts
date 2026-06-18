@@ -12,7 +12,6 @@ export const NAV = [
 // styled like the user menu). On mobile these are flattened into the nav list.
 export const INFO_NAV = [
   { href: '/log',      label: 'Log' },
-  { href: '/data-log', label: 'Database updates' },
   { href: '/guide',    label: 'Guide' },
   { href: '/terms',    label: 'Terms' },
 ] as const

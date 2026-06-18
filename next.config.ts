@@ -21,10 +21,13 @@ const nextConfig: NextConfig = {
     ],
   },
   // /updates was renamed to /log (now leads with features + stack + version).
-  // Permanent redirect keeps old links and bookmarks working.
+  // /data-log was folded into the /log "Database" tab. Permanent redirects keep
+  // old links and bookmarks working.
   async redirects() {
     return [
       { source: '/updates', destination: '/log', permanent: true },
+      { source: '/data-log', destination: '/log', permanent: true },
+      { source: '/data-log/:page*', destination: '/log', permanent: true },
     ]
   },
   // Security headers applied to every response (Vercel honours these at the edge

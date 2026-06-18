@@ -12,6 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 18, 2026",
     "title": "Frosted nav, remembered filters & a Terms of Use page",
     "items": [
+      "Folded the Database updates feed into this Log page as a third \"Database\" tab, so the community change history lives in one tidy place instead of a separate page (the old /data-log address now redirects here)",
       "The Brand and Category filters now show how many lights match each option as a faded count aligned to the right - and the numbers update as you narrow the other filters, so you can see at a glance where the catalog is deep",
       "Added a Tumbled finish option for Aluminum, Stainless Steel and Titanium in the contribute form's material picker",
       "Refreshed the top navigation bar into dark frosted glass - the page content softly blurs behind it as you scroll, with a clean edge and a soft drop shadow (no more glossy 3D look), tuned to stay light on performance. It's a touch slimmer, sits slightly wider than the page content (with comfortable margins on mobile), and the search box is more compact",

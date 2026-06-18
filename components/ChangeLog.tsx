@@ -12,7 +12,7 @@ export type ChangeEvent = {
   is_staff?: boolean
 }
 
-// GMT+7 (Asia/Bangkok, no DST) - matches the /data-log page.
+// GMT+7 (Asia/Bangkok, no DST) - matches the /log Database tab.
 const fmt = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Asia/Bangkok',
   day: '2-digit', month: 'short', year: 'numeric',
