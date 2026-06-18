@@ -2,7 +2,7 @@ export default function FlashlightCardSkeleton() {
   return (
     <div className="glass-card rounded-[18px] p-3.5 flex flex-col">
       {/* Thumbnail */}
-      <div className="aspect-[4/3] rounded-[12px] bg-white/50 skeleton-shimmer mb-3.5" />
+      <div className="aspect-[3/2] rounded-[12px] bg-white/50 skeleton-shimmer -mx-2 -mt-2 mb-3" />
 
       {/* Category */}
       <div className="h-2.5 w-12 rounded bg-white/50 skeleton-shimmer mb-2" />

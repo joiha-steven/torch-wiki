@@ -12,6 +12,7 @@ export const UPDATES: UpdateEntry[] = [
     "date": "June 18, 2026",
     "title": "Frosted nav, remembered filters & a Terms of Use page",
     "items": [
+      "Made flashlight photos on the cards bigger - the image frame now sits closer to the card edges, and in dark mode its backing plate is a touch darker so photos sit more comfortably",
       "Folded the Database updates feed into this Log page as a third \"Database\" tab, so the community change history lives in one tidy place instead of a separate page (the old /data-log address now redirects here)",
       "The Brand and Category filters now show how many lights match each option as a faded count aligned to the right - and the numbers update as you narrow the other filters, so you can see at a glance where the catalog is deep",
       "Added a Tumbled finish option for Aluminum, Stainless Steel and Titanium in the contribute form's material picker",

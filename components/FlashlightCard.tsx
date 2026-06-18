@@ -39,7 +39,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
 
       {/* Thumbnail - translucent glass fill, fixed ratio so cards stay even */}
       <HoverPrefetchLink href={`/${flashlight.slug}`} className="block">
-        <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden mb-3.5 bg-plate">
+        <div className="relative aspect-[3/2] rounded-[12px] overflow-hidden -mx-2 -mt-2 mb-3 bg-plate">
           {flashlight.image_url ? (
             <Image
               src={flashlight.image_url}
@@ -55,7 +55,7 @@ function FlashlightCard({ flashlight, isSelected, onToggleCompare, priority = fa
               // immediately. No JS opacity fade anymore: it kept the image
               // invisible until hydration/onLoad, which was the LCP render delay.
               loading={priority ? undefined : eager ? 'eager' : 'lazy'}
-              className="object-contain p-1"
+              className="object-contain p-0.5"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
