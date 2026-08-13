@@ -19,7 +19,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 3. **Changelog updated in the SAME push** — add today's item to `app/log/updates-data.ts` (one entry per calendar day; the `/log` page renders it).
 4. **New pure `lib/` function → unit test; bug fix in tested code → regression test.**
 5. **New user-facing page/endpoint → add its URL to `scripts/smoke.mjs`.**
-6. **Pushed to `main`, then verified on prod** — `npm run smoke` (and curl the changed URL); don't trust the deploy alone. If Vercel didn't auto-build: `npx vercel --prod --yes`.
+6. **Pushed to `main`, deployed (`torch-deploy.sh` on the box — see Deployment Workflow), then verified on prod** — `npm run smoke` (and curl the changed URL); don't trust the deploy alone.
 
 ## Where to read more (`docs/`)
 
@@ -28,7 +28,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 | Full DB schema, every migration SQL, indexes, RPCs, emitter naming | `docs/database.md` |
 | Auth flow, 2FA, user profiles, contributions, admin queue | `docs/auth-admin-contrib.md` |
 | Security posture (auth, uploads, SSRF, headers) | `docs/security.md` |
-| Image optimization + Vercel cost, blob workflow, scripts | `docs/images.md` |
+| Image/PDF storage, optimization, caching layers, seeding workflow | `docs/images.md` |
 | Caching strategy + browse first-paint + revalidation | `docs/caching.md` |
 | Page structure, filters, color system, light/dark theming, materials | `docs/ui.md` |
 | PWA / installable app | `docs/pwa.md` |
@@ -39,7 +39,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
-- **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
+- **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia**; ~200 ms from the origin box — ISR absorbs it for reads). Anon key for reads, service role key for writes in scripts.
 - **File storage: local disk** (`/home/torch/files`, served by nginx at `/files/`, 1y immutable) via `lib/storage.ts` (`STORAGE_DRIVER=local`). Vercel Blob is the legacy backend (driver default when unset); the old store is no longer referenced by the DB (URLs rewritten 2026-08-13, reverse mapping in workspace `02_Audit/`).
 - **Hosting: self-hosted** (2026-08-13) — web-server `152.44.39.235`, systemd `torch-wiki.service` (`next start -p 3300`, capped `MemoryMax=1200M CPUQuota=200%`), nginx vhost, **Cloudflare proxied** (origin firewall = CF IPs only; origin TLS self-signed, CF SSL mode Full). Crons in `/etc/cron.d/torch-wiki` (vercel.json crons are legacy). Analytics: GA only — `@vercel/analytics` renders only on Vercel, i.e. never in this deployment.
 - **Supabase Auth** — email/password + TOTP 2FA
@@ -58,10 +58,10 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
 TURNSTILE_SECRET_KEY=...
 NEXT_PUBLIC_ADMIN_EMAIL=...
 REVALIDATE_SECRET=...   # shared secret for /api/revalidate from scripts/curl (any long random string)
-CRON_SECRET=...         # required for the daily trash auto-purge cron (/api/cron/purge-trash). Set this in Vercel → Vercel sends it as `Authorization: Bearer <CRON_SECRET>`; without it that route returns 503 (the admin Trash view still purges expired items opportunistically).
+CRON_SECRET=...         # required for the daily trash auto-purge cron (/api/cron/purge-trash). /etc/cron.d/torch-wiki on the box sends it as `Authorization: Bearer <CRON_SECRET>`; without it that route returns 503 (the admin Trash view still purges expired items opportunistically).
 NEXT_PUBLIC_CDN_DOMAIN=...  # optional: Cloudflare CDN proxy for Blob PDF URLs (lib/cdn.ts). Unset → serves the raw Blob URL.
 ADMIN_EMAIL=...             # optional server-side fallback for NEXT_PUBLIC_ADMIN_EMAIL in the bootstrap admin check (lib/verify-admin.ts).
-STORAGE_DRIVER=...          # 'local' → files on disk via lib/storage.ts (self-host, sv4); unset → Vercel Blob (original behavior).
+STORAGE_DRIVER=...          # 'local' → files on disk via lib/storage.ts (self-host, the live setup); unset → Vercel Blob (legacy).
 NEXT_PUBLIC_STORAGE_DRIVER=... # mirror of STORAGE_DRIVER for the client bundle (lib/upload-client.ts); set both together.
 FILES_ROOT=...              # local driver: directory that holds stored files (default /home/torch/files). Outside the app dir on purpose.
 FILES_PUBLIC_BASE=...       # local driver: public URL prefix nginx serves FILES_ROOT at, e.g. https://torch.edc.wiki/files

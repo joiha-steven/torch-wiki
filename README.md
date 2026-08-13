@@ -94,7 +94,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - Admin email kept server-side only — never shipped in the client bundle
 
 **Performance**
-- Flashlight detail pages pre-rendered at build time (SSG), served from Vercel edge
+- Flashlight detail pages pre-rendered at build time (SSG), served via Cloudflare's edge
 - Browse page server-renders its first batch + filter lists (ISR, hourly) next to the database, so the grid arrives in the HTML — no client round-trip to the DB on first paint
 - Browse grid fetches only the columns each card renders (not whole rows), cutting first-load payload by ~⅔; counts use estimated mode to avoid full table scans
 - Sign-in modal (and its captcha) is lazy-loaded only when opened, off the first-paint bundle
@@ -103,12 +103,12 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 - GA on/off lookup (`/api/ga-settings`) is edge-cached so it isn't a cold function call on every page
 - On-demand cache invalidation when admin approves changes — no stale data
 - User pages (`/my`, `/account`, `/contribute`) never cached — always fresh
-- Supabase and Vercel both in `us-east-1` (North Virginia) for minimal latency
+- Supabase (`us-east-1`) and the origin server both in the US for minimal latency
 - Infinite scroll on browse page — loads more flashlights automatically as you scroll (mobile loads a smaller first batch for a faster open)
 - Skeleton loading with shimmer effect while data loads
 - Image optimization tuned to the actual layouts (fewer size variants, 1-year cache) for faster LCP and lower cost
 - Random browse order reshuffled nightly via a Postgres `pg_cron` job
-- Daily Vercel Cron ping keeps Supabase free tier from pausing
+- Daily server cron ping keeps Supabase free tier from pausing
 
 **SEO**
 - Dynamic `<title>`, `<meta description>`, and Open Graph tags per flashlight page
@@ -119,8 +119,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 **Analytics & privacy**
 - Google Analytics — toggle on/off and set Measurement ID from admin panel
 - Admin user excluded from tracking automatically
-- Cookie consent banner — shown only when Google Analytics is configured; GA loads (and the `_ga` cookie is set) only after the visitor clicks Accept. With no Measurement ID set, the banner is hidden and the site runs purely on cookieless Vercel Analytics
-- Conversion goals tracked via cookieless Vercel Analytics custom events (sign-up, wishlist/collection adds, contributions)
+- Cookie consent banner — shown only when Google Analytics is configured; GA loads (and the `_ga` cookie is set) only after the visitor clicks Accept. With no Measurement ID set, the banner is hidden and the site sets no analytics cookies at all
 - Privacy & Cookies page (`/privacy`) explaining what is and isn't collected
 
 **Help & transparency** (grouped under an "Information" menu in the header)
@@ -134,7 +133,7 @@ Flashlight collecting is a niche hobby with a passionate community but no centra
 
 - [Next.js](https://nextjs.org) — App Router, TypeScript, Turbopack
 - [Supabase](https://supabase.com) — PostgreSQL database + Auth (email/password + TOTP 2FA)
-- [Vercel](https://vercel.com) — hosting, Blob CDN (images + PDFs), Analytics, Speed Insights
+- Self-hosted on our own server (nginx + systemd + Node 22) behind [Cloudflare](https://cloudflare.com); hosted on [Vercel](https://vercel.com) until 2026-08
 - [Tailwind CSS v4](https://tailwindcss.com) — custom brand scale (`#eba00b`), warm off-white surface, light/dark themes via `data-theme` color tokens
 - [Inter](https://rsms.me/inter/) — single self-hosted variable typeface (no third-party font requests)
 - [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) — captcha
@@ -149,20 +148,18 @@ cd torch-wiki
 npm install
 ```
 
-Create `.env.local` with values from your Supabase, Vercel, and Cloudflare dashboards:
+Create `.env.local` with values from your Supabase and Cloudflare dashboards:
 ```
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
-BLOB_READ_WRITE_TOKEN=...
-BLOB_STORE_ID=...
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
 TURNSTILE_SECRET_KEY=...
-```
-
-Or pull from Vercel CLI (then add Supabase keys + Turnstile keys manually):
-```bash
-npx vercel env pull .env.local
+# self-host file storage (omit to use Vercel Blob instead — then add BLOB_READ_WRITE_TOKEN):
+STORAGE_DRIVER=local
+NEXT_PUBLIC_STORAGE_DRIVER=local
+FILES_ROOT=/path/to/files
+FILES_PUBLIC_BASE=https://your-domain/files
 ```
 
 Set `NEXT_PUBLIC_ADMIN_EMAIL` to the email address that should have admin access (bootstrapping fallback — proper admin access is controlled by `profiles.is_admin` in the database).
@@ -189,14 +186,14 @@ WHERE manual_url IS NOT NULL AND (manual_urls IS NULL OR manual_urls = '{}');
 ## Adding flashlights
 
 1. Insert data via Supabase Table Editor or SQL
-2. Run image migration to host images on Vercel Blob:
+2. Run image migration to re-host images on the site's storage:
 ```bash
 node scripts/migrate-to-vercel-blob.mjs
 ```
 
-Script is safe to re-run — skips images already on Blob. Some brand CDNs require a `Referer` header (handled via `refererMap` in the script).
+Script is safe to re-run — skips images already migrated. Some brand CDNs require a `Referer` header (handled via `refererMap` in the script).
 
-**Bulk seeding a whole brand:** each brand gets a `seed-<brand>.mjs` that inserts rows and re-hosts images to Vercel Blob in the same run. The brand scraper scripts and the full scraping playbook are kept in a **private maintenance workspace**, not in this public repo (they're an internal data-import tool). The `migrate-to-vercel-blob.mjs` / `normalize-emitters.mjs` utilities stay here.
+**Bulk seeding a whole brand:** each brand gets a `seed-<brand>.mjs` that inserts rows and re-hosts images to the site's storage in the same run. The brand scraper scripts and the full scraping playbook are kept in a **private maintenance workspace**, not in this public repo (they're an internal data-import tool). The `migrate-to-vercel-blob.mjs` / `normalize-emitters.mjs` utilities stay here.
 
 ---
 

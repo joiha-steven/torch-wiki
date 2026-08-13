@@ -35,12 +35,12 @@
 | `app/[slug]/ImageGallery.tsx` | Image gallery — white main area, warm thumbnails, amber active border |
 | `app/u/[username]/page.tsx` | Public user profile — shows approved contributions (added + edits), uses service role to bypass RLS |
 | `app/top/page.tsx` | Top Lists page — recently added, newest, most expensive, best value |
-| `app/api/ping/route.ts` | Health check endpoint — called daily by Vercel Cron to keep Supabase alive |
+| `app/api/ping/route.ts` | Health check endpoint — called daily by the box cron (/etc/cron.d/torch-wiki) to keep Supabase alive |
 | `app/api/admin/submissions/route.ts` | GET (list by status, service role bypass RLS, **enriches each row with `submitter_nickname`** via a profiles lookup) + PATCH (approve/reject, move PDFs, apply image directives, replace `_reviews`, **regenerate slug from edited brand+model** with collision guard + revalidate old URL, validate action, **stamp add/update time = submit time**) |
 | `app/api/admin/flashlight/route.ts` | PATCH — direct flashlight update (used by admin auto-approve path) |
 | `app/api/admin/upload-image/route.ts` | Admin image upload handler — auth via clientPayload bearer token |
 | `app/api/upload-pdf/route.ts` | Client upload handler for PDFs in contribute form — auth via clientPayload bearer token |
-| `app/api/upload-manual/route.ts` | Direct **admin/mod-only** PDF upload — stores to `flashlights/{slug}/manual.pdf`; validates slug + `%PDF-` magic bytes |
+| `app/api/upload-manual/route.ts` | Direct **admin/mod-only** PDF upload — stores to `flashlights/{slug}/manual-<timestamp>.pdf` (immutable caches key on pathname); validates slug + `%PDF-` magic bytes |
 | `lib/cdn.ts` | `cdnUrl()` — rewrites Vercel Blob PDF URLs to Cloudflare CDN proxy domain |
 | `lib/seo.ts` | `SITE_URL`, `SITE_NAME`, `OG_IMAGE` — single source of truth for canonical origin + default share image (`public/og-default.jpg`, 1200×630) |
 | `app/api/fetch-review-meta/route.ts` | POST `{url}` (auth-gated, SSRF-guarded) → og/JSON-LD title + published date; uses YouTube/Vimeo **oEmbed** first (reliable title), HTML fallback for the date |
@@ -64,7 +64,7 @@
 | `components/InfoMenu.tsx` | "Information" nav dropdown (Log + Guide + Terms), styled like `UserMenu`. Sub-links live in `INFO_NAV` (`lib/nav.ts`); `NAV` holds the flat top-level links. Both `Header` and `browse/BrowseHeader` render `{NAV.map} + <InfoMenu/>` (desktop) and flatten `INFO_NAV` under an "Information" label (mobile). |
 | `app/api/captcha-verify/route.ts` | Verifies Cloudflare Turnstile token |
 | `app/api/recover-account/route.ts` | Verifies recovery code hash → unenrolls TOTP via admin API |
-| `app/api/upload/route.ts` | Vercel Blob client upload handler — gated by `clientPayload` `{ session }` (Supabase token) or `{ turnstile }` (see Security) |
+| `app/api/upload/route.ts` | Upload handler (Blob token flow, or local multipart via `lib/local-upload.ts`) — gated by `clientPayload` `{ session }` (Supabase token) or `{ turnstile }` (see Security) |
 | `app/api/revalidate/route.ts` | On-demand cache invalidation — called by admin on approval or force-clear |
 | `app/api/ga-settings/route.ts` | Returns GA `{ enabled, id }` from `settings` table. **Edge-cached** via `Cache-Control: s-maxage=300` (global value, rarely changes) — without `s-maxage` only the browser cached and every fresh visit invoked this function cold (~800ms, was the slowest request on the page). |
 | `app/sitemap.ts` | Auto-generated `/sitemap.xml` — all flashlight slugs + static pages (1hr revalidate) |

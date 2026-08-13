@@ -29,7 +29,7 @@ Three tabs:
 
 - Requires account + **nickname** (blocked if no nickname set)
 - Captcha verification server-side before DB insert
-- Images uploaded to Vercel Blob at `submissions/{submission_id}/{uuid}.{ext}`
+- Images uploaded via `lib/storage.ts` at `submissions/{submission_id}/{uuid}.{ext}`
 - "Suggest an edit" link on each flashlight detail page → `/contribute?suggest={id}`
 
 ## Admin (`/admin`)
@@ -39,7 +39,7 @@ Three tabs:
 - Sections: **Submissions** | **Reports** | **Users** | **Settings** (users + settings: admin only)
 - Submissions fetched via `/api/admin/submissions` (service role — bypasses RLS, sees all users' submissions)
 - Approve/Reject via PATCH `/api/admin/submissions` — server-side: validates action, looks up user_id from DB (not client), moves PDFs, handles image removals (`_removeExtraDbIds`, `_primaryImageUrl` directives stored in submission data), returns slug for revalidation
-- PDF move on approval: `submissions/manuals/{uuid}.pdf` → `flashlights/{slug}/manual.pdf` (or `manual-1.pdf`, etc.) using Vercel Blob `copy()` + `del()`
+- PDF move on approval: `submissions/manuals/{uuid}.pdf` → `flashlights/{slug}/manual-<timestamp>.pdf` (timestamped — 1y immutable caches key on pathname) using `storageCopy()` + `storageDel()`
 - Reject → saves reviewer note shown to the submitter
 
 **Inline edit (admin/mod only):** On each flashlight detail page, admins/mods see an "Edit" button (users see "Suggest an edit"). Both go to `/contribute?suggest={id}`. For admin/mod, the form auto-approves on submit (calls PATCH immediately, redirects to flashlight page). For users, submission goes into pending queue.

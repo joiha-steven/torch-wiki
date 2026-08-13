@@ -10,7 +10,7 @@ repo) so we don't publish an attack map. High-level posture:
   (`getAdminUser`): content routes allow admin **or** moderator, role-management
   routes require admin. The bootstrap admin email is checked server-side only and
   never ships in the client bundle.
-- **Uploads** — Vercel Blob tokens are never minted unauthenticated; uploads are
+- **Uploads** — never accepted unauthenticated (Blob token flow or local multipart, same `authorize`); uploads are
   gated by a validated Supabase session **or** a Turnstile captcha token. PDF
   uploads are admin/mod-only and verified by magic bytes.
 - **SSRF** — server-side link fetching (`/api/fetch-review-meta`) re-validates

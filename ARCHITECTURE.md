@@ -18,10 +18,10 @@ the source code is the truth, and deeper specifics live elsewhere:
 | Framework | **Next.js 16** App Router, **Turbopack**, TypeScript, React 19 |
 | Styling | **Tailwind CSS v4** (`@theme` in `app/globals.css`; `brand-*` amber scale; "Liquid Glass" design) |
 | Data | **Supabase** — Postgres + Auth (email/pwd + TOTP 2FA) + RLS. Region `us-east-1` |
-| Files | **Vercel Blob** (images + manual PDFs), global CDN |
-| Hosting | **Vercel** — functions `iad1`, Analytics. Captcha: **Cloudflare Turnstile** |
+| Files | **Local disk** `/home/torch/files` via `lib/storage.ts`, nginx-served at `/files/`, Cloudflare-cached (legacy backend: Vercel Blob, no longer referenced) |
+| Hosting | **Self-hosted** (since 2026-08-13) — web-server `152.44.39.235`, systemd `torch-wiki` (`next start :3300`, capped), nginx, **Cloudflare proxied** (origin firewall = CF only). Captcha: **Cloudflare Turnstile** |
 
-Anchor on **US-East** (Supabase `us-east-1` ↔ Vercel `iad1`); global users are served via CDN cache, not by moving the origin.
+Anchor on **US-East** (Supabase `us-east-1` ↔ origin in US); global users are served via Cloudflare edge cache, not by moving the origin.
 
 ## Directory map
 
@@ -53,8 +53,9 @@ public/                  # icons, static assets
 **Reads (pages).** Browser → Next route. Public catalog pages prerender as **SSG**
 (`/[slug]`, `/brand/[slug]`) or server-render their first paint (browse); user pages are
 `force-dynamic`. Server code reads Supabase with the **anon** key (RLS-guarded public data).
-Responses are cached at the **Vercel edge** (`s-maxage`); the browse default order is a
-nightly-reshuffled random (`flashlights.sort_seed`, pg_cron).
+Responses are cached at the **Cloudflare edge + on-box nginx** (see `docs/caching.md` for
+the layer map); the browse default order is a nightly-reshuffled random
+(`flashlights.sort_seed`, pg_cron).
 
 **Writes (mutations).** Client → an **API route** under `app/api/`. Each route: validates
 input (`lib/validate.ts`), checks auth (`lib/verify-admin.ts` for admin routes), then writes
@@ -62,7 +63,7 @@ via the **service-role** client (`lib/supabase-admin.ts`, bypasses RLS). After a
 calls `revalidatePath()` (or `/api/revalidate`) so the affected SSG pages refresh.
 
 ```
-read :  browser → Next (SSG/SSR, anon Supabase) → Vercel edge cache → browser
+read :  browser → Cloudflare edge → nginx → Next (SSG/SSR, anon Supabase) → back up the chain
 write:  client → /api/* (validate → verify-admin → service-role Supabase) → revalidatePath
 ```
 
@@ -78,9 +79,11 @@ write:  client → /api/* (validate → verify-admin → service-role Supabase) 
   PDFs in Blob, and revalidates. Admins auto-approve; regular users wait in the queue.
 - **Admin** — `/admin` → `AdminDashboard` orchestrator + `components/admin/*` panels. All
   `/api/admin/*` routes start with `verify-admin`. (Brand edits + brand submissions mirror this.)
-- **Images & PDFs** — stored on **Vercel Blob**. Client uploads mint a scoped token via
-  `/api/upload*` (auth- or Turnstile-gated, content-type + size + magic-byte checks). Always set
-  `image_url` in the same insert (SSG freezes null otherwise).
+- **Images & PDFs** — stored via **`lib/storage.ts`** (local disk on the box; Blob is the
+  legacy driver). Client uploads go through `/api/upload*` (auth- or Turnstile-gated,
+  content-type + size + magic-byte checks; multipart in local mode, token flow on Blob).
+  Always set `image_url` in the same insert (SSG freezes null otherwise). Stored pathnames
+  are immutable — replacements mint new names (1y caches key on the path).
 - **Caching** — SSG for catalog pages; `s-maxage` edge cache for dynamic JSON (e.g.
   `/api/ga-settings`); on-demand revalidation on approve/edit. Details in `docs/caching.md`.
 - **Governance/tooling** — `lib/validate.ts` (input guards), pre-commit hook (eslint + `tsc`),
@@ -91,5 +94,6 @@ write:  client → /api/* (validate → verify-admin → service-role Supabase) 
 - Amber `#eba00b` is scarce (logo, active filters, primary button, saved items only).
 - `emitters` (text[]) is canonical; numerics in `font-mono` (JetBrains Mono).
 - `tsc --noEmit` + `npm run build` must pass before commit (hook enforces). Deploy = push to
-  `main` (Vercel auto-build; fallback `npx vercel --prod --yes`), then verify on prod.
+  `main`, then `/usr/local/bin/torch-deploy.sh` on the box (blue-green; see CLAUDE.md), then
+  verify on prod.
 - Every push also updates the changelog in `app/log/updates-data.ts` (the `/log` page).
