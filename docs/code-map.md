@@ -6,6 +6,9 @@
 |---|---|
 | `lib/auth-context.tsx` | Auth context — user, nickname, wishlistIds, collectionIds, toggle methods |
 | `lib/supabase-admin.ts` | `getSupabaseAdmin()` — service role client, lazy init (runtime only) |
+| `lib/storage.ts` | File-storage driver, selected by `STORAGE_DRIVER` env: Vercel Blob (default) or local disk (`local`: `FILES_ROOT` + `FILES_PUBLIC_BASE`, self-host). `storagePut/Del/Copy`, `isStoredFileUrl`, pure helpers `sanitizeStoragePathname`/`storageUrlToPathname`/`withRandomSuffix` (unit-tested) |
+| `lib/local-upload.ts` | `handleLocalUpload(request, rules)` — local-mode multipart counterpart of `@vercel/blob/client` `handleUpload`; same `authorize` callback as the token flow, then `storagePut` |
+| `lib/upload-client.ts` | `uploadFile()` — client upload entry: direct-to-Blob token flow, or multipart POST when `NEXT_PUBLIC_STORAGE_DRIVER=local` |
 | `lib/types.ts` | TypeScript types for all DB tables |
 | `components/AuthModal.tsx` | Sign in / Sign up / Forgot / MFA challenge / Recovery code |
 | `components/UserMenu.tsx` | User icon in header — dropdown menu |

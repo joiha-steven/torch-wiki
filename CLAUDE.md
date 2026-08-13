@@ -40,7 +40,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
-- **Vercel Blob** — image storage with global CDN
+- **Vercel Blob** — image storage with global CDN. **Self-host migration in progress (2026-08-13):** `lib/storage.ts` abstracts Blob vs local disk (`STORAGE_DRIVER`); target box is sv4 `94.237.66.25` (`/home/torch`), all Blob files already mirrored to `/home/torch/files`.
 - **Vercel** — hosting, Analytics (`@vercel/analytics`). Function region: `iad1` (US East, set in `vercel.json`). **No Speed Insights** — `@vercel/speed-insights` was removed on purpose (billed; don't re-add).
 - **Supabase Auth** — email/password + TOTP 2FA
 - **Cloudflare Turnstile** — captcha on signup, forgot password, and contribution forms
@@ -61,6 +61,10 @@ REVALIDATE_SECRET=...   # shared secret for /api/revalidate from scripts/curl (a
 CRON_SECRET=...         # required for the daily trash auto-purge cron (/api/cron/purge-trash). Set this in Vercel → Vercel sends it as `Authorization: Bearer <CRON_SECRET>`; without it that route returns 503 (the admin Trash view still purges expired items opportunistically).
 NEXT_PUBLIC_CDN_DOMAIN=...  # optional: Cloudflare CDN proxy for Blob PDF URLs (lib/cdn.ts). Unset → serves the raw Blob URL.
 ADMIN_EMAIL=...             # optional server-side fallback for NEXT_PUBLIC_ADMIN_EMAIL in the bootstrap admin check (lib/verify-admin.ts).
+STORAGE_DRIVER=...          # 'local' → files on disk via lib/storage.ts (self-host, sv4); unset → Vercel Blob (original behavior).
+NEXT_PUBLIC_STORAGE_DRIVER=... # mirror of STORAGE_DRIVER for the client bundle (lib/upload-client.ts); set both together.
+FILES_ROOT=...              # local driver: directory that holds stored files (default /home/torch/files). Outside the app dir on purpose.
+FILES_PUBLIC_BASE=...       # local driver: public URL prefix nginx serves FILES_ROOT at, e.g. https://torch.edc.wiki/files
 ```
 
 **After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
