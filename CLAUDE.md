@@ -40,7 +40,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
-- **Vercel Blob** — image storage with global CDN. **Self-host migration in progress (2026-08-13):** `lib/storage.ts` abstracts Blob vs local disk (`STORAGE_DRIVER`); target box is sv4 `94.237.66.25` (`/home/torch`), all Blob files already mirrored to `/home/torch/files`.
+- **Vercel Blob** — image storage with global CDN. **Self-host migration in progress (2026-08-13):** `lib/storage.ts` abstracts Blob vs local disk (`STORAGE_DRIVER`); target box is web-server `152.44.39.235` (owner's call — US box, capped systemd unit; `/home/torch`), all Blob files already mirrored to `/home/torch/files`.
 - **Vercel** — hosting, Analytics (`@vercel/analytics`). Function region: `iad1` (US East, set in `vercel.json`). **No Speed Insights** — `@vercel/speed-insights` was removed on purpose (billed; don't re-add).
 - **Supabase Auth** — email/password + TOTP 2FA
 - **Cloudflare Turnstile** — captcha on signup, forgot password, and contribution forms
