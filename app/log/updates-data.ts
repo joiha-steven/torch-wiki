@@ -12,7 +12,8 @@ export const UPDATES: UpdateEntry[] = [
     "date": "August 13, 2026",
     "title": "The site has a new home",
     "items": [
-      "Moved the whole site onto our own server infrastructure, behind Cloudflare. Photos and manuals now live on storage we control - same address, same accounts, nothing changes for you, but the project is now independent of its old hosting platform and cheaper to keep running long-term"
+      "Moved the whole site onto our own server infrastructure, behind Cloudflare. Photos and manuals now live on storage we control - same address, same accounts, nothing changes for you, but the project is now independent of its old hosting platform and cheaper to keep running long-term",
+      "Made repeat image loads much faster on the new setup (optimized images are now cached at the server, so they're served in milliseconds instead of being re-processed each time), deployments no longer cause a brief hiccup while the site updates, and replacing a user manual now always shows the newest file right away"
     ]
   },
   {

@@ -123,16 +123,20 @@ cloud REQUIRED — the box firewall only accepts Cloudflare IPs on 80/443). Verc
 serves the site; do NOT `vercel --prod`.
 
 Solo-owner project: commit directly to `main` → push → deploy to the box → `npm run smoke`.
-Deploy steps (run as root via SSH, app runs as user `torch`):
+Deploy = ONE command (blue-green, near-zero downtime — the live slot keeps serving while
+the idle slot builds, then a symlink swap + ~2s restart):
 ```bash
-ssh -i ~/.ssh/id_ed25519_jellykey root@152.44.39.235 \
-  'sudo -u torch bash -c "cd /home/torch/app && git pull -q && npm ci --no-audit --no-fund >/dev/null && rm -rf .next && set -a && source .env.production && set +a && npm run build" && systemctl restart torch-wiki'
+ssh -i ~/.ssh/id_ed25519_jellykey root@152.44.39.235 /usr/local/bin/torch-deploy.sh
 ```
-**Always `rm -rf .next` before the build** — Next's build cache persists fetched DB data
-across builds and will silently ship stale content (bit us at cutover). Rollback: `git
-revert` + redeploy. Env lives ONLY in `/home/torch/app/.env.production` (chmod 600) —
-Vercel env vars are all `Sensitive` and cannot be pulled back; treat that file as the
-single source of truth and back it up before editing.
+The script (`/usr/local/bin/torch-deploy.sh`) owns the gotchas: it always builds from a
+clean `.next` (Next's build cache persists fetched DB data across builds and silently ships
+stale content — bit us at cutover), alternates `/home/torch/slot-a|slot-b` behind the
+`/home/torch/current` symlink (systemd WorkingDirectory), copies env from the canonical
+`/home/torch/app-env/.env.production` (chmod 600), and prewarms key pages. NEVER build in
+the live slot — that's what caused a restart-loop outage window on 2026-08-13. Rollback:
+`git revert` + redeploy (or point `current` back at the previous slot and restart). Vercel
+env vars are all `Sensitive` and cannot be pulled back; `app-env/.env.production` is the
+single source of truth — back it up before editing.
 
 Git remote: `https://TOKEN@github.com/joiha-steven/torch-wiki.git`
 (Replace TOKEN with a fresh GitHub Personal Access Token — never commit the token)

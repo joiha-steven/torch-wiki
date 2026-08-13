@@ -48,7 +48,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'File is not a valid PDF' }, { status: 400 })
   }
 
-  const { url } = await storagePut(`flashlights/${slug}/manual.pdf`, buf, {
+  // Timestamped name: manual URLs are cached immutable for 1y (nginx + Cloudflare),
+  // so replacing a manual must mint a NEW pathname or clients keep the old file.
+  const { url } = await storagePut(`flashlights/${slug}/manual-${Date.now()}.pdf`, buf, {
     contentType: 'application/pdf',
   })
 

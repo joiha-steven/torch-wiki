@@ -21,18 +21,21 @@ function isSubmissionBlob(url: string) {
 }
 
 async function movePdfs(d: Record<string, unknown>, slug: string) {
+  // Timestamped names: manual URLs are cached immutable for 1y (nginx + Cloudflare),
+  // so a re-approved manual must land on a NEW pathname or clients keep the old file.
+  const stamp = Date.now()
   const urls = (d.manual_urls as string[] | null | undefined)
   if (urls?.length) {
     d.manual_urls = await Promise.all(
       urls.map((url, i) => {
         if (!isSubmissionBlob(url)) return url
-        const name = i === 0 ? 'manual.pdf' : `manual-${i}.pdf`
+        const name = i === 0 ? `manual-${stamp}.pdf` : `manual-${stamp}-${i}.pdf`
         return moveBlob(url, `flashlights/${slug}/${name}`).catch(() => url)
       })
     )
     d.manual_url = (d.manual_urls as string[])[0] ?? null
   } else if (d.manual_url && isSubmissionBlob(d.manual_url as string)) {
-    d.manual_url = await moveBlob(d.manual_url as string, `flashlights/${slug}/manual.pdf`).catch(() => d.manual_url)
+    d.manual_url = await moveBlob(d.manual_url as string, `flashlights/${slug}/manual-${stamp}.pdf`).catch(() => d.manual_url)
     d.manual_urls = [d.manual_url]
   }
 }
