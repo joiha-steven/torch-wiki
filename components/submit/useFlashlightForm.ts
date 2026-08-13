@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { upload } from '@vercel/blob/client'
+import { uploadFile } from '@/lib/upload-client'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { supabase } from '@/lib/supabase'
 import { Flashlight, BatteryOption, MaterialEntry } from '@/lib/types'
@@ -100,8 +100,7 @@ export function useFlashlightForm({ mode, initial, targetId, onSuccess }: Args) 
     setPdfUploading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const blob = await upload(`submissions/manuals/${crypto.randomUUID()}.pdf`, file, {
-        access: 'public',
+      const blob = await uploadFile(`submissions/manuals/${crypto.randomUUID()}.pdf`, file, {
         handleUploadUrl: '/api/upload-pdf',
         clientPayload: session?.access_token ?? '',
       })

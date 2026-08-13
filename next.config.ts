@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
       { protocol: 'https', hostname: 'cdn.shopify.com' },
+      // Self-host: mirrored files served by nginx at /files/ on the site domain.
+      { protocol: 'https', hostname: 'torch.edc.wiki' },
     ],
   },
   // /updates was renamed to /log (now leads with features + stack + version).

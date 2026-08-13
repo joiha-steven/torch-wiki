@@ -1,4 +1,4 @@
-import { del } from '@vercel/blob'
+import { isStoredFileUrl, storageDel } from '@/lib/storage'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 // Trashed flashlights are kept (unpublished) for this many days, then permanently
@@ -26,8 +26,8 @@ export async function purgeFlashlight(id: string): Promise<void> {
   for (const m of (fl.manual_urls ?? []) as string[]) if (m) urls.push(m)
   for (const img of (fl.flashlight_images ?? []) as { url: string }[]) if (img?.url) urls.push(img.url)
 
-  const blobUrls = urls.filter(u => u.includes('.public.blob.vercel-storage.com'))
-  await Promise.all(blobUrls.map(u => del(u).catch(() => {})))
+  const storedUrls = urls.filter(isStoredFileUrl)
+  await Promise.all(storedUrls.map(u => storageDel(u).catch(() => {})))
 
   await admin.from('flashlight_images').delete().eq('flashlight_id', id)
   await admin.from('flashlights').delete().eq('id', id)
@@ -67,7 +67,7 @@ export async function purgeBrand(name: string): Promise<void> {
   for (const l of (lights ?? []) as { id: string }[]) await purgeFlashlight(l.id)
 
   const logo = brand?.logo_url as string | null | undefined
-  if (logo && logo.includes('.public.blob.vercel-storage.com')) await del(logo).catch(() => {})
+  if (logo && isStoredFileUrl(logo)) await storageDel(logo).catch(() => {})
 
   await admin.from('brands').delete().eq('name', name)
 }

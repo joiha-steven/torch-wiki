@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { upload } from '@vercel/blob/client'
+import { uploadFile } from '@/lib/upload-client'
 import { Bold, Italic, Heading2, List, Link2, ImagePlus, Video, Loader2 } from 'lucide-react'
 import MarkdownContent from '@/components/MarkdownContent'
 import { supabase } from '@/lib/supabase'
@@ -94,8 +94,7 @@ export default function MarkdownEditor({ value, onChange, label = 'Description',
     try {
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
       const { data: { session } } = await supabase.auth.getSession()
-      const blob = await upload(`${uploadPrefix}/${crypto.randomUUID()}.${ext}`, file, {
-        access: 'public',
+      const blob = await uploadFile(`${uploadPrefix}/${crypto.randomUUID()}.${ext}`, file, {
         handleUploadUrl: '/api/upload',
         clientPayload: JSON.stringify({ session: session?.access_token ?? '' }),
       })

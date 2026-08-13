@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { copy, del } from '@vercel/blob'
+import { isStoredFileUrl, storageCopy, storageDel } from '@/lib/storage'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { getAdminUser } from '@/lib/verify-admin'
 
@@ -9,10 +9,10 @@ const ALLOWED_ACTIONS = new Set(['approved', 'rejected'])
 const slugify = (brand: string, model: string) =>
   `${brand}-${model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
-// Server-side copy within Vercel Blob - no data transfer through function
+// Server-side copy within storage - no data transfer through function
 async function moveBlob(oldUrl: string, newPath: string): Promise<string> {
-  const { url } = await copy(oldUrl, newPath, { access: 'public', addRandomSuffix: false })
-  await del(oldUrl).catch(() => {}) // best-effort delete
+  const { url } = await storageCopy(oldUrl, newPath)
+  await storageDel(oldUrl).catch(() => {}) // best-effort delete
   return url
 }
 
@@ -177,15 +177,15 @@ export async function PATCH(request: Request) {
         delete d._removeExtraDbIds
         delete d._reviews
 
-        // Delete removed extra images from DB + Vercel Blob
+        // Delete removed extra images from DB + storage
         if (removeExtraDbIds.length) {
           const { data: toDelete } = await admin
             .from('flashlight_images').select('url').in('id', removeExtraDbIds)
           await admin.from('flashlight_images').delete().in('id', removeExtraDbIds)
           await Promise.allSettled(
             (toDelete ?? [])
-              .filter(img => (img.url as string)?.includes('vercel-storage.com'))
-              .map(img => del(img.url as string))
+              .filter(img => isStoredFileUrl(img.url as string))
+              .map(img => storageDel(img.url as string))
           )
         }
 

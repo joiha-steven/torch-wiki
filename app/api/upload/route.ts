@@ -1,6 +1,8 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { isLocalStorage } from '@/lib/storage'
+import { handleLocalUpload } from '@/lib/local-upload'
 
 async function verifyTurnstile(token: string): Promise<boolean> {
   if (!token) return false
@@ -19,34 +21,41 @@ async function verifyTurnstile(token: string): Promise<boolean> {
   }
 }
 
+// Don't accept uploads from anyone. The client must prove it's either a
+// logged-in user (Supabase session) OR a human that passed Turnstile (the
+// anonymous bug-report path). clientPayload is a JSON string:
+// { session?: <access_token> } or { turnstile?: <token> }.
+async function authorize(clientPayload: string): Promise<void> {
+  let creds: { session?: string; turnstile?: string } = {}
+  try { creds = clientPayload ? JSON.parse(clientPayload) : {} } catch { /* invalid → unauthorized */ }
+
+  let ok = false
+  if (creds.session) {
+    const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(creds.session)
+    ok = !error && !!user
+  }
+  if (!ok && creds.turnstile) {
+    ok = await verifyTurnstile(creds.turnstile)
+  }
+  if (!ok) throw new Error('Unauthorized')
+}
+
+const RULES = {
+  allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  maximumSizeInBytes: 10 * 1024 * 1024,
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
+  if (isLocalStorage()) return handleLocalUpload(request, { authorize, ...RULES })
+
   const body = (await request.json()) as HandleUploadBody
   try {
     const jsonResponse = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (_pathname, clientPayload) => {
-        // Don't mint blob upload tokens for anyone. The client must prove it's
-        // either a logged-in user (Supabase session) OR a human that passed
-        // Turnstile (the anonymous bug-report path). clientPayload is a JSON
-        // string: { session?: <access_token> } or { turnstile?: <token> }.
-        let creds: { session?: string; turnstile?: string } = {}
-        try { creds = clientPayload ? JSON.parse(clientPayload) : {} } catch { /* invalid → unauthorized */ }
-
-        let ok = false
-        if (creds.session) {
-          const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(creds.session)
-          ok = !error && !!user
-        }
-        if (!ok && creds.turnstile) {
-          ok = await verifyTurnstile(creds.turnstile)
-        }
-        if (!ok) throw new Error('Unauthorized')
-
-        return {
-          allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-          maximumSizeInBytes: 10 * 1024 * 1024,
-        }
+        await authorize(clientPayload ?? '')
+        return RULES
       },
       onUploadCompleted: async () => {},
     })

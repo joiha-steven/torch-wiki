@@ -1,5 +1,5 @@
-import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
+import { storagePut } from '@/lib/storage'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
 
@@ -48,11 +48,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'File is not a valid PDF' }, { status: 400 })
   }
 
-  // Upload to Vercel Blob
-  const { url } = await put(`flashlights/${slug}/manual.pdf`, buf, {
-    access: 'public',
+  const { url } = await storagePut(`flashlights/${slug}/manual.pdf`, buf, {
     contentType: 'application/pdf',
-    addRandomSuffix: false,
   })
 
   // Update DB

@@ -1,5 +1,5 @@
 import React from 'react'
-import { upload } from '@vercel/blob/client'
+import { uploadFile } from '@/lib/upload-client'
 import { supabase } from '@/lib/supabase'
 
 export { CATEGORIES, BATTERY_TYPES } from '@/lib/constants'
@@ -14,7 +14,7 @@ export async function uploadSubmissionImage(path: string, file: File, tries = 3)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const clientPayload = JSON.stringify({ session: session?.access_token ?? '' })
-      return await upload(path, file, { access: 'public', handleUploadUrl: '/api/upload', clientPayload })
+      return await uploadFile(path, file, { handleUploadUrl: '/api/upload', clientPayload })
     } catch (e) {
       lastErr = e
       if (attempt < tries - 1) await new Promise(r => setTimeout(r, 500 * (attempt + 1)))

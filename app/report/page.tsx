@@ -6,7 +6,7 @@ import { useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Upload, X, Loader2, Check } from 'lucide-react'
-import { upload } from '@vercel/blob/client'
+import { uploadFile } from '@/lib/upload-client'
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile'
 import Header from '@/components/Header'
 import { useAuth } from '@/lib/auth-context'
@@ -91,8 +91,7 @@ export default function ReportPage() {
           uploadPayload = JSON.stringify({ turnstile: captchaToken ?? '' })
         }
         const ext = file.name.split('.').pop()
-        const blob = await upload(`reports/${crypto.randomUUID()}.${ext}`, file, {
-          access: 'public',
+        const blob = await uploadFile(`reports/${crypto.randomUUID()}.${ext}`, file, {
           handleUploadUrl: '/api/upload',
           clientPayload: uploadPayload,
         })

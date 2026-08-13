@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { del } from '@vercel/blob'
+import { isStoredFileUrl, storageDel } from '@/lib/storage'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { getAdminUser } from '@/lib/verify-admin'
 import { readJson, bad, isStr, isStringArray, isOptStr, MAX } from '@/lib/validate'
@@ -61,7 +61,7 @@ export async function PATCH(request: Request) {
     )
   }
 
-  // Remove extra images - delete from DB and Vercel Blob
+  // Remove extra images - delete from DB and storage
   if (removeImageIds?.length) {
     const { data: toDelete } = await admin
       .from('flashlight_images')
@@ -73,8 +73,8 @@ export async function PATCH(request: Request) {
     if (toDelete?.length) {
       await Promise.allSettled(
         toDelete
-          .filter(img => (img.url as string)?.includes('vercel-storage.com'))
-          .map(img => del(img.url as string))
+          .filter(img => isStoredFileUrl(img.url as string))
+          .map(img => storageDel(img.url as string))
       )
     }
   }

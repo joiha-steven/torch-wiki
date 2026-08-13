@@ -165,7 +165,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GoogleAnalytics />
         <CookieConsent />
         <ServiceWorkerRegister />
-        <Analytics />
+        {/* Vercel Analytics only works on Vercel hosting; self-host uses GA above */}
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   )
