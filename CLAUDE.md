@@ -40,8 +40,8 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 - **Next.js 16.2.6** — App Router, Turbopack, TypeScript
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia** — same region as Vercel iad1). Anon key for reads, service role key for writes in scripts.
-- **Vercel Blob** — image storage with global CDN. **Self-host migration in progress (2026-08-13):** `lib/storage.ts` abstracts Blob vs local disk (`STORAGE_DRIVER`); target box is web-server `152.44.39.235` (owner's call — US box, capped systemd unit; `/home/torch`), all Blob files already mirrored to `/home/torch/files`.
-- **Vercel** — hosting, Analytics (`@vercel/analytics`). Function region: `iad1` (US East, set in `vercel.json`). **No Speed Insights** — `@vercel/speed-insights` was removed on purpose (billed; don't re-add).
+- **File storage: local disk** (`/home/torch/files`, served by nginx at `/files/`, 1y immutable) via `lib/storage.ts` (`STORAGE_DRIVER=local`). Vercel Blob is the legacy backend (driver default when unset); the old store is no longer referenced by the DB (URLs rewritten 2026-08-13, reverse mapping in workspace `02_Audit/`).
+- **Hosting: self-hosted** (2026-08-13) — web-server `152.44.39.235`, systemd `torch-wiki.service` (`next start -p 3300`, capped `MemoryMax=1200M CPUQuota=200%`), nginx vhost, **Cloudflare proxied** (origin firewall = CF IPs only; origin TLS self-signed, CF SSL mode Full). Crons in `/etc/cron.d/torch-wiki` (vercel.json crons are legacy). Analytics: GA only — `@vercel/analytics` renders only on Vercel, i.e. never in this deployment.
 - **Supabase Auth** — email/password + TOTP 2FA
 - **Cloudflare Turnstile** — captcha on signup, forgot password, and contribution forms
 
@@ -67,7 +67,7 @@ FILES_ROOT=...              # local driver: directory that holds stored files (d
 FILES_PUBLIC_BASE=...       # local driver: public URL prefix nginx serves FILES_ROOT at, e.g. https://torch.edc.wiki/files
 ```
 
-**After `vercel env pull`:** re-add Supabase keys manually — Vercel pull only restores Blob + OIDC tokens.
+**Vercel env is unrecoverable** (all vars marked Sensitive — pull returns `[SENSITIVE]`, dashboard can't display them). Real values live in `/home/torch/app/.env.production` on the box; service-role key is re-fetchable via `npx supabase projects api-keys --project-ref uomhdtzlexevzkffnnfp` after `supabase login`; Turnstile keys from the Cloudflare dashboard.
 
 ## Rules (MUST follow for every change)
 
@@ -118,9 +118,21 @@ API routes validate input via the shared helpers in `lib/validate.ts` (`readJson
 
 ## Deployment Workflow
 
-Solo-owner project: default is **commit directly to `main` → push → Vercel auto-deploys → `npm run smoke`**. No PR/branch-protection ceremony (no second reviewer; would only add friction). Optional `feat/*` branches give a preview URL for risky/large changes, merged back with `git merge --ff-only`. Full process + **rollback procedures** (Vercel `npx vercel rollback`, `git revert`, DB rollback SQL) are in the workspace doc `06_Wiki/deployment-workflow.md`; the (disabled) branch-protection checklist is in `06_Wiki/branch-protection.md`.
+**Self-hosted since 2026-08-13** on web-server `152.44.39.235` behind Cloudflare (orange
+cloud REQUIRED — the box firewall only accepts Cloudflare IPs on 80/443). Vercel no longer
+serves the site; do NOT `vercel --prod`.
 
-Push to `main` → Vercel auto-deploys to `https://torch.edc.wiki`.
+Solo-owner project: commit directly to `main` → push → deploy to the box → `npm run smoke`.
+Deploy steps (run as root via SSH, app runs as user `torch`):
+```bash
+ssh -i ~/.ssh/id_ed25519_jellykey root@152.44.39.235 \
+  'sudo -u torch bash -c "cd /home/torch/app && git pull -q && npm ci --no-audit --no-fund >/dev/null && rm -rf .next && set -a && source .env.production && set +a && npm run build" && systemctl restart torch-wiki'
+```
+**Always `rm -rf .next` before the build** — Next's build cache persists fetched DB data
+across builds and will silently ship stale content (bit us at cutover). Rollback: `git
+revert` + redeploy. Env lives ONLY in `/home/torch/app/.env.production` (chmod 600) —
+Vercel env vars are all `Sensitive` and cannot be pulled back; treat that file as the
+single source of truth and back it up before editing.
 
 Git remote: `https://TOKEN@github.com/joiha-steven/torch-wiki.git`
 (Replace TOKEN with a fresh GitHub Personal Access Token — never commit the token)

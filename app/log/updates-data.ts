@@ -10,9 +10,9 @@ export type UpdateEntry = {
 export const UPDATES: UpdateEntry[] = [
   {
     "date": "August 13, 2026",
-    "title": "Preparing a new home for the site",
+    "title": "The site has a new home",
     "items": [
-      "Behind the scenes: started moving the site onto our own server infrastructure. Photos and manuals now live on storage we control, and the site can run outside its old hosting platform - nothing changes for you, but it keeps the project sustainable long-term"
+      "Moved the whole site onto our own server infrastructure, behind Cloudflare. Photos and manuals now live on storage we control - same address, same accounts, nothing changes for you, but the project is now independent of its old hosting platform and cheaper to keep running long-term"
     ]
   },
   {
