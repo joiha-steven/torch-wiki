@@ -19,7 +19,7 @@ the source code is the truth, and deeper specifics live elsewhere:
 | Styling | **Tailwind CSS v4** (`@theme` in `app/globals.css`; `brand-*` amber scale; "Liquid Glass" design) |
 | Data | **Supabase** — Postgres + Auth (email/pwd + TOTP 2FA) + RLS. Region `us-east-1` |
 | Files | **Local disk** `/home/torch/files` via `lib/storage.ts`, nginx-served at `/files/`, Cloudflare-cached (legacy backend: Vercel Blob, no longer referenced) |
-| Hosting | **Self-hosted** (since 2026-08-13) — web-server `152.44.39.235`, systemd `torch-wiki` (`next start :3300`, capped), nginx, **Cloudflare proxied** (origin firewall = CF only). Captcha: **Cloudflare Turnstile** |
+| Hosting | **Self-hosted** (since 2026-08-13) — **`sv3-usa` `209.50.62.147`** (UpCloud us-sjo1) since 2026-08-19; was `sv1-usa` before that. systemd `torch-wiki` (`next start :3300`, capped), nginx, **Cloudflare proxied** (origin firewall = CF only). Captcha: **Cloudflare Turnstile** |
 
 Anchor on **US-East** (Supabase `us-east-1` ↔ origin in US); global users are served via Cloudflare edge cache, not by moving the origin.
 

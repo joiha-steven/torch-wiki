@@ -1,8 +1,8 @@
 # Caching strategy
 
 **Self-hosted since 2026-08-13.** The chain is: browser → **Cloudflare edge** (orange
-cloud, mandatory — origin firewall accepts only CF ranges) → **nginx** on web-server
-`152.44.39.235` → **Next.js** (`next start`, systemd `torch-wiki`) → Supabase (us-east-1).
+cloud, mandatory — origin firewall accepts only CF ranges) → **nginx** on `sv3-usa`
+`209.50.62.147` → **Next.js** (`next start`, systemd `torch-wiki`) → Supabase (us-east-1).
 There is no Vercel edge anymore; anything the old docs said about "Vercel edge" now maps to
 the CF + nginx layers below.
 

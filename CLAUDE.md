@@ -41,7 +41,7 @@ A change is **not finished** until all of these hold. Run the gate, don't eyebal
 - **Tailwind CSS v4** — custom `brand-*` color scale (`#eba00b`) defined in `app/globals.css` via `@theme`
 - **Supabase** — PostgreSQL database (region: **us-east-1, North Virginia**; ~200 ms from the origin box — ISR absorbs it for reads). Anon key for reads, service role key for writes in scripts.
 - **File storage: local disk** (`/home/torch/files`, served by nginx at `/files/`, 1y immutable) via `lib/storage.ts` (`STORAGE_DRIVER=local`). Vercel Blob is the legacy backend (driver default when unset); the old store is no longer referenced by the DB (URLs rewritten 2026-08-13, reverse mapping in workspace `02_Audit/`).
-- **Hosting: self-hosted** (2026-08-13) — web-server `152.44.39.235`, systemd `torch-wiki.service` (`next start -p 3300`, capped `MemoryMax=1200M CPUQuota=200%`), nginx vhost, **Cloudflare proxied** (origin firewall = CF IPs only; origin TLS self-signed, CF SSL mode Full). Crons in `/etc/cron.d/torch-wiki` (vercel.json crons are legacy). Analytics: GA only — `@vercel/analytics` renders only on Vercel, i.e. never in this deployment.
+- **Hosting: self-hosted** (2026-08-13) — **`sv3-usa` `209.50.62.147`** (UpCloud us-sjo1, 2 vCPU / 4 GB) **từ 2026-08-19**; trước đó ở `sv1-usa` (máy bán hàng), chuyển đi để tách khỏi chỗ kiếm tiền. systemd `torch-wiki.service` (`next start -p 3300`, capped `MemoryMax=1200M CPUQuota=200%`), nginx vhost, **Cloudflare proxied** (origin firewall = CF IPs only; origin TLS self-signed, CF SSL mode Full). Crons in `/etc/cron.d/torch-wiki` (vercel.json crons are legacy). Analytics: GA only — `@vercel/analytics` renders only on Vercel, i.e. never in this deployment.
 - **Supabase Auth** — email/password + TOTP 2FA
 - **Cloudflare Turnstile** — captcha on signup, forgot password, and contribution forms
 
@@ -118,7 +118,7 @@ API routes validate input via the shared helpers in `lib/validate.ts` (`readJson
 
 ## Deployment Workflow
 
-**Self-hosted since 2026-08-13** on web-server `152.44.39.235` behind Cloudflare (orange
+**Self-hosted since 2026-08-13**, on **`sv3-usa` `209.50.62.147` since 2026-08-19**, behind Cloudflare (orange
 cloud REQUIRED — the box firewall only accepts Cloudflare IPs on 80/443). Vercel no longer
 serves the site; do NOT `vercel --prod`.
 
@@ -126,7 +126,7 @@ Solo-owner project: commit directly to `main` → push → deploy to the box →
 Deploy = ONE command (blue-green, near-zero downtime — the live slot keeps serving while
 the idle slot builds, then a symlink swap + ~2s restart):
 ```bash
-ssh -i ~/.ssh/id_ed25519_jellykey root@152.44.39.235 /usr/local/bin/torch-deploy.sh
+ssh -i ~/.ssh/id_ed25519_jellykey root@209.50.62.147 /usr/local/bin/torch-deploy.sh
 ```
 The script (`/usr/local/bin/torch-deploy.sh`) owns the gotchas: it always builds from a
 clean `.next` (Next's build cache persists fetched DB data across builds and silently ships
@@ -137,6 +137,22 @@ the live slot — that's what caused a restart-loop outage window on 2026-08-13.
 `git revert` + redeploy (or point `current` back at the previous slot and restart). Vercel
 env vars are all `Sensitive` and cannot be pulled back; `app-env/.env.production` is the
 single source of truth — back it up before editing.
+
+**Gotcha đã cắn một lần — `/etc/hosts` và ảnh.** Nếu ai đó thêm `127.0.0.1 torch.edc.wiki` vào
+`/etc/hosts` của máy chủ mà **không** cho Node tin chứng chỉ tự ký của origin trước, thì **mọi
+`/_next/image` trả HTTP 400** — Next tự đi lấy ảnh gốc qua `https://torch.edc.wiki/...`, về chính
+máy, gặp cert tự ký và bỏ. Trang vẫn 200 nên nhìn qua không thấy; xảy ra thật ngày 2026-08-19 trên
+sv1-usa. Thứ tự đúng, đang áp dụng trên sv3-usa:
+
+```
+/etc/systemd/system/torch-wiki.service.d/ca.conf
+  [Service]
+  Environment=NODE_EXTRA_CA_CERTS=/etc/nginx/ssl-torch/self.crt
+```
+
+rồi mới thêm dòng hosts. Khi đó ảnh xử lý nội bộ ~43 ms thay vì vòng ra Cloudflare. Kiểm bằng cách
+lấy một URL `_next/image` thật từ HTML rồi curl nó — **đừng tin mã 200 của trang chủ**, và nhớ xoá
+`/var/cache/nginx/torch/*` trước khi đo vì nginx giữ ảnh cũ 30 ngày.
 
 Git remote: `https://TOKEN@github.com/joiha-steven/torch-wiki.git`
 (Replace TOKEN with a fresh GitHub Personal Access Token — never commit the token)
