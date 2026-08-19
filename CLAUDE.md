@@ -138,21 +138,28 @@ the live slot — that's what caused a restart-loop outage window on 2026-08-13.
 env vars are all `Sensitive` and cannot be pulled back; `app-env/.env.production` is the
 single source of truth — back it up before editing.
 
-**Gotcha đã cắn một lần — `/etc/hosts` và ảnh.** Nếu ai đó thêm `127.0.0.1 torch.edc.wiki` vào
-`/etc/hosts` của máy chủ mà **không** cho Node tin chứng chỉ tự ký của origin trước, thì **mọi
-`/_next/image` trả HTTP 400** — Next tự đi lấy ảnh gốc qua `https://torch.edc.wiki/...`, về chính
-máy, gặp cert tự ký và bỏ. Trang vẫn 200 nên nhìn qua không thấy; xảy ra thật ngày 2026-08-19 trên
-sv1-usa. Thứ tự đúng, đang áp dụng trên sv3-usa:
+**🚫 KHÔNG BAO GIỜ trỏ `torch.edc.wiki` về `127.0.0.1` trong `/etc/hosts` của máy chủ.**
+Bộ tối ưu ảnh của Next có chốt chặn SSRF: nó **từ chối mọi upstream có tên miền phân giải ra IP
+nội bộ**. Thêm dòng hosts đó là **toàn bộ `/_next/image` trả HTTP 400** (`"url" parameter is not
+allowed`; log dịch vụ ghi `resolved to private ip ["127.0.0.1"]`). Chứng chỉ **không liên quan** —
+`NODE_EXTRA_CA_CERTS` không cứu được, đây là chốt chặn theo địa chỉ IP.
 
-```
-/etc/systemd/system/torch-wiki.service.d/ca.conf
-  [Service]
-  Environment=NODE_EXTRA_CA_CERTS=/etc/nginx/ssl-torch/self.crt
-```
+Cấu hình đúng là **không có dòng hosts nào cho tên miền này**: Next đi ra DNS công cộng, qua
+Cloudflare rồi vòng về chính origin. Chậm hơn vài chục ms nhưng đó là cách duy nhất chạy được.
 
-rồi mới thêm dòng hosts. Khi đó ảnh xử lý nội bộ ~43 ms thay vì vòng ra Cloudflare. Kiểm bằng cách
-lấy một URL `_next/image` thật từ HTML rồi curl nó — **đừng tin mã 200 của trang chủ**, và nhớ xoá
-`/var/cache/nginx/torch/*` trước khi đo vì nginx giữ ảnh cũ 30 ngày.
+Đã hỏng thật hai lần trong ngày 2026-08-19, trên cả hai máy, vì cùng một dòng hosts.
+
+**Và đây là cách kiểm SAI đã để lọt lần thứ hai:** nginx có `proxy_cache torch_img` giữ ảnh đã tối
+ưu **30 ngày**. Kiểm bằng một URL đã từng gọi thành công thì nó trả 200 từ cache trong khi mọi ảnh
+khác đang 400. Muốn kiểm thật:
+
+```bash
+# lấy URL ảnh TƯƠI từ chính HTML, thử nhiều cái, đếm mã trả về
+curl -s https://torch.edc.wiki/ | grep -o '/_next/image?url=[^"]*' | sed 's/&amp;/\&/g' \
+  | sort -u | head -20 | while read -r u; do
+      curl -s -o /dev/null -w "%{http_code} $u\n" "https://torch.edc.wiki$u"
+    done
+```
 
 Git remote: `https://TOKEN@github.com/joiha-steven/torch-wiki.git`
 (Replace TOKEN with a fresh GitHub Personal Access Token — never commit the token)
