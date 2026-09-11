@@ -12,7 +12,8 @@ export const UPDATES: UpdateEntry[] = [
     "date": "September 12, 2026",
     "title": "A lighter load from AI crawlers",
     "items": [
-      "Behind the scenes: the AI assistants that read this site to answer people's questions were also downloading every optimised photo - 2,515 image fetches in a fortnight, more than any other request hitting the server. They now take just the text they can actually quote, which leaves more room for readers. Google still gets the photos, so image search is unaffected"
+      "Behind the scenes: the AI assistants that read this site to answer people's questions were also downloading every optimised photo - 2,515 image fetches in a fortnight, more than any other request hitting the server. They now take just the text they can actually quote, which leaves more room for readers. Google still gets the photos, so image search is unaffected",
+      "Also fixed the robots file itself: a blanket allow rule sat above the list of private areas, so any crawler reading it top-down (rather than the way Google reads it) treated /admin and the account pages as fair game. Those lines now hold for every crawler"
     ]
   },
   {

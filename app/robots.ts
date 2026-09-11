@@ -27,11 +27,17 @@ const AI_BOTS = [
   'cohere-ai',
 ]
 
+// No blanket `allow: '/'` on these rules. Next emits Allow before Disallow, and a
+// crawler that takes the first matching line (rather than the longest, as Google
+// does) then treats `Allow: /` as permission for everything and ignores every
+// Disallow below it. Verified 2026-09-12 against the live file: /admin, /api/ and
+// /my all read as permitted. Omitting Allow costs nothing since robots.txt permits
+// by default, and makes the Disallow list hold for simple parsers too.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: DISALLOW },
-      ...AI_BOTS.map(userAgent => ({ userAgent, allow: '/', disallow: AI_DISALLOW })),
+      { userAgent: '*', disallow: DISALLOW },
+      ...AI_BOTS.map(userAgent => ({ userAgent, disallow: AI_DISALLOW })),
     ],
     sitemap: `${BASE}/sitemap.xml`,
     host: BASE,
