@@ -78,9 +78,11 @@ async function fetchOEmbed(targetUrl: string, host: string): Promise<{ title: st
 
 function decodeEntities(s: string): string {
   return s
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#x27;/g, "'")
     .replace(/&nbsp;/g, ' ')
+    // Last, so `&amp;lt;` comes out as the text `&lt;` and not as `<`.
+    .replace(/&amp;/g, '&')
 }
 
 export async function POST(request: Request) {

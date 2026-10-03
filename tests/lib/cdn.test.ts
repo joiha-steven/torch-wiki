@@ -34,4 +34,9 @@ describe('cdnUrl', () => {
     const other = 'https://example.com/foo.pdf'
     expect(cdnUrl(other)).toBe(other)
   })
+  it('leaves a URL that only mentions the Blob host untouched', async () => {
+    const cdnUrl = await loadCdn('cdn-torch.edc.wiki')
+    const sneaky = `https://example.com/?u=${BLOB}`
+    expect(cdnUrl(sneaky)).toBe(sneaky)
+  })
 })

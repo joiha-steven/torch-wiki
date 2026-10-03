@@ -57,7 +57,13 @@ export function storageUrlToPathname(url: string, base: string): string | null {
 /** True for URLs we manage (local file host or Vercel Blob) — safe to delete on purge. */
 export function isStoredFileUrl(url: string): boolean {
   if (!url) return false
-  if (url.includes('.public.blob.vercel-storage.com')) return true
+  // By host, not by substring: `https://elsewhere/?x=.public.blob.vercel-storage.com` is not ours.
+  try {
+    const u = new URL(url)
+    if (u.protocol === 'https:' && u.hostname.endsWith('.public.blob.vercel-storage.com')) return true
+  } catch {
+    return false
+  }
   const base = publicBase()
   return !!base && url.startsWith(base + '/')
 }

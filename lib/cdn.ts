@@ -14,6 +14,6 @@ const CDN_DOMAIN = process.env.NEXT_PUBLIC_CDN_DOMAIN ?? ''
 export function cdnUrl(url: string | null | undefined): string | null {
   if (!url) return null
   if (!CDN_DOMAIN) return url
-  if (!url.includes(BLOB_HOST)) return url
+  if (!url.startsWith(`https://${BLOB_HOST}/`)) return url
   return url.replace(`https://${BLOB_HOST}`, `https://${CDN_DOMAIN}`)
 }

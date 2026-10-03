@@ -32,7 +32,12 @@ function getExt(url) {
 }
 
 function isAlreadyBlob(url) {
-  return url && (url.includes('vercel-storage.com') || url.includes('blob.vercel'))
+  if (!url) return false
+  try {
+    return new URL(url).hostname.endsWith('.vercel-storage.com')
+  } catch {
+    return false
+  }
 }
 
 async function download(url) {

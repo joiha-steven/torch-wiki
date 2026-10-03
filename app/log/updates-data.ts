@@ -9,6 +9,13 @@ export type UpdateEntry = {
 
 export const UPDATES: UpdateEntry[] = [
   {
+    "date": "October 3, 2026",
+    "title": "Tighter address checks",
+    "items": [
+      "Behind the scenes: the site now decides whether a photo or manual link is one of its own by the link's actual web address, not by spotting a familiar name anywhere inside it - so a link that merely mentions our storage can't be mistaken for one of ours. Video titles fetched for reviews also decode special characters in the right order. Nothing changes on the pages you see"
+    ]
+  },
+  {
     "date": "September 12, 2026",
     "title": "A lighter load from AI crawlers",
     "items": [

@@ -63,4 +63,9 @@ describe('isStoredFileUrl', () => {
     expect(isStoredFileUrl('')).toBe(false)
     expect(isStoredFileUrl('https://cdn.shopify.com/x.png')).toBe(false)
   })
+  it('matches the blob host, not the text anywhere in the URL', () => {
+    expect(isStoredFileUrl('https://evil.example/?x=.public.blob.vercel-storage.com')).toBe(false)
+    expect(isStoredFileUrl('https://a.public.blob.vercel-storage.com.evil.example/x.webp')).toBe(false)
+    expect(isStoredFileUrl('http://73q.public.blob.vercel-storage.com/a.webp')).toBe(false)
+  })
 })
